@@ -8,6 +8,7 @@ package org.stereofyte {
   import flash.events.*;
   import com.chrislovejoy.WebAppController;
   import org.stereofyte.mixblendr.*;
+  import org.stereofyte.mixer.*;
   
   public class StereofyteAppController extends WebAppController {
     
@@ -17,11 +18,17 @@ package org.stereofyte {
     
     public function StereofyteAppController(root:DisplayObject):void {
       super(root)
-      _root.stage.frameRate = 30
+      _root.stage.frameRate = 60
       _root.stage.align = StageAlign.TOP_LEFT
       _root.stage.scaleMode = StageScaleMode.NO_SCALE
-      this.mbinterface = new MixBlendrInterface("mbinterface");
-      this.drawBackground();
+      mbinterface = new MixBlendrInterface("mbinterface");
+      demo();
+    }
+
+    private function demo():void {
+      drawBackground();
+      var cell = new Cell();
+      _root.stage.addChild(cell);
     }
 
     private function drawBackground():void {
@@ -35,7 +42,7 @@ package org.stereofyte {
       debug.addEventListener(
         MouseEvent.CLICK,
         function(event:MouseEvent) {
-          controller.mbinterface.call("seek", event.localX);
+          //controller.mbinterface.call("seek", event.localX);
         }
       );
     }
