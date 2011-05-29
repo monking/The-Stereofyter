@@ -14,6 +14,10 @@ package com.chrislovejoy.gui {
      * also only snaps to regular grid, not objects or edges
      */
 
+    public static const
+      DRAG_START = "drag_start",
+      DRAG_STOP = "drag_stop";
+
     public var snapRadius:Number,
                snapOnMouseUp:Boolean,
                snapToIntersectionsOnly:Boolean,
@@ -48,6 +52,7 @@ package com.chrislovejoy.gui {
       if (dragging) return;
       dragging = true;
       grabOrigin = new Point(mouseX, mouseY);
+      dispatchEvent(new Event(DragAndDrop.DRAG_START));
       root.stage.addEventListener( MouseEvent.MOUSE_MOVE, drag );
 
       addEventListener( MouseEvent.MOUSE_UP, stopMyDrag );
@@ -58,6 +63,7 @@ package com.chrislovejoy.gui {
     protected function stopMyDrag(event:MouseEvent = null):void {
       if (!dragging) return;
       snapOnMouseUp && snap(true);
+      dispatchEvent(new Event(DragAndDrop.DRAG_STOP));
 
       root.stage.removeEventListener( MouseEvent.MOUSE_MOVE, drag );
 
