@@ -18,10 +18,10 @@ package org.stereofyte {
       mixer:Mixer;
     
     public function StereofyteAppController(root:DisplayObject):void {
-      super(root)
-      _root.stage.frameRate = 60
-      _root.stage.align = StageAlign.TOP_LEFT
-      _root.stage.scaleMode = StageScaleMode.NO_SCALE
+      super(root);
+      _root.stage.frameRate = 60;
+      _root.stage.align = StageAlign.TOP_LEFT;
+      _root.stage.scaleMode = StageScaleMode.EXACT_FIT;
       demo();
     }
 

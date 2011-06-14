@@ -3,6 +3,7 @@ package org.stereofyte.mixer {
   //import flash.display.Graphics;
   import flash.display.Sprite;
   import flash.events.Event;
+  import flash.geom.Point;
 
   public class Track extends Sprite {
     
@@ -16,19 +17,21 @@ package org.stereofyte.mixer {
 			muted:Boolean,
 			cells:Array = [];
 
-    public function Track():void {
+    public function Track(width:Number, height:Number):void {
       /*
 			 * Track contains a graphic representation of a track, and can have Cells
 			 * added to it.
        */
 			 drawHead();
-			 drawBackground();
+			 drawBackground(width, height);
     }
 
 		public function addCell(cell:Cell):void {
 			cells.push(cell);
+			var cellPosition:Point = globalToLocal(cell.localToGlobal(new Point()));
 			addChild(cell);
-			cell.y = 0;
+			cell.x = cellPosition.x;
+			cell.y = cellPosition.y;
 			/* set cell x and y to match prior global position */
 		}
 
@@ -68,13 +71,13 @@ package org.stereofyte.mixer {
 		protected function drawHead():void {
 		}
 
-		protected function drawBackground():void {
+		protected function drawBackground(width:Number, height:Number):void {
 			graphics.beginFill(0xEEEEEE, 1);
-			graphics.drawRect(0, 0, 1000, 40);
+			graphics.drawRect(0, 0, width, height);
 			graphics.endFill();
 			graphics.lineStyle(0, 0x000000);
-			graphics.moveTo(0, 39);
-			graphics.lineTo(1000, 39);
+			graphics.moveTo(0, height-1);
+			graphics.lineTo(1000, height-1);
 		}
 
   }
