@@ -29,12 +29,8 @@ package org.stereofyte.mixer {
       deleteSymbol:DeleteCellSymbol,
       state:String;
 
-    public function Cell(cellData:Object, width:Number, height:Number, grid:Point, gridOrigin:Point):void {
-      super({
-        grid:            grid,
-        gridOrigin:      gridOrigin,
-        forceSnapOnStop: true
-      });
+    public function Cell(cellData:Object, width:Number, height:Number, options:Object):void {
+      super(options);
       this.src = cellData.src;
       this.family = cellData.family;
       this.Width = width;

@@ -31,11 +31,12 @@ package com.chrislovejoy.gui {
         snapRadius:              0,
         grid:                    new Point(10, 10),
         gridOrigin:              new Point(),
+        coordinateSpace:         null,
         bounds:                  null,
         snapToGlobal:            false,
         forceSnapOnStop:         false,
-        ghostColor:          0x000000,
-        ghostAlpha:          0.2,
+        ghostColor:              0x000000,
+        ghostAlpha:              0.2,
         snapToIntersectionsOnly: false
       };
       for (var key:String in this.options) {
@@ -44,9 +45,9 @@ package com.chrislovejoy.gui {
       if (!options.isGhost) {
         ghost = new DragAndDrop({
           isGhost:    true,
-          snapRadius: options.forceSnapOnStop? NaN: options.snapRadius,
-          grid:       options.grid,
-          gridOrigin: options.gridOrigin
+          snapRadius: this.options.forceSnapOnStop? NaN: this.options.snapRadius,
+          grid:       this.options.grid,
+          gridOrigin: this.options.gridOrigin
         });
       }
       addEventListener( MouseEvent.MOUSE_DOWN, startMyDrag );
@@ -55,6 +56,7 @@ package com.chrislovejoy.gui {
     public function clear(event:Event = null) {
       stopMyDrag();
       parent && parent.removeChild(this);
+      ghost.parent && ghost.parent.removeChild(ghost);
     }
 
     override public function startDrag(lockCenter:Boolean = false, bounds:Rectangle = null):void {
@@ -71,7 +73,7 @@ package com.chrislovejoy.gui {
     }
 
     public function get snapPoint():Point {
-      return parent.localToGlobal(new Point(ghost.x, ghost.y));
+      return ghost.parent.localToGlobal(new Point(ghost.x, ghost.y));
     }
 
     public function get snapRect():Rectangle {
@@ -117,6 +119,8 @@ package com.chrislovejoy.gui {
       var positionOnGrid:Point = new Point(x, y);
       if (options.snapToGlobal) {
         positionOnGrid = parent.localToGlobal(positionOnGrid);
+      } else if(!options.isGhost) {
+        positionOnGrid = ghost.parent.globalToLocal(parent.localToGlobal(positionOnGrid));
       }
       positionOnGrid = positionOnGrid.subtract(options.gridOrigin);
       var distanceFromGridLine:Point = new Point(positionOnGrid.x % options.grid.x, positionOnGrid.y % options.grid.y);
@@ -163,9 +167,14 @@ package com.chrislovejoy.gui {
     protected function startSnapGhost():void {
       if (options.isGhost) return;
       drawSnapGhost();
-      (!ghost.parent || ghost.parent !== parent) && parent.addChildAt(ghost, parent.getChildIndex(this));
-      ghost.x = x;
-      ghost.y = y;
+      if (!options.coordinateSpace || options.coordinateSpace === parent) {
+        options.coordinateSpace.addChildAt(ghost, parent.getChildIndex(this));
+      } else {
+        options.coordinateSpace.addChild(ghost);
+      }
+      var ghostPosition = ghost.parent.globalToLocal(parent.localToGlobal(new Point(x, y)));
+      ghost.x = ghostPosition.x;
+      ghost.y = ghostPosition.y;
       ghost.startDrag();
     }
 

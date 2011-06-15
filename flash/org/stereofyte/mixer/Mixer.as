@@ -54,7 +54,16 @@ package org.stereofyte.mixer {
     }
 
     public function addCell(cellData:Object):Cell {
-      var cell = new Cell(cellData, CELL_WIDTH, TRACK_HEIGHT, new Point(CELL_WIDTH, TRACK_HEIGHT), trackField.localToGlobal(new Point(0, 0)));
+      var cell = new Cell(
+        cellData,
+        CELL_WIDTH,
+        TRACK_HEIGHT,
+        {
+          grid:            new Point(CELL_WIDTH, TRACK_HEIGHT),
+          forceSnapOnStop: true,
+          coordinateSpace: trackField
+        }
+      );
       cell.addEventListener(DragAndDrop.DRAG_START, liftCell);
       cell.addEventListener(DragAndDrop.DRAG_STOP, placeCell);
       addChild(cell);
@@ -99,13 +108,13 @@ package org.stereofyte.mixer {
         cell.x = cellPosition.x;
         cell.y = cellPosition.y;
       }
-      cell.removeEventListener(DragAndDrop.DRAG_MOVE, checkForDeleteCell);
-      cell.addEventListener(DragAndDrop.DRAG_MOVE, checkForDeleteCell);
+      cell.removeEventListener(DragAndDrop.DRAG_MOVE, updateCellStatusOnDrag);
+      cell.addEventListener(DragAndDrop.DRAG_MOVE, updateCellStatusOnDrag);
     }
 
     protected function placeCell(event:Event) {
       var cell:Cell = event.target as Cell;
-      cell.removeEventListener(DragAndDrop.DRAG_MOVE, checkForDeleteCell);
+      cell.removeEventListener(DragAndDrop.DRAG_MOVE, updateCellStatusOnDrag);
       var targetTrackIndex:Number = getObjectTargetTrackIndex(cell);
       if (isNaN(targetTrackIndex)) {
         removeCell(cell);
@@ -119,21 +128,43 @@ package org.stereofyte.mixer {
       var targetTrackIndex:Number = NaN;
       var targetCoord:Point = object.localToGlobal(new Point());
       for (var i:Number = 0; i < tracks.length; i++) {
-        if (tracks[i].hitTestPoint(targetCoord.x+1, targetCoord.y+1)) {
-          targetTrackIndex = i;
-          break;
+        if (trackField.mask.hitTestPoint(targetCoord.x+1, targetCoord.y+1)) {
+          if (tracks[i].hitTestPoint(targetCoord.x+1, targetCoord.y+1)) {
+            targetTrackIndex = i;
+            break;
+          }
         }
       }
       return targetTrackIndex;
     }
 
-    protected function checkForDeleteCell(event:Event):void {
+    protected function updateCellStatusOnDrag(event:Event):void {
       var cell:Cell = event.target as Cell;
       var targetTrackIndex:Number = getObjectTargetTrackIndex(cell.snapGhost);
+      /* check for snapping out of bounds */
       if (isNaN(targetTrackIndex)) {
         cell.showDeleteMode();
       } else {
         cell.showNormalMode();
+      }
+
+      /* check for dragging out of bounds... and scroll */
+      var cellTopLeft = cell.parent.localToGlobal(new Point(cell.x, cell.y));
+      var cellBottomRight = cellTopLeft.add(new Point(cell.width, cell.height));
+      var bounds = trackField.mask.getRect(stage);
+      var scrollModifier = 0.25;
+      if (cellTopLeft.x < bounds.x) {
+        /* scroll left */
+        scrollTrackField(new Point((cellTopLeft.x - bounds.x) * scrollModifier, 0));
+      } else if (cellTopLeft.y < bounds.y) {
+        /* scroll up */
+        scrollTrackField(new Point(0, (cellTopLeft.y - bounds.y) * scrollModifier));
+      } else if (cellBottomRight.x > bounds.x + bounds.width) {
+        /* scroll right */
+        scrollTrackField(new Point((cellBottomRight.x - (bounds.x + bounds.width)) * scrollModifier, 0));
+      } else if (cellBottomRight.y > bounds.y + bounds.height) {
+        /* scroll down */
+        scrollTrackField(new Point(0, (cellBottomRight.y - (bounds.y + bounds.height)) * scrollModifier));
       }
     }
 
@@ -156,11 +187,17 @@ package org.stereofyte.mixer {
       addEventListener(Event.ADDED_TO_STAGE, function(event) {
         stage.addEventListener(KeyboardEvent.KEY_DOWN, function(event) {
           switch (event.keyCode) {
-            case 39:
-              scrollTrackField(new Point(-30, 0));
+            case 39/*<RIGHT>*/:
+              scrollTrackField(new Point(CELL_WIDTH, 0));
               break;
-            case 37:
-              scrollTrackField(new Point(30, 0));
+            case 37/*<LEFT>*/:
+              scrollTrackField(new Point(-CELL_WIDTH, 0));
+              break;
+            case 38/*<UP>*/:
+              scrollTrackField(new Point(0, -TRACK_HEIGHT));
+              break;
+            case 40/*<DOWN>*/:
+              scrollTrackField(new Point(0, TRACK_HEIGHT));
               break;
           }
         } );
@@ -168,10 +205,22 @@ package org.stereofyte.mixer {
     }
 
     public function scrollTrackField(delta:Point):void {
-      trackField.x += delta.x;
-      trackField.y += delta.y;
-      trackField.mask.x -= delta.x;
-      trackField.mask.y -= delta.y;
+      /* positive coords scroll down/right, moving trackField up/left */
+      var maskX:Number = trackField.mask.x + delta.x;
+      var maskY:Number = trackField.mask.y + delta.y;
+      if (maskX < 0) {
+        delta.offset(-maskX, 0);
+      } else if (maskY < 0) {
+        delta.offset(0, -maskY);
+      } else if (maskX + trackField.mask.width > trackField.width) {
+        delta.offset(trackField.width - (maskX + trackField.mask.width), 0);
+      } else if (maskY + trackField.mask.height > trackField.height) {
+        delta.offset(0, trackField.height - (maskY + trackField.mask.height));
+      }
+      trackField.x -= delta.x;
+      trackField.y -= delta.y;
+      trackField.mask.x += delta.x;
+      trackField.mask.y += delta.y;
     }
 
     protected function resizeTrackField(width:Number, height:Number):void {
