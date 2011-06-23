@@ -31,25 +31,30 @@ package org.stereofyte.mixer {
       CELL_WIDTH:Number = 120;
 
     protected var
-      Width:Number,
-      Height:Number,
-      trackField:Sprite,
-      trackFieldMask:Sprite,
       tracks:Array,
       cells:Array,
-      bins:Array
+      bins:Array,
+      snapGrid:Point,
+      trackField:Sprite,
+      trackFieldMask:Sprite,
+      playhead:Sprite,
+      Width:Number,
+      Height:Number,
+      trackWidth:Number = 1000
 
     public function Mixer(width:Number = 500, height:Number = 240, trackCount:Number = 8):void {
       tracks = [];
       cells = [];
       bins = [];
-      this.Width = width;
-      this.Height = height;
+      Width = width;
+      Height = height;
       drawBackground();
       drawTrackField();
+      drawPlayhead();
       for (var i:Number = 0; i < trackCount; i++) {
-        addTrack(new Track(1000, TRACK_HEIGHT));
+        addTrack(new Track(trackWidth, TRACK_HEIGHT));
       }
+      snapGrid = new Point(CELL_WIDTH, TRACK_HEIGHT);
       demo();
     }
 
@@ -59,7 +64,7 @@ package org.stereofyte.mixer {
         CELL_WIDTH,
         TRACK_HEIGHT,
         {
-          grid:            new Point(CELL_WIDTH, TRACK_HEIGHT),
+          grid:            snapGrid,
           forceSnapOnStop: true,
           coordinateSpace: trackField
         }
@@ -108,13 +113,13 @@ package org.stereofyte.mixer {
         cell.x = cellPosition.x;
         cell.y = cellPosition.y;
       }
-      cell.removeEventListener(DragAndDrop.DRAG_MOVE, updateCellStatusOnDrag);
-      cell.addEventListener(DragAndDrop.DRAG_MOVE, updateCellStatusOnDrag);
+      cell.removeEventListener(Event.ENTER_FRAME, updateCellStatus);
+      cell.addEventListener(Event.ENTER_FRAME, updateCellStatus);
     }
 
     protected function placeCell(event:Event) {
       var cell:Cell = event.target as Cell;
-      cell.removeEventListener(DragAndDrop.DRAG_MOVE, updateCellStatusOnDrag);
+      cell.removeEventListener(Event.ENTER_FRAME, updateCellStatus);
       var targetTrackIndex:Number = getObjectTargetTrackIndex(cell);
       if (isNaN(targetTrackIndex)) {
         removeCell(cell);
@@ -128,7 +133,7 @@ package org.stereofyte.mixer {
       var targetTrackIndex:Number = NaN;
       var targetCoord:Point = object.localToGlobal(new Point());
       for (var i:Number = 0; i < tracks.length; i++) {
-        if (trackField.mask.hitTestPoint(targetCoord.x+1, targetCoord.y+1)) {
+        if (trackField.hitTestPoint(targetCoord.x+1, targetCoord.y+1)) {
           if (tracks[i].hitTestPoint(targetCoord.x+1, targetCoord.y+1)) {
             targetTrackIndex = i;
             break;
@@ -138,21 +143,14 @@ package org.stereofyte.mixer {
       return targetTrackIndex;
     }
 
-    protected function updateCellStatusOnDrag(event:Event):void {
-      var cell:Cell = event.target as Cell;
-      var targetTrackIndex:Number = getObjectTargetTrackIndex(cell.snapGhost);
-      /* check for snapping out of bounds */
-      if (isNaN(targetTrackIndex)) {
-        cell.showDeleteMode();
-      } else {
-        cell.showNormalMode();
-      }
+    protected function updateCellStatus(event:Event):void {
+      var cell:Cell = event.currentTarget as Cell;
 
       /* check for dragging out of bounds... and scroll */
       var cellTopLeft = cell.parent.localToGlobal(new Point(cell.x, cell.y));
       var cellBottomRight = cellTopLeft.add(new Point(cell.width, cell.height));
       var bounds = trackField.mask.getRect(stage);
-      var scrollModifier = 0.25;
+      var scrollModifier = 0.2;
       if (cellTopLeft.x < bounds.x) {
         /* scroll left */
         scrollTrackField(new Point((cellTopLeft.x - bounds.x) * scrollModifier, 0));
@@ -166,6 +164,15 @@ package org.stereofyte.mixer {
         /* scroll down */
         scrollTrackField(new Point(0, (cellBottomRight.y - (bounds.y + bounds.height)) * scrollModifier));
       }
+
+      var targetTrackIndex:Number = getObjectTargetTrackIndex(cell.snapGhost);
+      /* check for snapping out of bounds */
+      if (isNaN(targetTrackIndex)) {
+        cell.showDeleteMode();
+      } else {
+        cell.showNormalMode();
+      }
+
     }
 
     protected function drawBackground():void {
@@ -206,21 +213,27 @@ package org.stereofyte.mixer {
 
     public function scrollTrackField(delta:Point):void {
       /* positive coords scroll down/right, moving trackField up/left */
+      delta = new Point(Math.round(delta.x), Math.round(delta.y));
       var maskX:Number = trackField.mask.x + delta.x;
       var maskY:Number = trackField.mask.y + delta.y;
       if (maskX < 0) {
         delta.offset(-maskX, 0);
       } else if (maskY < 0) {
         delta.offset(0, -maskY);
-      } else if (maskX + trackField.mask.width > trackField.width) {
-        delta.offset(trackField.width - (maskX + trackField.mask.width), 0);
-      } else if (maskY + trackField.mask.height > trackField.height) {
-        delta.offset(0, trackField.height - (maskY + trackField.mask.height));
+      } else if (maskX + trackField.mask.width > trackWidth) {
+        delta.offset(trackWidth - (maskX + trackField.mask.width), 0);
+      } else if (maskY + trackField.mask.height > TRACK_HEIGHT * tracks.length) {
+        delta.offset(0, TRACK_HEIGHT * tracks.length - (maskY + trackField.mask.height));
       }
       trackField.x -= delta.x;
       trackField.y -= delta.y;
       trackField.mask.x += delta.x;
       trackField.mask.y += delta.y;
+    }
+
+    public function zoomTrackField(factor:Number):void {
+      trackField.scaleX = factor;
+      //snapGrid = new Point(CELL_WIDTH * factor, TRACK_HEIGHT * factor);
     }
 
     protected function resizeTrackField(width:Number, height:Number):void {
@@ -234,6 +247,15 @@ package org.stereofyte.mixer {
       tracks.push(track);
       trackField.addChild(track);
       track.y = track.height * (tracks.length - 1);
+    }
+    
+    protected function drawPlayhead():void {
+      playhead = new Sprite();
+      playhead.graphics.lineStyle(0, 0xFF0000, 0.5);
+      playhead.graphics.lineTo(0, trackField.mask.height);
+      playhead.x = trackField.x;
+      playhead.y = trackField.y;
+      addChild(playhead);
     }
     
     protected function addBin(bin:Bin):void {

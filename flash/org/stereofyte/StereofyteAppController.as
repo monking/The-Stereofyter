@@ -21,7 +21,7 @@ package org.stereofyte {
       super(root);
       _root.stage.frameRate = 60;
       _root.stage.align = StageAlign.TOP_LEFT;
-      _root.stage.scaleMode = StageScaleMode.EXACT_FIT;
+      _root.stage.scaleMode = StageScaleMode.SHOW_ALL;
       demo();
     }
 

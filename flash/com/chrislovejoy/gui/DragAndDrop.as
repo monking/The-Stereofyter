@@ -35,6 +35,7 @@ package com.chrislovejoy.gui {
         bounds:                  null,
         snapToGlobal:            false,
         forceSnapOnStop:         false,
+        dragOn:                  Event.ENTER_FRAME,
         ghostColor:              0x000000,
         ghostAlpha:              0.2,
         snapToIntersectionsOnly: false
@@ -47,7 +48,8 @@ package com.chrislovejoy.gui {
           isGhost:    true,
           snapRadius: this.options.forceSnapOnStop? NaN: this.options.snapRadius,
           grid:       this.options.grid,
-          gridOrigin: this.options.gridOrigin
+          gridOrigin: this.options.gridOrigin,
+          dragOn:     this.options.dragOn
         });
       }
       addEventListener( MouseEvent.MOUSE_DOWN, startMyDrag );
@@ -57,6 +59,10 @@ package com.chrislovejoy.gui {
       stopMyDrag();
       parent && parent.removeChild(this);
       ghost.parent && ghost.parent.removeChild(ghost);
+    }
+
+    public function update():void {
+      options.snapRadius !== 0 && options.grid && snap();
     }
 
     override public function startDrag(lockCenter:Boolean = false, bounds:Rectangle = null):void {
@@ -81,19 +87,19 @@ package com.chrislovejoy.gui {
       return new Rectangle(snapPosition.x, snapPosition.y, width, height);
     }
 
-    protected function drag(event:MouseEvent = null):void {
+    protected function drag(event:Event = null):void {
       x = parent.mouseX - grabOrigin.x;
       y = parent.mouseY - grabOrigin.y;
-      options.snapRadius !== 0 && options.grid && snap();
+      update();
       dispatchEvent( new Event(DragAndDrop.DRAG_MOVE) );
     }
 
-    protected function startMyDrag(event:MouseEvent = null):void {
+    protected function startMyDrag(event:Event = null):void {
       if (dragging || !stage) return;
       dragging = true;
       grabOrigin = new Point(mouseX, mouseY);
 
-      stage.addEventListener( MouseEvent.MOUSE_MOVE, drag );
+      stage.addEventListener( options.dragOn, drag );
       stage.addEventListener( Event.MOUSE_LEAVE, stopMyDrag );
       stage.addEventListener( MouseEvent.MOUSE_UP, stopMyDrag );
 
@@ -101,9 +107,9 @@ package com.chrislovejoy.gui {
       options.isGhost || startSnapGhost(); /* after dispatchEvent in case a listener adds this instance to another parent */
     }
 
-    protected function stopMyDrag(event:MouseEvent = null):void {
+    protected function stopMyDrag(event:Event = null):void {
       if (stage) {
-        stage.removeEventListener( MouseEvent.MOUSE_MOVE, drag );
+        stage.removeEventListener( options.dragOn, drag );
         stage.removeEventListener( MouseEvent.MOUSE_UP, stopMyDrag );
         stage.removeEventListener( Event.MOUSE_LEAVE, stopMyDrag );
       }
