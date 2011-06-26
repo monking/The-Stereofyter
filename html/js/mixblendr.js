@@ -13,6 +13,9 @@ MixBlendrInterface.prototype = {
   init:function() {
     //this.mixblendr = this.applet.MixBlendr;
   },
+  test:function(msg) {
+    alert(this.applet.testConn(msg));
+  },
   play:function() {
     alert("mb_play");
   },

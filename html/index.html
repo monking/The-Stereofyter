@@ -8,13 +8,12 @@
       body { height: 100%; margin: 0; padding: 0; /*overflow: hidden;*/ }
       #app_container { width: 900px; height: 600px; margin: 0 auto; }
       #sfapp { outline:none; }
-      #mbapp { width: 100%; height: 200px; position: absolute; bottom: 0; right: 0; z-index: 1; }
+      #mbapp { width: 100%; height: 200px; position: absolute; top: 0; left: 800px; z-index: 1; }
     </style>
 		<script type="text/javascript" src="js/swfobject.js"></script>
 		<script type="text/javascript" src="js/javaobject.js"></script>
 		<script type="text/javascript" src="js/mixblendr.js"></script>
 		<script type="text/javascript">
-      /*
       var mbinterface;
       window.onload = function() {
         mbinterface = new MixBlendrInterface( {
@@ -31,7 +30,6 @@
           }
         } );
       };
-      */
       swfobject.embedSWF("swf/main.swf", "sfapp", "100%", "100%", "9.0.0", "swf/expressInstall.swf");
 		</script>
 	</head>
@@ -43,7 +41,7 @@
       </div>
 		</div>
     <div id="mbapp">
-      <applet CODE="com/mixblendr/gui/main/Applet" ARCHIVE="mixblendr/mixblendr.jar" WIDTH="800" HEIGHT="600" ALT="Your browser is not configured to view the applet. Please install Jave Runtime JRE 1.5 or higher." id="mixblendr"><PARAM name="url" value="competition/getfile"><PARAM name="REDIRECT_URL" value="competition/competition-entries/"><PARAM name="DEFAULT_TEMPO" value="120.0"></applet>
+      <!--<applet CODE="com/mixblendr/gui/main/Applet" ARCHIVE="mixblendr/mixblendr.jar" WIDTH="800" HEIGHT="600" ALT="Your browser is not configured to view the applet. Please install Jave Runtime JRE 1.5 or higher." id="mixblendr"><PARAM name="url" value="competition/getfile"><PARAM name="REDIRECT_URL" value="competition/competition-entries/"><PARAM name="DEFAULT_TEMPO" value="120.0"></applet>-->
     </div>
 	</body>
 </html>
