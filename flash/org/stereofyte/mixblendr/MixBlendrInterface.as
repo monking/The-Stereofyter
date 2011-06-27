@@ -12,34 +12,34 @@ package org.stereofyte.mixblendr {
     public function MixblendrInterface():void {
       ExternalInterface.addCallback("dispatchMBEvent", dispatchMBEvent);
       addEventListener("ready", onready);
+      ExternalInterface.call("loadMixblendr");
     }
 
     public function call(method, ... arguments):* {
       trace("calling " + method);
       switch (arguments.length) {
         case 0:
-          ExternalInterface.call(jsBridgeName+'.'+method);
+          return ExternalInterface.call(jsBridgeName+'.'+method);
           break;
         case 1:
-          ExternalInterface.call(jsBridgeName+'.'+method, arguments[0]);
+          return ExternalInterface.call(jsBridgeName+'.'+method, arguments[0]);
           break;
         case 2:
-          ExternalInterface.call(jsBridgeName+'.'+method, arguments[0], arguments[1]);
+          return ExternalInterface.call(jsBridgeName+'.'+method, arguments[0], arguments[1]);
           break;
         case 3:
-          ExternalInterface.call(jsBridgeName+'.'+method, arguments[0], arguments[1], arguments[2]);
+          return ExternalInterface.call(jsBridgeName+'.'+method, arguments[0], arguments[1], arguments[2]);
           break;
         case 4:
-          ExternalInterface.call(jsBridgeName+'.'+method, arguments[0], arguments[1], arguments[2], arguments[3]);
+          return ExternalInterface.call(jsBridgeName+'.'+method, arguments[0], arguments[1], arguments[2], arguments[3]);
           break;
         case 5:
-          ExternalInterface.call(jsBridgeName+'.'+method, arguments[0], arguments[1], arguments[2], arguments[3], arguments[4]);
+          return ExternalInterface.call(jsBridgeName+'.'+method, arguments[0], arguments[1], arguments[2], arguments[3], arguments[4]);
           break;
         default:
           trace("method '"+method+"' could not be called because it had more than the supported 5 arguments");
-          break;
+          return undefined;
       }
-      return ExternalInterface.call(jsBridgeName+'.'+method, arguments);
     }
 
     protected function dispatchMBEvent(type, data):void {

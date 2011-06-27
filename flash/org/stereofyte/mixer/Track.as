@@ -10,36 +10,45 @@ package org.stereofyte.mixer {
 		public static const
 			MUTE = "mute",
 			UNMUTE = "unmute",
-			SOLO = "solo";
+			SOLO = "solo",
+			UNSOLO = "solo";
+
+    public var
+      index:int;
 
 		protected var
-			volume:Number,
-			muted:Boolean,
-			cells:Array = [];
+			volume:Number = 1,
+			muted:Boolean = false,
+			solo:Boolean = false,
+			regions:Array = [],
+      Width:Number,
+      Height:Number;
 
     public function Track(width:Number, height:Number):void {
       /*
-			 * Track contains a graphic representation of a track, and can have Cells
+			 * Track contains a graphic representation of a track, and can have Regions
 			 * added to it.
        */
-			 drawHead();
-			 drawBackground(width, height);
+       Width = width;
+       Height = height;
+			 drawControls();
+			 drawBackground();
     }
 
-		public function addCell(cell:Cell):void {
-			cells.push(cell);
-			var cellPosition:Point = globalToLocal(cell.localToGlobal(new Point()));
-			addChild(cell);
-			cell.x = cellPosition.x;
-			cell.y = cellPosition.y;
-			/* set cell x and y to match prior global position */
+		public function addRegion(region:Region):void {
+			regions.push(region);
+			var regionPosition:Point = globalToLocal(region.localToGlobal(new Point()));
+			addChild(region);
+			region.x = regionPosition.x;
+			region.y = regionPosition.y;
+			/* set region x and y to match prior global position */
 		}
 
-		public function removeCell(cell:Cell):void {
-			try { removeChild(cell); } catch(error:Error) {}
-			for (var i:Number = cells.length - 1; i >= 0; i--) {
-				if (cells[i] === cell) {
-					cells.splice(i, 1);
+		public function removeRegion(region:Region):void {
+			try { removeChild(region); } catch(error:Error) {}
+			for (var i:Number = regions.length - 1; i >= 0; i--) {
+				if (regions[i] === region) {
+					regions.splice(i, 1);
 				}
 			}
 		}
@@ -56,28 +65,42 @@ package org.stereofyte.mixer {
 			dispatchEvent(new Event(Track.UNMUTE));
 		}
 
-		public function solo():void {
-			/* Perhaps solo() should not set the muted property of other tracks, but
-			 * mute them modally, so that removing the solo reverts them to their
-			 * muted value before the solo */
-			unmute();
+		public function goSolo():void {
+      solo = true;
 			dispatchEvent(new Event(Track.SOLO));
 		}
+
+		public function unSolo():void {
+      solo = false;
+			dispatchEvent(new Event(Track.UNSOLO));
+		}
+
+    public function excludeFromSolo():void {
+      alpha = 0.7;
+    }
+
+    public function unexcludeFromSolo():void {
+      alpha = 1;
+    }
 
 		public function get isMute():Boolean {
 			return muted;
 		}
 
-		protected function drawHead():void {
+		override public function get width():Number {
+			return Width;
 		}
 
-		protected function drawBackground(width:Number, height:Number):void {
+		protected function drawControls():void {
+		}
+
+		protected function drawBackground():void {
 			graphics.beginFill(0xEEEEEE, 1);
-			graphics.drawRect(0, 0, width, height);
+			graphics.drawRect(0, 0, Width, Height);
 			graphics.endFill();
 			graphics.lineStyle(0, 0x000000);
-			graphics.moveTo(0, height-1);
-			graphics.lineTo(1000, height-1);
+			graphics.moveTo(0, Height-1);
+			graphics.lineTo(1000, Height-1);
 		}
 
   }

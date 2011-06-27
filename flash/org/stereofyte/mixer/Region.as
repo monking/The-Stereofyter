@@ -7,37 +7,34 @@ package org.stereofyte.mixer {
   import flash.events.MouseEvent;
   import flash.geom.Point;
 
-  public class Cell extends DragAndDrop {
-    
-    public static const
-      family:Object = {
-        VOCAL:"vocal",
-        BRASS:"brass",
-        DRUM:"drum",
-        GUITAR:"guitar",
-        BASS:"bass",
-        SYNTH:"synth"
-      };
+  public class Region extends DragAndDrop {
 
-    protected var
+    public static const
+      STATUS_NULL = "null",
+      STATUS_LIVE = "live";
+
+    public var
+      status:String;
+
+    private var
+      sample:Sample,
       Width:Number,
       Height:Number,
-      src:String,
-      family:String,
       icon:InstrumentIcon,
       background:Sprite,
-      deleteSymbol:DeleteCellSymbol,
-      state:String;
+      deleteSymbol:RegionDeleteSymbol,
+      state:String,
+      regionData:Object;
 
-    public function Cell(cellData:Object, width:Number, height:Number, options:Object):void {
+    public function Region(sample:Sample, width:Number, height:Number, options:Object):void {
       super(options);
-      this.src = cellData.src;
-      this.family = cellData.family;
+      this.status = Region.STATUS_NULL;
+      this.sample = sample;
       this.Width = width;
       this.Height = height;
       this.state = "normal",
       /*
-       * Cell is a drag-and-drop element that snaps to the mixer track grid.
+       * Region is a drag-and-drop element that snaps to the mixer track grid.
        * contains
        *  volume slider
        *  "solo" button
@@ -72,6 +69,10 @@ package org.stereofyte.mixer {
       icon.alpha = 1;
       snapGhost.visible = true;
     }
+
+    public function getSample():Sample {
+      return sample;
+    }
     
     public function get snapGhost():DragAndDrop {
       return ghost;
@@ -87,11 +88,11 @@ package org.stereofyte.mixer {
 
     private function drawIcon():void {
       icon = new InstrumentIcon();
-      icon.gotoAndStop(family);
+      icon.gotoAndStop(sample.family);
       addChild(icon);
       icon.y = height / 2 - icon.height / 2;
       icon.x = icon.y;
-      deleteSymbol = new DeleteCellSymbol();
+      deleteSymbol = new RegionDeleteSymbol();
       deleteSymbol.x = icon.x;
       deleteSymbol.y = icon.y;
     }

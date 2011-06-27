@@ -13,7 +13,7 @@ package org.stereofyte.mixer {
 
     private var
       focusedIndex:Number = NaN,
-      items:Array = [];
+      samples:Array = [];
 
     public function Bin():void {
       /*
@@ -25,30 +25,30 @@ package org.stereofyte.mixer {
       drawBin();
     }
 
-    public function addItem(itemData:Object):void {
+    public function addSample(sample:Sample):void {
       var element = new Sprite();
       var icon = new InstrumentIcon();
-      icon.gotoAndStop(itemData.family);
+      icon.gotoAndStop(sample.family);
       element.addChild(icon);
       addChild(element);
-      element.addEventListener(MouseEvent.MOUSE_DOWN, focusItem);
-      /* position element relative to total number of items */
-      element.y = 30 * items.length;
-      items.push({element:element, data:itemData});
+      element.addEventListener(MouseEvent.MOUSE_DOWN, focusSample);
+      /* position element relative to total number of samples */
+      element.y = 30 * samples.length;
+      samples.push({element:element, sample:sample});
     }
 
-    public function get pulledItemData():Object {
+    public function get pulledSample():Sample {
       if (isNaN(focusedIndex)) return null;
-      return items[focusedIndex].data;
+      return samples[focusedIndex].sample;
     }
 
     private function scroll(event:MouseEvent) {
     }
 
-    private function focusItem(event:MouseEvent):void {
-      /* find the index of the item being clicked */
-      for (var i:Number = 0; i < items.length; i++) {
-        if (items[i].element === event.currentTarget as Sprite) {
+    private function focusSample(event:MouseEvent):void {
+      /* find the index of the sample being clicked */
+      for (var i:Number = 0; i < samples.length; i++) {
+        if (samples[i].element === event.currentTarget as Sprite) {
           focusedIndex = i;
           root.stage.addEventListener(MouseEvent.MOUSE_MOVE, pull);
           root.stage.addEventListener(MouseEvent.MOUSE_UP, drop);

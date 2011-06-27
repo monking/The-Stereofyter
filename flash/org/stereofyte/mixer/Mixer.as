@@ -1,18 +1,3 @@
-/*
- * ----------------------------------------------------
- * BUG: placing a cell left of 0 causes an endless loop
- * Error: Error #1502: A script has executed for longer than the default timeout period of 15 seconds.
- *   at org.stereofyte.mixer::Mixer/removeCell()
- *   at org.stereofyte.mixer::Mixer/placeCell()
- *   at flash.events::EventDispatcher/dispatchEventFunction()
- *   at flash.events::EventDispatcher/dispatchEvent()
- *   at com.chrislovejoy.gui::DragAndDrop/stopMyDrag()
- * TypeError: Error #1009: Cannot access a property or method of a null object reference.
- *   at com.chrislovejoy.gui::DragAndDrop/stopMyDrag()
- * TypeError: Error #1009: Cannot access a property or method of a null object reference.
- *   at com.chrislovejoy.gui::DragAndDrop/stopMyDrag()
- * ---------------------------------------------------
- */
 package org.stereofyte.mixer {
 
   import flash.display.DisplayObject;
@@ -26,13 +11,15 @@ package org.stereofyte.mixer {
 
   public class Mixer extends Sprite {
     
-    protected static const
+    public static const
       TRACK_HEIGHT:Number = 40,
-      CELL_WIDTH:Number = 120;
+      BEAT_WIDTH:Number = 120,
+      REGION_ADDED:String = "regionAdded",
+      REGION_MOVED:String = "regionMoved";
 
-    protected var
+    private var
       tracks:Array,
-      cells:Array,
+      regions:Array,
       bins:Array,
       snapGrid:Point,
       trackField:Sprite,
@@ -44,7 +31,7 @@ package org.stereofyte.mixer {
 
     public function Mixer(width:Number = 500, height:Number = 240, trackCount:Number = 8):void {
       tracks = [];
-      cells = [];
+      regions = [];
       bins = [];
       Width = width;
       Height = height;
@@ -54,14 +41,14 @@ package org.stereofyte.mixer {
       for (var i:Number = 0; i < trackCount; i++) {
         addTrack(new Track(trackWidth, TRACK_HEIGHT));
       }
-      snapGrid = new Point(CELL_WIDTH, TRACK_HEIGHT);
+      snapGrid = new Point(BEAT_WIDTH, TRACK_HEIGHT);
       demo();
     }
 
-    public function addCell(cellData:Object):Cell {
-      var cell = new Cell(
-        cellData,
-        CELL_WIDTH,
+    public function addRegion(sample:Sample):Region {
+      var region = new Region(
+        sample,
+        BEAT_WIDTH,
         TRACK_HEIGHT,
         {
           grid:            snapGrid,
@@ -69,24 +56,41 @@ package org.stereofyte.mixer {
           coordinateSpace: trackField
         }
       );
-      cell.addEventListener(DragAndDrop.DRAG_START, liftCell);
-      cell.addEventListener(DragAndDrop.DRAG_STOP, placeCell);
-      addChild(cell);
-      cells.push(cell);
-      return cell;
+      region.addEventListener(DragAndDrop.DRAG_START, liftRegion);
+      region.addEventListener(DragAndDrop.DRAG_STOP, placeRegion);
+      addChild(region);
+      regions.push(region);
+      return region;
     }
 
-    public function removeCell(cell:Cell):void {
-      cell.removeEventListener(DragAndDrop.DRAG_START, liftCell);
-      cell.removeEventListener(DragAndDrop.DRAG_STOP, placeCell);
-      for (var i:Number = cells.length - 1; i >=0; i--) {
-        if (cell === cells[i]) {
-          cells.splice(i, 1);
+    public function removeRegion(region:Region):void {
+      region.removeEventListener(DragAndDrop.DRAG_START, liftRegion);
+      region.removeEventListener(DragAndDrop.DRAG_STOP, placeRegion);
+      for (var i:Number = regions.length - 1; i >=0; i--) {
+        if (region === regions[i]) {
+          regions.splice(i, 1);
         }
       }
-      cell.clear();
+      region.clear();
     }
-    
+
+    /**
+     * Get the playback position of the mixer, or the position of a region, in terms of beats
+     * @region OPTIONAL The region of which to get the position. Returns the playhead position if omitted.
+     */
+    public function getBeat(region:Region = null):Number {
+      if (region) {
+        return region.x / BEAT_WIDTH;
+      } else {
+        /* return the playhead position */
+        return 0;
+      }
+    }
+
+    public function addSample(sample:Sample) {
+      bins[0].addSample(sample);
+    }
+
     override public function get width():Number {
       return Width;
     }
@@ -105,83 +109,89 @@ package org.stereofyte.mixer {
       resizeTrackField(Width, Height);
     }
 
-    protected function liftCell(event:Event) {
-      var cell:Cell = event.target as Cell;
-      if (this !== cell.parent) {
-        var cellPosition = globalToLocal(cell.localToGlobal(new Point()));
-        addChild(cell);
-        cell.x = cellPosition.x;
-        cell.y = cellPosition.y;
+    private function liftRegion(event:Event) {
+      var region:Region = event.target as Region;
+      if (this !== region.parent) {
+        var regionPosition = globalToLocal(region.localToGlobal(new Point()));
+        addChild(region);
+        region.x = regionPosition.x;
+        region.y = regionPosition.y;
       }
-      cell.removeEventListener(Event.ENTER_FRAME, updateCellStatus);
-      cell.addEventListener(Event.ENTER_FRAME, updateCellStatus);
+      region.removeEventListener(Event.ENTER_FRAME, updateRegionStatus);
+      region.addEventListener(Event.ENTER_FRAME, updateRegionStatus);
     }
 
-    protected function placeCell(event:Event) {
-      var cell:Cell = event.target as Cell;
-      cell.removeEventListener(Event.ENTER_FRAME, updateCellStatus);
-      var targetTrackIndex:Number = getObjectTargetTrackIndex(cell);
+    private function placeRegion(event:Event) {
+      var region:Region = event.target as Region;
+      region.removeEventListener(Event.ENTER_FRAME, updateRegionStatus);
+      var targetTrackIndex:Number = getObjectTargetTrackIndex(region);
       if (isNaN(targetTrackIndex)) {
-        removeCell(cell);
+        removeRegion(region);
       } else {
-        tracks[targetTrackIndex].addCell(cell);
+        tracks[targetTrackIndex].addRegion(region);
+        if (Region.STATUS_NULL == region.status) {
+          region.status = Region.STATUS_LIVE;
+          region.dispatchEvent(new Event(Mixer.REGION_ADDED, true));
+        } else {
+          region.dispatchEvent(new Event(Mixer.REGION_MOVED, true));
+        }
       }
     }
 
-    protected function getObjectTargetTrackIndex(object:DisplayObject):Number {
+    private function getObjectTargetTrackIndex(object:DisplayObject):Number {
       /* find track the object is hovering over */
       var targetTrackIndex:Number = NaN;
-      var targetCoord:Point = object.localToGlobal(new Point());
-      for (var i:Number = 0; i < tracks.length; i++) {
-        if (trackField.hitTestPoint(targetCoord.x+1, targetCoord.y+1)) {
-          if (tracks[i].hitTestPoint(targetCoord.x+1, targetCoord.y+1)) {
-            targetTrackIndex = i;
-            break;
-          }
-        }
+      var targetCoord:Point = trackField.globalToLocal(object.localToGlobal(new Point()));
+      if (
+        targetCoord.x >= 0
+        && targetCoord.x < trackWidth
+        && targetCoord.y >= 0
+        && targetCoord.y < tracks.length * TRACK_HEIGHT
+        ) {
+        return Math.floor(targetCoord.y / TRACK_HEIGHT);
       }
       return targetTrackIndex;
     }
 
-    protected function updateCellStatus(event:Event):void {
-      var cell:Cell = event.currentTarget as Cell;
+    private function updateRegionStatus(event:Event):void {
+      var region:Region = event.currentTarget as Region;
 
       /* check for dragging out of bounds... and scroll */
-      var cellTopLeft = cell.parent.localToGlobal(new Point(cell.x, cell.y));
-      var cellBottomRight = cellTopLeft.add(new Point(cell.width, cell.height));
+      var regionTopLeft = region.parent.localToGlobal(new Point(region.x, region.y));
+      var regionBottomRight = regionTopLeft.add(new Point(region.width, region.height));
       var bounds = trackField.mask.getRect(stage);
       var scrollModifier = 0.2;
-      if (cellTopLeft.x < bounds.x) {
+      if (regionTopLeft.x < bounds.x) {
         /* scroll left */
-        scrollTrackField(new Point((cellTopLeft.x - bounds.x) * scrollModifier, 0));
-      } else if (cellTopLeft.y < bounds.y) {
+        scrollTrackField(new Point((regionTopLeft.x - bounds.x) * scrollModifier, 0));
+      } else if (regionTopLeft.y < bounds.y) {
         /* scroll up */
-        scrollTrackField(new Point(0, (cellTopLeft.y - bounds.y) * scrollModifier));
-      } else if (cellBottomRight.x > bounds.x + bounds.width) {
+        scrollTrackField(new Point(0, (regionTopLeft.y - bounds.y) * scrollModifier));
+      } else if (regionBottomRight.x > bounds.x + bounds.width) {
         /* scroll right */
-        scrollTrackField(new Point((cellBottomRight.x - (bounds.x + bounds.width)) * scrollModifier, 0));
-      } else if (cellBottomRight.y > bounds.y + bounds.height) {
+        scrollTrackField(new Point((regionBottomRight.x - (bounds.x + bounds.width)) * scrollModifier, 0));
+      } else if (regionBottomRight.y > bounds.y + bounds.height) {
         /* scroll down */
-        scrollTrackField(new Point(0, (cellBottomRight.y - (bounds.y + bounds.height)) * scrollModifier));
+        scrollTrackField(new Point(0, (regionBottomRight.y - (bounds.y + bounds.height)) * scrollModifier));
       }
 
-      var targetTrackIndex:Number = getObjectTargetTrackIndex(cell.snapGhost);
+      var targetTrackIndex:Number = getObjectTargetTrackIndex(region.snapGhost);
       /* check for snapping out of bounds */
       if (isNaN(targetTrackIndex)) {
-        cell.showDeleteMode();
+        region.showDeleteMode();
       } else {
-        cell.showNormalMode();
+        region.showNormalMode();
       }
 
     }
 
-    protected function drawBackground():void {
+    private function drawBackground():void {
       graphics.beginFill(0x999999, 1);
       graphics.drawRect(0, 0, Width, Height);
       graphics.endFill();
     }
 
-    protected function drawTrackField():void {
+    private function drawTrackField():void {
       trackField = new Sprite();
       trackFieldMask = new Sprite();
       trackField.mask = trackFieldMask;
@@ -195,10 +205,10 @@ package org.stereofyte.mixer {
         stage.addEventListener(KeyboardEvent.KEY_DOWN, function(event) {
           switch (event.keyCode) {
             case 39/*<RIGHT>*/:
-              scrollTrackField(new Point(CELL_WIDTH, 0));
+              scrollTrackField(new Point(BEAT_WIDTH, 0));
               break;
             case 37/*<LEFT>*/:
-              scrollTrackField(new Point(-CELL_WIDTH, 0));
+              scrollTrackField(new Point(-BEAT_WIDTH, 0));
               break;
             case 38/*<UP>*/:
               scrollTrackField(new Point(0, -TRACK_HEIGHT));
@@ -233,23 +243,25 @@ package org.stereofyte.mixer {
 
     public function zoomTrackField(factor:Number):void {
       trackField.scaleX = factor;
-      //snapGrid = new Point(CELL_WIDTH * factor, TRACK_HEIGHT * factor);
+      //snapGrid = new Point(BEAT_WIDTH * factor, TRACK_HEIGHT * factor);
     }
 
-    protected function resizeTrackField(width:Number, height:Number):void {
+    private function resizeTrackField(width:Number, height:Number):void {
       trackFieldMask.graphics.clear();
       trackFieldMask.graphics.beginFill(0x000000, 1);
       trackFieldMask.graphics.drawRect(0, 0, width, height);
       trackFieldMask.graphics.endFill();
     }
     
-    protected function addTrack(track:Track):void {
+    private function addTrack(track:Track):void {
       tracks.push(track);
       trackField.addChild(track);
-      track.y = track.height * (tracks.length - 1);
+      var trackIndex = tracks.length - 1;
+      track.index = trackIndex;
+      track.y = TRACK_HEIGHT * trackIndex;
     }
     
-    protected function drawPlayhead():void {
+    private function drawPlayhead():void {
       playhead = new Sprite();
       playhead.graphics.lineStyle(0, 0xFF0000, 0.5);
       playhead.graphics.lineTo(0, trackField.mask.height);
@@ -258,11 +270,11 @@ package org.stereofyte.mixer {
       addChild(playhead);
     }
     
-    protected function addBin(bin:Bin):void {
+    private function addBin(bin:Bin):void {
       bins.push(bin);
       bin.addEventListener(Bin.PULL, function(event:Event) {
-        var cell = addCell(bin.pulledItemData);
-        cell.grab();
+        var region = addRegion(bin.pulledSample);
+        region.grab();
       });
       addChild(bin);
       bin.y = 200;
@@ -271,44 +283,7 @@ package org.stereofyte.mixer {
     private function demo():void {
       trackField.x = 100;
       trackField.y = 100;
-      var bin = new Bin();
-      addBin(bin);
-
-      bin.addItem({
-        src:"egypt/vocals.ogg",
-        key:"E+",
-        bpm:90,
-        family:"vocals",
-        duration:6000
-      });
-      bin.addItem({
-        src:"egypt/drums.ogg",
-        key:"E+",
-        bpm:90,
-        family:"drums",
-        duration:6000
-      });
-      bin.addItem({
-        src:"egypt/strings.ogg",
-        key:"E+",
-        bpm:90,
-        family:"strings",
-        duration:6000
-      });
-      bin.addItem({
-        src:"egypt/guitar.ogg",
-        key:"E+",
-        bpm:90,
-        family:"guitar",
-        duration:6000
-      });
-      bin.addItem({
-        src:"egypt/brass.ogg",
-        key:"E+",
-        bpm:90,
-        family:"brass",
-        duration:6000
-      });
+      addBin(new Bin());
     }
 
   }

@@ -54,6 +54,7 @@ public class Applet extends JApplet {
             main.setUrl(url);
             main.setRedirectUrl(redirectURL);
             main.setApplet(this);
+            //main.loadDefaultSong();
             callJS("dispatchMBEvent", "'ready'");
 
 
@@ -65,50 +66,6 @@ public class Applet extends JApplet {
 		} catch (Exception e) {
 			exception = e;
 		}
-	}
-	
-	/** expose controls to JavaScript */
-	public void playerStart() {
-		try {
-			main.globals.getPlayer().start();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	public void addRegion(int trackIndex, String url, long pos) {
-		try {
-			main.globals.addRegion(main.globals.getPlayer().getMixer().getTrack(trackIndex), new URL(url), pos);
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	/**
-	 * Test connection by calling this method from outside the applet.
-	 * @param msg
-	 * @return
-	 */
-	public String testConn(String msg) {
-		return "Mixblendr heard you say, \"" + msg + "\"";
-	}
-	
-	public void testAlert(String msg) {
-		callJS("alert", "'"+testConn(msg)+"'");
-	}
-	
-	/**
-	 * Call a JavaScript function on the document
-	 * @param fn
-	 * @param args: 
-	 */
-	public void callJS(String fn, String args) {
-		try {
-			getAppletContext().showDocument(new URL("javascript:(function(){"+fn+".apply(this,arguments);})("+args+")"));
-		}
-		catch (MalformedURLException me) { }
 	}
 
 	/** called by the browser upon starting the applet */
@@ -135,6 +92,47 @@ public class Applet extends JApplet {
 	@Override
 	public void destroy() {
 		main.close();
+	}
+	
+	/**
+	 * Call a JavaScript function on the document.
+	 * @param fn
+	 * @param args: 
+	 */
+	public void callJS(String fn, String args) {
+		try {
+			getAppletContext().showDocument(new URL("javascript:(function(){"+fn+".apply(this,arguments);})("+args+")"));
+		}
+		catch (MalformedURLException e) { }
+	}
+	
+	/**
+	 * start the player playing
+	 */
+	public void playerStart() {
+		try {
+			main.globals.getPlayer().start();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Add a new region to a track at the given index.
+	 * @param trackIndex
+	 * @param url
+	 * @param beat
+	 */
+	public void addRegion(int trackIndex, String url, float beat) {
+		try {
+			long pos = ((long) (beat * Main.QUARTER_BEAT * 4));
+			main.globals.addRegion(main.globals.getPlayer().getMixer().getTrack(trackIndex), new URL(url), pos);
+			main.updateTracks();
+		} catch (Exception e) {
+			callJS("alert", "'"+e+"'");
+			e.printStackTrace();
+		}
 	}
 	
 }
