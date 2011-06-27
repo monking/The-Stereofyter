@@ -1,0 +1,526 @@
+Manifest-Version: 1.0
+Class-Path: tritonus_share-0.3.7.jar tritonus_mp3-0.3.7.jar tritonus_j
+ orbis-0.3.7.jar tritonus_src-0.3.7.jar jogg-0.0.7.jar jorbis-0.0.15.j
+ ar javalayer.jar vorbis-java-1.0.0-beta.jar
+Created-By: 1.5.0_11-b03 (Sun Microsystems Inc.)
+Ant-Version: Apache Ant 1.7.1
+Main-Class: com.mixblendr.gui.main.Main
+
+Name: com/mixblendr/skin/MSlider$Listener.class
+SHA1-Digest: biQC0n9JUUKVJeQh/DBBc93ZNVM=
+
+Name: com/mixblendr/audio/AudioEventDispatcher$AudioEvent.class
+SHA1-Digest: lPFno31kR8NQQmZds0QEIpGVtdQ=
+
+Name: com/mixblendr/effects/Delay2.class
+SHA1-Digest: Wvoes+fl3e0VSZjJtaB8JxpQi10=
+
+Name: com/mixblendr/util/Utils.class
+SHA1-Digest: YekvmKeVwBCjKD8PJM5Wgc1rRT4=
+
+Name: com/mixblendr/gui/main/Main$3$1.class
+SHA1-Digest: hbQ+G0yfCLqnwbLoLEONjQXu/+c=
+
+Name: com/mixblendr/skin/MPanel$PaintListener.class
+SHA1-Digest: sgNUyLr0e5ifqIAyh+anEdz4pMk=
+
+Name: com/mixblendr/gui/graph/GraphSelection.class
+SHA1-Digest: T6GaAI/0c8vRjiw0K3Xz73E0l5A=
+
+Name: com/mixblendr/audio/AutomationManager.class
+SHA1-Digest: JnYObyQtru+EIDjdVZU/oNaGKFk=
+
+Name: skins/test/blink.jpg
+SHA1-Digest: g9xy7CS18+g0tKcgHlkrpYxIN6Y=
+
+Name: com/mixblendr/gui/graph/Graph$PerformanceVars.class
+SHA1-Digest: 9Rb2YDsN/OTTiclvtZoXg3Sy0AI=
+
+Name: com/mixblendr/skin/ControlDelegateSlider.class
+SHA1-Digest: nbV68piYXqbeNrao8/FeieGE2O4=
+
+Name: com/mixblendr/gui/graph/GraphTimer$Listener.class
+SHA1-Digest: cFMPojq0V/+oO5UKQPjAxIs9EJQ=
+
+Name: com/mixblendr/gui/main/RegionGraph.class
+SHA1-Digest: iKg+aAliEqAA9WT3GixysIrJ6Hs=
+
+Name: skins/main/MIXBLENDR_special.png
+SHA1-Digest: 8wusBRPGDWM7AsGiXAvFfAbbA5k=
+
+Name: com/mixblendr/gui/main/ProgressDialog$1.class
+SHA1-Digest: wj3R9HcvJV65b1ialUb5PBV1wbw=
+
+Name: skins/test/MIXBLENDR_volume.png
+SHA1-Digest: uMuJ/4dux5NfDrcmqlNnlb8d3Nk=
+
+Name: com/mixblendr/gui/main/Applet$1.class
+SHA1-Digest: Y6CTOZvKIPgNRgLRMX6XJgjzZ+E=
+
+Name: skins/main_small/MIXBLENDR_OVR.png
+SHA1-Digest: COKU4Mtc+gbW7kDGjElWGZB+Kl8=
+
+Name: com/mixblendr/skin/MToggle.class
+SHA1-Digest: XTY+66AlGRBtgw8t2xbe1P4Ni2o=
+
+Name: com/mixblendr/skin/Pos.class
+SHA1-Digest: Qom5LgKf0VS3B6eI4eiovI66+K8=
+
+Name: com/mixblendr/gui/main/GraphScale.class
+SHA1-Digest: B718xt7RXPhcLvR2ysUOqVtOq0o=
+
+Name: com/mixblendr/gui/main/Main$2.class
+SHA1-Digest: mo9nXC0yO0sfuibKa7uIIp5586c=
+
+Name: com/mixblendr/gui/main/Main$3.class
+SHA1-Digest: TRt/pS6Iv5eM8bSwdz6ze5i9EuQ=
+
+Name: com/mixblendr/gui/main/GraphScale$Listener.class
+SHA1-Digest: R785/4yv3eQ4k9Q1xK3SuvmIAX0=
+
+Name: com/mixblendr/skin/ImageManager$ImageNotFoundException.class
+SHA1-Digest: ThPmCWjMz1QbArC3belpsQLgQkg=
+
+Name: com/mixblendr/skin/MButton.class
+SHA1-Digest: T9wTTk79+LGlCclyvQ+lyoNwUxY=
+
+Name: skins/main_small/images.ini
+SHA1-Digest: 2yMh0VbC7BjHDeCIMnVpI6iAYyQ=
+
+Name: com/mixblendr/audio/AudioEventDispatcher.class
+SHA1-Digest: bySjHH2WuEg1QwH2h4tPMZhwwdY=
+
+Name: com/mixblendr/gui/graph/Graph.class
+SHA1-Digest: KgY/vbKfuL0Fa19FPCMS3gZKosw=
+
+Name: skins/test/down.jpg
+SHA1-Digest: vHjJg6qSNcTU03Q4F76PDBHHzqA=
+
+Name: com/mixblendr/skin/ControlDefinition.class
+SHA1-Digest: m0S0+hiCKszCL3spjVH/UgPBsvA=
+
+Name: com/mixblendr/automation/AutomationPan.class
+SHA1-Digest: uwvj8wmA2WSOvFd8G6D7bNqUtrU=
+
+Name: com/mixblendr/audio/Playlist.class
+SHA1-Digest: ErM/nbzgEeGqhKSKjLgqNrHxlXQ=
+
+Name: com/mixblendr/gui/main/Applet.class
+SHA1-Digest: K9GyxzoylE6Mm6+t6gHj+K0n1nc=
+
+Name: com/mixblendr/gui/main/RegionSelectionManager.class
+SHA1-Digest: p1LGyvkqcmH3sacN/shM0W0Jt4I=
+
+Name: com/mixblendr/test/SimpleApplet$6.class
+SHA1-Digest: YApq2spa0yfeRI/ihM3728hW51Y=
+
+Name: com/mixblendr/effects/Delay2$FeedbackAutomation.class
+SHA1-Digest: CFxoiExeWzGsG9sO6/Rmo52z+8I=
+
+Name: com/mixblendr/audio/AudioFileURLMem.class
+SHA1-Digest: RY0Ic8/gp4wfQQgGcNz+X8/PGY4=
+
+Name: skins/test/MIXBLENDR_volume.psd
+SHA1-Digest: rg+8XwQaLTtUo+tTHIoODydBu3g=
+
+Name: com/mixblendr/skin/MPanel.class
+SHA1-Digest: +YZ/qoHKDwOyBMuj7RfFNhZh2yU=
+
+Name: com/mixblendr/skin/ParseException.class
+SHA1-Digest: 6mnIPHfNH0GjXn80XbqI/W3Pjuc=
+
+Name: com/mixblendr/audio/AudioPeakCache.class
+SHA1-Digest: amPr58syrlI/JZxRFphT7hfU6X4=
+
+Name: com/mixblendr/util/GUIUtils.class
+SHA1-Digest: /5fNFnXz2OlpdLu/xUpO+O/omto=
+
+Name: com/mixblendr/gui/main/Performance.class
+SHA1-Digest: 8w0OwMwCVjK7aYENTY2N28wK0eA=
+
+Name: com/mixblendr/skin/MEdit.class
+SHA1-Digest: 662CRHToFl0FzuRXf7Fn/fVDtng=
+
+Name: com/mixblendr/effects/Flanger$DelayTimeAutomation.class
+SHA1-Digest: HkGZ29f6s8DxyAfsQoKAt80rdKU=
+
+Name: com/mixblendr/gui/main/RegionMouseOperation.class
+SHA1-Digest: qWEOYf0qaafv/qQkETHBh5L1dQg=
+
+Name: com/mixblendr/skin/SkinFileReader.class
+SHA1-Digest: exCS6PvVdAXGmz+oLYnLBsfRROE=
+
+Name: com/mixblendr/gui/main/RigidFlowLayout.class
+SHA1-Digest: lPmmMLROqfWeIzh4x2G2rRZutIs=
+
+Name: com/mixblendr/audio/PublishingDialog.class
+SHA1-Digest: 9nruXlKVfF7+WYOAeVNaEN5ZGh8=
+
+Name: com/mixblendr/test/TestSkin$1.class
+SHA1-Digest: v8K8ZQ5LDZo2biknPNG7cF7OKQI=
+
+Name: com/mixblendr/audio/AudioFileFactory.class
+SHA1-Digest: D9/8nQeVPa5eJLZoNyzRadfu0kw=
+
+Name: com/mixblendr/test/AudioFileRenamer2.class
+SHA1-Digest: 2M6vMGFk3N7VAb6O7MfCKIrtuVU=
+
+Name: com/mixblendr/gui/graph/Graph$CacheElement.class
+SHA1-Digest: uUJj43YOuS2V+sEToeRbIxy4DhQ=
+
+Name: com/mixblendr/gui/graph/GraphSelection$Listener.class
+SHA1-Digest: EqLkBVdB/MXjVFvQi+J15KvT7Wc=
+
+Name: com/mixblendr/gui/main/RegionTransferable.class
+SHA1-Digest: z1/WWvMajoK4NmLS6Qtp/w4iCl0=
+
+Name: com/mixblendr/effects/Delay.class
+SHA1-Digest: TNpVp35ep8JHDNLnq+/t6QBKI4I=
+
+Name: com/mixblendr/audio/AudioOutput$SaveThread.class
+SHA1-Digest: P6UIvMged3Z63z4C+G+mhtoFZCU=
+
+Name: com/mixblendr/effects/GUIEffectsBase$SliderStrip.class
+SHA1-Digest: /1KFTsewM3R97vMgtdM5ePo5PME=
+
+Name: com/mixblendr/skin/MLabel.class
+SHA1-Digest: d4I/RJdqA0a7e4nHEV59Ln3bTkc=
+
+Name: com/mixblendr/gui/graph/GraphSection.class
+SHA1-Digest: pgpIpX8KtjjWfuXU9WmAOthRwIc=
+
+Name: com/mixblendr/effects/Delay$DelayTimeAutomation.class
+SHA1-Digest: OMbkML59kKUbt9h/1qT/zMvbkwA=
+
+Name: com/mixblendr/audio/AudioFileDownloader.class
+SHA1-Digest: Nn/ZswK7UYy2OelI5UNglqpsav4=
+
+Name: com/mixblendr/audio/AudioFileDownloader$DownloadJob.class
+SHA1-Digest: pvqBgb1WvE9z+GSzIzWzEtrLg3s=
+
+Name: com/mixblendr/audio/AudioFile.class
+SHA1-Digest: azlTdk/GF02/pFMnS5FuhhSYZ+o=
+
+Name: com/mixblendr/effects/Flanger$FeedbackAutomation.class
+SHA1-Digest: ZblG4becisSaiJBdjyXtvzw39As=
+
+Name: com/mixblendr/test/SimpleApplet$1.class
+SHA1-Digest: Auqikwj7WIaEArxvn/Vxk4GOrjw=
+
+Name: skins/test/skin.txt
+SHA1-Digest: /Xwn8cURuB3pVviHuqy15Krr0vo=
+
+Name: com/mixblendr/util/Debug$1.class
+SHA1-Digest: LOw7FPhh7+SW1t2gfMI8aDGMSmw=
+
+Name: com/mixblendr/test/SimpleApplet.class
+SHA1-Digest: M3ix335AUTVhcs35IattZTomIps=
+
+Name: com/mixblendr/audio/AutomationEventDispatcher$AutomationEvent.cl
+ ass
+SHA1-Digest: LEay4y8EuNz7KXRou87f9K2Tr5k=
+
+Name: com/mixblendr/util/Debug.class
+SHA1-Digest: 1rOwBxH2QZ3QUSImJs6eIifWMSw=
+
+Name: com/mixblendr/gui/main/ChannelStrip.class
+SHA1-Digest: xpzyFWc2x8AtWd3X4I7lZLLI7rc=
+
+Name: com/mixblendr/gui/main/RegionDragTool.class
+SHA1-Digest: 6X7iTX1bRblWOSe+Bfgzar3Vd1w=
+
+Name: skins/main_small/skin.txt
+SHA1-Digest: txEU+Rd+ohDn0T6LZ2XvjIkMSiY=
+
+Name: com/mixblendr/audio/AudioTrack$SoloState.class
+SHA1-Digest: M/FVBVEqgNyBNfDS2M9EMMN/hKY=
+
+Name: com/mixblendr/audio/AudioFileDownloader$DownloadThread.class
+SHA1-Digest: UhwBKc5+0BoqcbivWVWUXDvznwc=
+
+Name: com/mixblendr/gui/main/TrackPanel$1.class
+SHA1-Digest: /WlraX7flV1xpwumpXZLIwj5NeY=
+
+Name: skins/test/images.ini
+SHA1-Digest: IpPk51hi1h1QZRYw0Ae3dNIKUUE=
+
+Name: com/mixblendr/audio/AudioState.class
+SHA1-Digest: 7w6MUNVU+HFKSzQZPpLJn8IvYms=
+
+Name: com/mixblendr/audio/VorbisEncoder.class
+SHA1-Digest: EDkOg8ZCi4Db4ycRW1mqvE/NCpw=
+
+Name: skins/test/MIXBLENDR_volume3.png
+SHA1-Digest: WsHobYuDZ00aK2hg7D5e6gV3nh8=
+
+Name: com/mixblendr/skin/GlobalDefinition.class
+SHA1-Digest: V/dDP4qo+R1dK45HxZkZ+2t0Lng=
+
+Name: com/mixblendr/skin/MSlider.class
+SHA1-Digest: Bzn3Wa+Ff/IIdi45xj/Ic/Koiv0=
+
+Name: skins/main_small/MIXBLENDR_special.psd
+SHA1-Digest: LjwDeb8Bwq8SZAWxQ6yevPvYBdE=
+
+Name: com/mixblendr/audio/AudioPlayer.class
+SHA1-Digest: gVfyGZnkKDYeaKvQ8XKnKxiKyH0=
+
+Name: skins/main/images.ini
+SHA1-Digest: NVeRWqObF1vvW9fywgCJZwa12fE=
+
+Name: com/mixblendr/gui/main/RigidLineLayout.class
+SHA1-Digest: +GF/Bh+8EMQPt2pBHJHbdjRP8GA=
+
+Name: com/mixblendr/test/TestSkin.class
+SHA1-Digest: Ui0FXcPf+Ag1EN956mb/0wP5Mrc=
+
+Name: com/mixblendr/gui/main/Main.class
+SHA1-Digest: 9/UvBt2a0HyPTOINzWX4SQHKTYk=
+
+Name: com/mixblendr/gui/main/Main$4.class
+SHA1-Digest: GiPtWyieg0CHw3j+gZA/QXkE2Y0=
+
+Name: com/mixblendr/test/SimpleApplet$5.class
+SHA1-Digest: Y5cJQsm2H4JOmFmqEXPalc/kylI=
+
+Name: com/mixblendr/audio/Sender.class
+SHA1-Digest: ZMY7htMY+bWwC2aR4REzvFubM8U=
+
+Name: com/mixblendr/test/SimpleApplet$3.class
+SHA1-Digest: NzVTN4rvOdzA6suJuZshv7rxRik=
+
+Name: com/mixblendr/automation/AutomationVolume.class
+SHA1-Digest: +j5Ijdml3iMNmXOrYiUeVpp++4U=
+
+Name: skins/test/normal.jpg
+SHA1-Digest: OPTzLiVqD8mTn99VfP0im2zaDMo=
+
+Name: com/mixblendr/skin/ControlState.class
+SHA1-Digest: LHm3hb9ZFYo5pcrSsXuJTNQSLY8=
+
+Name: com/mixblendr/test/SimpleApplet$App$MyTH.class
+SHA1-Digest: EddDV3p5u26pUBM/m2N9HsJCzXY=
+
+Name: com/mixblendr/skin/GUIBuilder.class
+SHA1-Digest: dGDRPaCjXSMEZgwfqpP+whgC+Uw=
+
+Name: com/mixblendr/gui/main/PositionGrid.class
+SHA1-Digest: WYBtz8MRvUoqU1bUeHsjCMeJYE4=
+
+Name: com/mixblendr/skin/MControl.class
+SHA1-Digest: vvujbGBuaq07jW9bIfdNEPByNnA=
+
+Name: com/mixblendr/gui/main/ButtonPanel.class
+SHA1-Digest: 6C1wHNpZcJQzlTtzA5grCRKBqx4=
+
+Name: com/mixblendr/skin/ImageManager$1.class
+SHA1-Digest: da5F+kQ/Boj7Cjg7DA8fjQRdakw=
+
+Name: com/mixblendr/skin/Blinker.class
+SHA1-Digest: /TiRBvkxsl5N1huRD3K+aa4dLDY=
+
+Name: com/mixblendr/audio/AudioMixer.class
+SHA1-Digest: k8eejZapZtX7S7BgkW3qM8JF0Oc=
+
+Name: com/mixblendr/audio/AudioFileURL.class
+SHA1-Digest: xJ/JhqN98ywQpARSQH87Hyl1ZvU=
+
+Name: com/mixblendr/skin/Blinker$Blinkable.class
+SHA1-Digest: 9r52vUYAuchwj4q+4nEMKLUuJ6U=
+
+Name: com/mixblendr/gui/main/SnapToBeats.class
+SHA1-Digest: +l5zshcs0mQ9ArwYvIu9Ww2CvPE=
+
+Name: com/mixblendr/audio/AudioPlayer$Listener.class
+SHA1-Digest: z6DAynEOVgZVlOcLLkVPhvJ3e9c=
+
+Name: com/mixblendr/test/TestSkin$2.class
+SHA1-Digest: fVffL3UXrrhin4BMZMk0jW1tq+Y=
+
+Name: com/mixblendr/skin/SkinUtils.class
+SHA1-Digest: tJEDzSW2zqxAblpscYGbTRkbCHk=
+
+Name: com/mixblendr/audio/AudioInput.class
+SHA1-Digest: Tf6K+GC22WzzObmdOkGYHUqr5pE=
+
+Name: com/mixblendr/effects/GUIEffectsBase.class
+SHA1-Digest: QZwVo0KgWXUzFZJDBLrRvOp9Sho=
+
+Name: com/mixblendr/audio/AutomationListener.class
+SHA1-Digest: 5tM4ynYTgCGzVVu/RE67IFYVW2k=
+
+Name: com/mixblendr/skin/ControlDelegate.class
+SHA1-Digest: Z8J0hy6qTiXHSyt1JkqsYfzGSAE=
+
+Name: com/mixblendr/effects/Delay$BalanceAutomation.class
+SHA1-Digest: oWTXVlRKCrb7B0CE7yoDP7vD4JE=
+
+Name: com/mixblendr/gui/main/RegionDragTool$Type.class
+SHA1-Digest: q6t9ZdOShqqlFyOPdeJ9ZRKtEs8=
+
+Name: com/mixblendr/audio/AudioFileURLFile.class
+SHA1-Digest: zj6WqYP4ZCpcGGg7Iu/rpIRMbP4=
+
+Name: com/mixblendr/gui/graph/GraphTimer.class
+SHA1-Digest: 9d84EZ8p01qjTY/aCfFrgWm+ue8=
+
+Name: com/mixblendr/gui/main/Applet$2.class
+SHA1-Digest: sqIc1n039qZSYStBctod2Sr997w=
+
+Name: com/mixblendr/gui/graph/GraphSection$Listener.class
+SHA1-Digest: enlx5YPnZO41IJSO3P+EfP1VtO0=
+
+Name: com/mixblendr/skin/Rect.class
+SHA1-Digest: zLfedm8kw/6JnZLogVfdQiWm2Ag=
+
+Name: com/mixblendr/gui/main/EffectManager.class
+SHA1-Digest: q73vq5J8YKZ8nQ/JfDu50qjUWIU=
+
+Name: skins/main/MIXBLENDR_OVR.png
+SHA1-Digest: k0YE2QBHaAd3Vs8CVDz9WKeLQT8=
+
+Name: com/mixblendr/audio/AudioState$StateListener.class
+SHA1-Digest: j0cw/sTi29ekCgv5ssUuwUceIAU=
+
+Name: skins/main/MIXBLENDR_DN.png
+SHA1-Digest: CBwiJCDBA5NBXBlhM1Vy5I7DJe4=
+
+Name: skins/main/MIXBLENDR_UP.png
+SHA1-Digest: kXimTiSHJZnTdCJZLPrXNRSVyiw=
+
+Name: com/mixblendr/audio/AudioOutput$AOThread.class
+SHA1-Digest: YcOB3bCwAec8JKThwH0aJuWaifE=
+
+Name: com/mixblendr/effects/Flanger$AmplitudeAutomation.class
+SHA1-Digest: 8cI7/Bos17OMdBbJDqjYjOQCE/4=
+
+Name: com/mixblendr/test/SimpleApplet$4.class
+SHA1-Digest: Zcr6iJ9/ZC/hJiNv4qFSAQp8CNQ=
+
+Name: com/mixblendr/audio/AutomationObject.class
+SHA1-Digest: FMqL3/k7zWScgSLYocNV3HTlUx0=
+
+Name: com/mixblendr/test/SimpleApplet$App$2.class
+SHA1-Digest: YpEicb6XYhCiUrkNIvOPydwYqXg=
+
+Name: skins/test/sliders.jpg
+SHA1-Digest: eNX2ssFegJPQqeDFTgoM0R5o3Nw=
+
+Name: com/mixblendr/test/SimpleApplet$App.class
+SHA1-Digest: aPBEqaXm/QB+3gvkS2r/sa/dMis=
+
+Name: com/mixblendr/gui/main/TrackPanel.class
+SHA1-Digest: f2g4AGX3YI4W92wmS3sAkP14Fsk=
+
+Name: skins/main_small/MIXBLENDR_DN.png
+SHA1-Digest: l893WqRqDDAWjsHN/WZDh9fBxhU=
+
+Name: skins/main/skin.txt.bak
+SHA1-Digest: E4oXR8cfxsjrIMCDIVnZkAKq+qI=
+
+Name: com/mixblendr/audio/AudioFileURL$Listener.class
+SHA1-Digest: 180ySmnJByZyJlFT70IpBNPqxFQ=
+
+Name: com/mixblendr/gui/main/ProgressDialog.class
+SHA1-Digest: xbUXv2zcQdAHAB9KpFlKzspuVjc=
+
+Name: com/mixblendr/effects/Flanger$FreqAutomation.class
+SHA1-Digest: L17n2uundsQ8wQ5jROmKDtJLJuo=
+
+Name: com/mixblendr/gui/main/RegionGraph$RegionDragGestureRecognizer.c
+ lass
+SHA1-Digest: +OOTEFmtXMW/5QC8uYgn9TUDXWQ=
+
+Name: com/mixblendr/audio/AudioEffect.class
+SHA1-Digest: e8jhJFSJbdtmovFdpx7qXQKszYE=
+
+Name: com/mixblendr/audio/AudioFileDownloadListener.class
+SHA1-Digest: h4PKYhEaEs8MLXVCDCp1CaeTxl8=
+
+Name: com/mixblendr/gui/graph/GraphTimer$Task.class
+SHA1-Digest: UA4cyrA85GXBNuxsZcQXoBz4//I=
+
+Name: skins/main/skin.txt
+SHA1-Digest: 7I8ym+qgHizNo+/IH8NiHHAsutw=
+
+Name: com/mixblendr/util/Debug$2.class
+SHA1-Digest: nPXwM3vbAwyGpBWjwdqM1nWb0gY=
+
+Name: com/mixblendr/audio/AutomationEventDispatcher.class
+SHA1-Digest: YDolILT6zyeFvhH983MWRCElxTA=
+
+Name: com/mixblendr/skin/MLED.class
+SHA1-Digest: EiPjncLz1p5ug18AuGjeq2EimWU=
+
+Name: skins/test/hover.jpg
+SHA1-Digest: 5KUkWWBFFq6LlQAVtUYee9MhhSg=
+
+Name: com/mixblendr/effects/Flanger.class
+SHA1-Digest: 7hYrjPhrtc8gkqhXV6s7Hnw9558=
+
+Name: com/mixblendr/util/FatalExceptionListener.class
+SHA1-Digest: L8HrLqLRY7+UJjsoH+YWnmrebzk=
+
+Name: com/mixblendr/effects/Delay2$BalanceAutomation.class
+SHA1-Digest: 7KqIYoRa+d8nbeaObxCbr50aPRk=
+
+Name: com/mixblendr/audio/AudioRegion.class
+SHA1-Digest: nzZLc6rMjO/8u1tGsTdOurEn6Xw=
+
+Name: com/mixblendr/audio/MultiPartFormOutputStream.class
+SHA1-Digest: 4lAkMTAG21CMxO+TPMNfGAK+m3c=
+
+Name: com/mixblendr/test/SimpleApplet$2.class
+SHA1-Digest: ojvyGgHKiKViVgGyxPATg/sa9aI=
+
+Name: com/mixblendr/effects/Delay$FeedbackAutomation.class
+SHA1-Digest: Tarjf79DS0vD6utW8mp49WxUX5A=
+
+Name: skins/main_small/MIXBLENDR_special.png
+SHA1-Digest: urCOuIhGUeMmGOA/8xBDi5Bye3k=
+
+Name: com/mixblendr/test/SimpleApplet$App$1.class
+SHA1-Digest: D4R8lMqk2hWbo3xBdSF1D8digNs=
+
+Name: com/mixblendr/gui/main/Globals.class
+SHA1-Digest: iEJKkV3i6a7ZRxFRfLFKIWW3/5A=
+
+Name: com/mixblendr/effects/Delay2$DelayTimeAutomation.class
+SHA1-Digest: /2Wi2flnzNKWiiGxNTpFS8KDymQ=
+
+Name: com/mixblendr/audio/AudioRegion$State.class
+SHA1-Digest: I0xZ4t+tp9d3Ez+F9IZGKTVnbE8=
+
+Name: com/mixblendr/audio/AudioTrack.class
+SHA1-Digest: lgvkBhIPd26aMokSRpmo8vhvWn0=
+
+Name: com/mixblendr/audio/AudioListener.class
+SHA1-Digest: PjPHVvbEIqGOYU+Ly7m+kNCtC+0=
+
+Name: com/mixblendr/test/TestSkin$3.class
+SHA1-Digest: 2ULThdxvUkCvg7EhIxg9I8FS2A4=
+
+Name: com/mixblendr/audio/SimpleEnvironment.class
+SHA1-Digest: 4vJE8lAECqqhyXaITPpxjCxTdIY=
+
+Name: com/mixblendr/audio/AudioOutput.class
+SHA1-Digest: 0Z1qqv8UQRKSTLoifZBu1Wg0cso=
+
+Name: skins/test/MIXBLENDR_volume2.png
+SHA1-Digest: MNC0Fw3vFQX2v9KXYTKMtxreoKk=
+
+Name: com/mixblendr/effects/Flanger$BalanceAutomation.class
+SHA1-Digest: Zq1dwfPnSdxEjnqzBcbNHjPB59Q=
+
+Name: skins/main_small/MIXBLENDR_UP.png
+SHA1-Digest: a9Tpusfj4Do4k3FG/AwS1tEHSY4=
+
+Name: com/mixblendr/test/AudioFileRenamer.class
+SHA1-Digest: L+8u5/D4DHJYwhX1eVXDXYgC++s=
+
+Name: com/mixblendr/skin/ImageManager.class
+SHA1-Digest: /IG/RFghQ2p41g9dlpA60iVmJYw=
+
+Name: com/mixblendr/audio/AutomationHandler.class
+SHA1-Digest: FWqREsdn5LQdT4kyS1yOktelAu4=
+

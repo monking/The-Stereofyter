@@ -16,6 +16,8 @@ import com.mixblendr.util.Debug;
  * @author Florian Bomers
  */
 public class Applet extends JApplet {
+	
+	static final long serialVersionUID = 1;
 
 	protected Main main;
 
