@@ -54,6 +54,7 @@ public class Applet extends JApplet {
             main.setUrl(url);
             main.setRedirectUrl(redirectURL);
             main.setApplet(this);
+            callJS("dispatchMBEvent", "'ready'");
 
 
             SwingUtilities.invokeAndWait(new Runnable() {
@@ -83,6 +84,19 @@ public class Applet extends JApplet {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Test connection by calling this method from outside the applet.
+	 * @param msg
+	 * @return
+	 */
+	public String testConn(String msg) {
+		return "Mixblendr heard you say, \"" + msg + "\"";
+	}
+	
+	public void testAlert(String msg) {
+		callJS("alert", "'"+testConn(msg)+"'");
 	}
 	
 	/**

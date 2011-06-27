@@ -14,9 +14,8 @@
 		<script type="text/javascript" src="js/javaobject.js"></script>
 		<script type="text/javascript" src="js/mixblendr.js"></script>
 		<script type="text/javascript">
-      var mbinterface;
       window.onload = function() {
-        mbinterface = new MixBlendrInterface( {
+        embedMixblendr( {
           containerId: "mbapp",
           id: "mixblendr",
           code: "com/mixblendr/gui/main/Applet",
@@ -30,7 +29,20 @@
           }
         } );
       };
-      swfobject.embedSWF("swf/main.swf", "sfapp", "100%", "100%", "9.0.0", "swf/expressInstall.swf");
+      swfobject.embedSWF(
+        "swf/main.swf",
+        "sfapp",
+        "100%",
+        "100%",
+        "9.0.0",
+        "swf/expressInstall.swf",
+        null,
+        null,
+        null,
+        function(e){
+          e.success && mbinterface.addEventListenerObject(e.ref);
+        }
+      );
 		</script>
 	</head>
 	<body>

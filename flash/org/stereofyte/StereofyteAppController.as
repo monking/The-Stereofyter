@@ -7,6 +7,7 @@ package org.stereofyte {
   import flash.display.StageScaleMode;
   import flash.events.*;
   import com.chrislovejoy.WebAppController;
+  import org.stereofyte.mixblendr.*;
   import org.stereofyte.mixer.*;
   
   public class StereofyteAppController extends WebAppController {
@@ -15,7 +16,8 @@ package org.stereofyte {
       WEBROOT:String = '.';
 
     public var
-      mixer:Mixer;
+      mixer:Mixer,
+      engine:MixblendrInterface;
     
     public function StereofyteAppController(root:DisplayObject):void {
       super(root);
@@ -25,9 +27,15 @@ package org.stereofyte {
       demo();
     }
 
+    public function startJavaLink(targetName:String) {
+      engine = new MixblendrInterface();
+    }
+
     private function demo():void {
       mixer = new Mixer();
       _root.stage.addChild(mixer);
+      startJavaLink("mbinterface");
+      engine.call("test");
     }
     
   }
