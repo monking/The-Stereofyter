@@ -29,6 +29,9 @@
           }
         } );
       };
+      var flashvars = {
+        samplepath = "http://local.stereofyte.org/audio/samples"
+      };
       swfobject.embedSWF(
         "swf/main.swf",
         "sfapp",
@@ -36,7 +39,7 @@
         "100%",
         "9.0.0",
         "swf/expressInstall.swf",
-        null,
+        flashvars,
         null,
         null,
         function(e){

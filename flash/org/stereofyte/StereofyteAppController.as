@@ -3,6 +3,7 @@ package org.stereofyte {
   import flash.display.DisplayObject;
   import flash.display.Sprite;
   import flash.display.Graphics;
+  import flash.display.LoaderInfo;
   import flash.display.StageAlign;
   import flash.display.StageScaleMode;
   import flash.events.*;
@@ -45,7 +46,7 @@ package org.stereofyte {
       /*
        * load an XML or JSON file containing the sample data, to be built by PHP querying a database.
        */
-      var SAMPLE_PATH:String = "http://local.stereofyte.org/audio/samples/";
+      var SAMPLE_PATH:String = LoaderInfo(_root.loaderInfo).parameters.samplepath;
       mixer.addSample(new Sample({
         src:SAMPLE_PATH+"African Mist Voice 1.mp3",
         family:Sample.FAMILY_VOCAL
