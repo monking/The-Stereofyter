@@ -48,39 +48,39 @@ package org.stereofyte {
        */
       var SAMPLE_PATH:String = LoaderInfo(_root.loaderInfo).parameters.samplepath;
       mixer.addSample(new Sample({
-        src:SAMPLE_PATH+"African Mist Voice 1.mp3",
+        src:SAMPLE_PATH+"African_Mist_Voice_1.ogg",
         family:Sample.FAMILY_VOCAL
       }));
       mixer.addSample(new Sample({
-        src:SAMPLE_PATH+"African Mist Voice 2.mp3",
+        src:SAMPLE_PATH+"African_Mist_Voice_2.ogg",
         family:Sample.FAMILY_VOCAL
       }));
       mixer.addSample(new Sample({
-        src:SAMPLE_PATH+"Backroads Banjo.mp3",
+        src:SAMPLE_PATH+"Backroads_Banjo.ogg",
         family:Sample.FAMILY_GUITAR
       }));
       mixer.addSample(new Sample({
-        src:SAMPLE_PATH+"Cuban Percussion.mp3",
+        src:SAMPLE_PATH+"Cuban_Percussion.ogg",
         family:Sample.FAMILY_DRUM
       }));
       mixer.addSample(new Sample({
-        src:SAMPLE_PATH+"Djembe.mp3",
+        src:SAMPLE_PATH+"Djembe.ogg",
         family:Sample.FAMILY_DRUM
       }));
       mixer.addSample(new Sample({
-        src:SAMPLE_PATH+"Electro Transistor Beat.mp3",
+        src:SAMPLE_PATH+"Electro_Transistor_Beat.ogg",
         family:Sample.FAMILY_DRUM
       }));
       mixer.addSample(new Sample({
-        src:SAMPLE_PATH+"Hip Hop Wakka Guitar.mp3",
+        src:SAMPLE_PATH+"Hip_Hop_Wakka_Guitar.ogg",
         family:Sample.FAMILY_GUITAR
       }));
       mixer.addSample(new Sample({
-        src:SAMPLE_PATH+"House Lazy Beat.mp3",
+        src:SAMPLE_PATH+"House_Lazy_Beat.ogg",
         family:Sample.FAMILY_DRUM
       }));
       mixer.addSample(new Sample({
-        src:SAMPLE_PATH+"Jazz Piano.mp3",
+        src:SAMPLE_PATH+"Jazz_Piano.ogg",
         family:Sample.FAMILY_STRINGS
       }));
     }
