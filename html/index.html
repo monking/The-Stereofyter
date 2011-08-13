@@ -6,9 +6,9 @@
     <style type="text/css" media="screen">
       html, body { height: 100%; }
       body { height: 100%; margin: 0; padding: 0; /*overflow: hidden;*/ }
-      #app_container { width: 900px; height: 600px; margin: 0 auto; }
+      #app_container { width: 100%; height: 100%; margin: 0 auto; }
       #sfapp { outline:none; }
-      #mbapp { width: 100%; height: 200px; position: absolute; top: 0; left: 800px; z-index: 1; }
+      #mbapp { width: 100%; height: 200px; position: absolute; top: 0; left: 100%; z-index: 1; }
     </style>
 		<script type="text/javascript" src="js/swfobject.js"></script>
 		<script type="text/javascript" src="js/javaobject.js"></script>
@@ -25,7 +25,7 @@
           params: {
             url: "mixblendr/competition/getfile",
             REDIRECT_URL: "mixblendr/competition/competition-entries/",
-            DEFAULT_TEMPO: "120.0"
+            DEFAULT_TEMPO: "96.0"
           }
         } );
       };

@@ -9,6 +9,7 @@ package org.stereofyte {
   import flash.events.*;
   import flash.external.ExternalInterface;
   import com.chrislovejoy.WebAppController;
+  import org.stereofyte.gui.*;
   import org.stereofyte.mixblendr.*;
   import org.stereofyte.mixer.*;
   
@@ -19,14 +20,16 @@ package org.stereofyte {
 
     private var
       mixer:Mixer,
-      engine:MixblendrInterface;
+      engine:MixblendrInterface,
+      site:StereofyteSite;
     
     public function StereofyteAppController(root:DisplayObject):void {
       super(root);
       _root.stage.frameRate = 60;
       _root.stage.align = StageAlign.TOP_LEFT;
-      _root.stage.scaleMode = StageScaleMode.SHOW_ALL;
+      _root.stage.scaleMode = StageScaleMode.NO_SCALE;
       engine = new MixblendrInterface();
+      site = new StereofyteSite(_root.stage);
       addMixer();
       demo();
     }
@@ -46,41 +49,52 @@ package org.stereofyte {
       /*
        * load an XML or JSON file containing the sample data, to be built by PHP querying a database.
        */
-      var SAMPLE_PATH:String = LoaderInfo(_root.loaderInfo).parameters.samplepath;
+      logObject(flashVars);
+      var SAMPLE_PATH:String = flashVars.samplepath;
+
       mixer.addSample(new Sample({
         src:SAMPLE_PATH+"African_Mist_Voice_1.ogg",
+        name:"African Mist Voice 1",
         family:Sample.FAMILY_VOCAL
       }));
       mixer.addSample(new Sample({
         src:SAMPLE_PATH+"African_Mist_Voice_2.ogg",
+        name:"African_Mist_Voice_2.ogg",
         family:Sample.FAMILY_VOCAL
       }));
       mixer.addSample(new Sample({
         src:SAMPLE_PATH+"Backroads_Banjo.ogg",
+        name:"Backroads_Banjo.ogg",
         family:Sample.FAMILY_GUITAR
       }));
       mixer.addSample(new Sample({
         src:SAMPLE_PATH+"Cuban_Percussion.ogg",
+        name:"Cuban_Percussion.ogg",
         family:Sample.FAMILY_DRUM
       }));
       mixer.addSample(new Sample({
         src:SAMPLE_PATH+"Djembe.ogg",
+        name:"Djembe.ogg",
         family:Sample.FAMILY_DRUM
       }));
       mixer.addSample(new Sample({
         src:SAMPLE_PATH+"Electro_Transistor_Beat.ogg",
+        name:"Electro_Transistor_Beat.ogg",
         family:Sample.FAMILY_DRUM
       }));
       mixer.addSample(new Sample({
         src:SAMPLE_PATH+"Hip_Hop_Wakka_Guitar.ogg",
+        name:"Hip_Hop_Wakka_Guitar.ogg",
         family:Sample.FAMILY_GUITAR
       }));
       mixer.addSample(new Sample({
         src:SAMPLE_PATH+"House_Lazy_Beat.ogg",
+        name:"House_Lazy_Beat.ogg",
         family:Sample.FAMILY_DRUM
       }));
       mixer.addSample(new Sample({
         src:SAMPLE_PATH+"Jazz_Piano.ogg",
+        name:"Jazz_Piano.ogg",
         family:Sample.FAMILY_STRINGS
       }));
     }

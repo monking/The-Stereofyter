@@ -578,7 +578,7 @@ public class Main implements FatalExceptionListener, AutomationListener,
 	public final static int QUARTER_BEAT = 42336;
 	private static final String SOUNDS_URL = "http://www.12fb.com/florian/nervesound/sounds/";
 
-	public void loadDefaultSong() {
+	protected void loadDefaultSong() {
 		AudioMixer mixer = player.getMixer();
 		mixer.clear();
 		try {

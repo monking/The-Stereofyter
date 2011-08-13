@@ -16,7 +16,7 @@ package org.stereofyte.mixblendr {
     }
 
     public function call(method, ... arguments):* {
-      trace("calling " + method);
+      trace("calling on MixBlendr: " + method);
       switch (arguments.length) {
         case 0:
           return ExternalInterface.call(jsBridgeName+'.'+method);

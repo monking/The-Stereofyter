@@ -4,6 +4,7 @@ package org.stereofyte.mixer {
   import flash.events.MouseEvent;
   import flash.display.Graphics;
   import flash.display.Sprite;
+  import flash.text.TextField;
   import org.stereofyte.mixblendr.*;
 
   public class Bin extends Sprite {
@@ -29,7 +30,11 @@ package org.stereofyte.mixer {
       var element = new Sprite();
       var icon = new InstrumentIcon();
       icon.gotoAndStop(sample.family);
+      var label = new TextField();
+      label.text = sample.src;
+      label.x = 50;
       element.addChild(icon);
+      element.addChild(label);
       addChild(element);
       element.addEventListener(MouseEvent.MOUSE_DOWN, focusSample);
       /* position element relative to total number of samples */
