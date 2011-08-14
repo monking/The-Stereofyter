@@ -13,7 +13,6 @@ package org.stereofyte.mixer {
   public class Mixer extends Sprite {
     
     public static const
-      TRACK_HEIGHT:Number = 46,
       BEAT_WIDTH:Number = 87,
       REGION_ADDED:String = "regionAdded",
       REGION_MOVED:String = "regionMoved";
@@ -29,6 +28,7 @@ package org.stereofyte.mixer {
       Width:Number,
       Height:Number,
       trackWidth:Number = 1000,
+      trackHeight:Number,
       ui:MixerUI;
 
     public function Mixer(width:Number = 500, height:Number = 240, trackCount:Number = 8):void {
@@ -37,13 +37,14 @@ package org.stereofyte.mixer {
       bins = [];
       Width = width;
       Height = height;
-      snapGrid = new Point(BEAT_WIDTH, TRACK_HEIGHT);
+      trackHeight = Height / trackCount;
+      snapGrid = new Point(BEAT_WIDTH, trackHeight);
       ui = new MixerUI();
       addChild(ui);
       drawTrackField();
       drawPlayhead();
       for (var i:Number = 0; i < trackCount; i++) {
-        addTrack(new Track(trackWidth, TRACK_HEIGHT));
+        addTrack(new Track(trackWidth, trackHeight));
       }
       addEventListener(Event.ADDED_TO_STAGE, function(event) {
         root.addEventListener(Event.RESIZE, resize);
@@ -56,7 +57,7 @@ package org.stereofyte.mixer {
       var region = new Region(
         sample,
         BEAT_WIDTH,
-        TRACK_HEIGHT,
+        trackHeight,
         {
           grid:            snapGrid,
           forceSnapOnStop: true,
@@ -179,9 +180,9 @@ package org.stereofyte.mixer {
         targetCoord.x >= 0
         && targetCoord.x < trackWidth
         && targetCoord.y >= 0
-        && targetCoord.y < tracks.length * TRACK_HEIGHT
+        && targetCoord.y < tracks.length * trackHeight
         ) {
-        return Math.floor(targetCoord.y / TRACK_HEIGHT);
+        return Math.floor(targetCoord.y / trackHeight);
       }
       return targetTrackIndex;
     }
@@ -220,8 +221,8 @@ package org.stereofyte.mixer {
 
     private function drawTrackField():void {
       trackField = new Sprite();
-      trackField.x = 10;
-      trackField.y = 11;
+      trackField.x = 9;
+      trackField.y = 10;
       trackFieldMask = new Sprite();
       trackField.mask = trackFieldMask;
       resizeTrackField(width, height);
@@ -240,10 +241,10 @@ package org.stereofyte.mixer {
               scrollTrackField(new Point(-BEAT_WIDTH, 0));
               break;
             case 38/*<UP>*/:
-              scrollTrackField(new Point(0, -TRACK_HEIGHT));
+              scrollTrackField(new Point(0, -trackHeight));
               break;
             case 40/*<DOWN>*/:
-              scrollTrackField(new Point(0, TRACK_HEIGHT));
+              scrollTrackField(new Point(0, trackHeight));
               break;
           }
         } );
@@ -261,8 +262,8 @@ package org.stereofyte.mixer {
         delta.offset(0, -maskY);
       } else if (maskX + trackField.mask.width > trackWidth) {
         delta.offset(trackWidth - (maskX + trackField.mask.width), 0);
-      } else if (maskY + trackField.mask.height > TRACK_HEIGHT * tracks.length) {
-        delta.offset(0, TRACK_HEIGHT * tracks.length - (maskY + trackField.mask.height));
+      } else if (maskY + trackField.mask.height > trackHeight * tracks.length) {
+        delta.offset(0, trackHeight * tracks.length - (maskY + trackField.mask.height));
       }
       trackField.x -= delta.x;
       trackField.y -= delta.y;
@@ -272,7 +273,7 @@ package org.stereofyte.mixer {
 
     public function zoomTrackField(factor:Number):void {
       trackField.scaleX = factor;
-      //snapGrid = new Point(BEAT_WIDTH * factor, TRACK_HEIGHT * factor);
+      //snapGrid = new Point(BEAT_WIDTH * factor, trackHeight * factor);
     }
 
     private function resizeTrackField(width:Number, height:Number):void {
@@ -287,7 +288,7 @@ package org.stereofyte.mixer {
       trackField.addChildAt(track, 0);
       var trackIndex = tracks.length - 1;
       track.index = trackIndex;
-      track.y = TRACK_HEIGHT * trackIndex;
+      track.y = trackHeight * trackIndex;
     }
     
     private function drawPlayhead():void {
@@ -334,7 +335,7 @@ package org.stereofyte.mixer {
     private function resize(event:Event = null):void {
       trace("resize");
       ui.x = Math.floor(stage.stageWidth / 2 - ui.width / 2);
-      ui.y = 100;
+      ui.y = 60;
       bins[0].x = Math.floor(stage.stageWidth / 2 - 300 - bins[0].width);
       bins[0].y = stage.stageHeight - bins[0].height - 10;
       bins[1].x = Math.floor(stage.stageWidth / 2 + 300);

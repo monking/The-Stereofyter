@@ -29,13 +29,14 @@ package org.stereofyte {
       _root.stage.align = StageAlign.TOP_LEFT;
       _root.stage.scaleMode = StageScaleMode.NO_SCALE;
       engine = new MixblendrInterface();
-      site = new StereofyteSite(_root.stage);
+      site = new StereofyteSite();
+      _root.stage.addChild(site);
       addMixer();
       demo();
     }
 
     private function addMixer():void {
-      mixer = new Mixer();
+      mixer = new Mixer(523, 225, 5);
       _root.stage.addChild(mixer);
       mixer.addEventListener(Mixer.REGION_ADDED, function(event:Event) {
         var region:Region = event.target as Region;
