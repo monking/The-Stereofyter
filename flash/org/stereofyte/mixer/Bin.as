@@ -20,6 +20,7 @@ package org.stereofyte.mixer {
     private var
       focusedIndex:Number = NaN,
       samples:Array = [],
+      sampleHolder:Sprite,
       ui:BinUI;
 
     public function Bin():void {
@@ -39,7 +40,7 @@ package org.stereofyte.mixer {
       element.front.sleeve.gotoAndStop(sample.family);
       element.front.discInside.gotoAndStop(sample.family + "_insleeve");
       element.front.discOutside.gotoAndStop(sample.family);
-      addChild(element);
+      sampleHolder.addChild(element);
       element.addEventListener(MouseEvent.CLICK, pull);
       /* position element relative to total number of samples */
       element.x = 11;
@@ -85,7 +86,9 @@ package org.stereofyte.mixer {
 
     private function drawBin():void {
       ui = new BinUI();
+      sampleHolder = new Sprite();
       addChild(ui);
+      addChild(sampleHolder);
       /*
       graphics.beginFill(0x333333, 1);
       graphics.drawRect(0, 0, WIDTH, HEIGHT);
@@ -94,16 +97,20 @@ package org.stereofyte.mixer {
     }
 
     private function scroll(event:MouseEvent):void {
+      var firstIndexBelow:int = -1;
       for (var i:Number = 0; i < samples.length; i++) {
         var element = samples[i].element;
-        if (mouseY < element.y) {
-          if (i > 0 && element.currentFrame <= SAMPLE_UP_FRAME || element.currentFrame > SAMPLE_DOWN_FRAME) {
-            element.gotoAndPlay(SAMPLE_UP_FRAME);
-          }
-        } else {
+        if (element.y <= mouseY) {
+          sampleHolder.setChildIndex(element, i);
           if (element.currentFrame > SAMPLE_UP_FRAME && element.currentFrame <= SAMPLE_DOWN_FRAME) {
             element.gotoAndPlay(SAMPLE_DOWN_FRAME);
           }
+        } else {
+          if (firstIndexBelow == -1) firstIndexBelow = i;
+          if (i > 0 && element.currentFrame <= SAMPLE_UP_FRAME || element.currentFrame > SAMPLE_DOWN_FRAME) {
+            element.gotoAndPlay(SAMPLE_UP_FRAME);
+          }
+          sampleHolder.setChildIndex(element, samples.length - 1 - i + firstIndexBelow);
         }
       }
     }
