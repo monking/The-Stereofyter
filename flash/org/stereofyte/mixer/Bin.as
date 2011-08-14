@@ -4,13 +4,17 @@ package org.stereofyte.mixer {
   import flash.events.MouseEvent;
   import flash.display.Graphics;
   import flash.display.Sprite;
-  import flash.text.TextField;
+  //import flash.text.TextField;
   import org.stereofyte.mixblendr.*;
 
   public class Bin extends Sprite {
     
     public static const
       PULL:String = "pull";
+
+    private static const
+      WIDTH:Number = 140,
+      HEIGHT:Number = 220;
 
     private var
       focusedIndex:Number = NaN,
@@ -30,11 +34,11 @@ package org.stereofyte.mixer {
       var element = new Sprite();
       var icon = new InstrumentIcon();
       icon.gotoAndStop(sample.family);
-      var label = new TextField();
-      label.text = sample.src;
-      label.x = 50;
+      //var label = new TextField();
+      //label.text = sample.src;
+      //label.x = 50;
       element.addChild(icon);
-      element.addChild(label);
+      //element.addChild(label);
       addChild(element);
       element.addEventListener(MouseEvent.MOUSE_DOWN, focusSample);
       /* position element relative to total number of samples */
@@ -46,6 +50,18 @@ package org.stereofyte.mixer {
       if (isNaN(focusedIndex)) return null;
       return samples[focusedIndex].sample;
     }
+
+    override public function get width():Number {
+      return WIDTH;
+    }
+
+    override public function set width(newWidth:Number):void {}
+
+    override public function get height():Number {
+      return HEIGHT;
+    }
+
+    override public function set height(newHeight:Number):void {}
 
     private function scroll(event:MouseEvent) {
     }
@@ -76,7 +92,7 @@ package org.stereofyte.mixer {
 
     private function drawBin():void {
       graphics.beginFill(0x333333, 1);
-      graphics.drawRect(0, 0, 100, 200);
+      graphics.drawRect(0, 0, WIDTH, HEIGHT);
       graphics.endFill();
     }
 

@@ -335,10 +335,10 @@ package org.stereofyte.mixer {
       trace("resize");
       ui.x = Math.floor(stage.stageWidth / 2 - ui.width / 2);
       ui.y = 100;
-      bins[0].x = Math.floor(stage.stageWidth / 2 - 250 - bins[0].width);
-      bins[0].y = stage.stageHeight - bins[0].height - 80;
-      bins[1].x = Math.floor(stage.stageWidth / 2 + 250);
-      bins[1].y = stage.stageHeight - bins[1].height - 80;
+      bins[0].x = Math.floor(stage.stageWidth / 2 - 300 - bins[0].width);
+      bins[0].y = stage.stageHeight - bins[0].height - 10;
+      bins[1].x = Math.floor(stage.stageWidth / 2 + 300);
+      bins[1].y = stage.stageHeight - bins[1].height - 10;
     }
 
     private function demo():void {
