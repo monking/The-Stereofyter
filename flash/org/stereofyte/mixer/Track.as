@@ -32,7 +32,7 @@ package org.stereofyte.mixer {
        Width = width;
        Height = height;
 			 drawControls();
-			 drawBackground();
+			 //drawBackground();
     }
 
 		public function addRegion(region:Region):void {

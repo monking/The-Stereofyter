@@ -40,7 +40,7 @@ package org.stereofyte {
       mixer.addEventListener(Mixer.REGION_ADDED, function(event:Event) {
         var region:Region = event.target as Region;
         var track:Track = region.parent as Track;
-        var sample:Sample = region.getSample();
+        var sample:Sample = region.sample;
         engine.call("addRegion", track.index, sample.src, mixer.getBeat(region));
       });
     }

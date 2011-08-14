@@ -2,6 +2,7 @@ package org.stereofyte.mixer {
 
   import flash.display.DisplayObject;
   import flash.display.Graphics;
+  import flash.display.MovieClip;
   import flash.display.Sprite;
   import flash.events.Event;
   import flash.events.KeyboardEvent;
@@ -12,8 +13,8 @@ package org.stereofyte.mixer {
   public class Mixer extends Sprite {
     
     public static const
-      TRACK_HEIGHT:Number = 40,
-      BEAT_WIDTH:Number = 120,
+      TRACK_HEIGHT:Number = 46,
+      BEAT_WIDTH:Number = 87,
       REGION_ADDED:String = "regionAdded",
       REGION_MOVED:String = "regionMoved";
 
@@ -24,10 +25,11 @@ package org.stereofyte.mixer {
       snapGrid:Point,
       trackField:Sprite,
       trackFieldMask:Sprite,
-      playhead:Sprite,
+      playhead:MovieClip,
       Width:Number,
       Height:Number,
-      trackWidth:Number = 1000
+      trackWidth:Number = 1000,
+      ui:MixerUI;
 
     public function Mixer(width:Number = 500, height:Number = 240, trackCount:Number = 8):void {
       tracks = [];
@@ -35,13 +37,18 @@ package org.stereofyte.mixer {
       bins = [];
       Width = width;
       Height = height;
-      drawBackground();
+      snapGrid = new Point(BEAT_WIDTH, TRACK_HEIGHT);
+      ui = new MixerUI();
+      addChild(ui);
       drawTrackField();
       drawPlayhead();
       for (var i:Number = 0; i < trackCount; i++) {
         addTrack(new Track(trackWidth, TRACK_HEIGHT));
       }
-      snapGrid = new Point(BEAT_WIDTH, TRACK_HEIGHT);
+      addEventListener(Event.ADDED_TO_STAGE, function(event) {
+        root.addEventListener(Event.RESIZE, resize);
+        resize();
+      });
       demo();
     }
 
@@ -53,19 +60,22 @@ package org.stereofyte.mixer {
         {
           grid:            snapGrid,
           forceSnapOnStop: true,
-          coordinateSpace: trackField
+          coordinateSpace: trackField,
+          grabAnywhere:    false
         }
       );
-      region.addEventListener(DragAndDrop.DRAG_START, liftRegion);
-      region.addEventListener(DragAndDrop.DRAG_STOP, placeRegion);
+      region.addEventListener(DragAndDrop.DRAG_START, onLiftRegion);
+      region.addEventListener(DragAndDrop.DRAG_STOP, onPlaceRegion);
+      region.addEventListener(Region.DUPLICATE, onDuplicateRegion);
       addChild(region);
       regions.push(region);
       return region;
     }
 
     public function removeRegion(region:Region):void {
-      region.removeEventListener(DragAndDrop.DRAG_START, liftRegion);
-      region.removeEventListener(DragAndDrop.DRAG_STOP, placeRegion);
+      region.removeEventListener(DragAndDrop.DRAG_START, onLiftRegion);
+      region.removeEventListener(DragAndDrop.DRAG_STOP, onPlaceRegion);
+      region.removeEventListener(Region.DUPLICATE, onDuplicateRegion);
       for (var i:Number = regions.length - 1; i >=0; i--) {
         if (region === regions[i]) {
           regions.splice(i, 1);
@@ -109,8 +119,19 @@ package org.stereofyte.mixer {
       resizeTrackField(Width, Height);
     }
 
-    private function liftRegion(event:Event) {
-      var region:Region = event.target as Region;
+    private function onLiftRegion(event:Event) {
+      liftRegion(event.target as Region);
+    }
+
+    private function onPlaceRegion(event:Event) {
+      placeRegion(event.target as Region);
+    }
+
+    private function onDuplicateRegion(event:Event) {
+      duplicateRegion(event.target as Region);
+    }
+
+    private function liftRegion(region:Region) {
       if (this !== region.parent) {
         var regionPosition = globalToLocal(region.localToGlobal(new Point()));
         addChild(region);
@@ -121,21 +142,33 @@ package org.stereofyte.mixer {
       region.addEventListener(Event.ENTER_FRAME, updateRegionStatus);
     }
 
-    private function placeRegion(event:Event) {
-      var region:Region = event.target as Region;
+    private function placeRegion(region:Region) {
       region.removeEventListener(Event.ENTER_FRAME, updateRegionStatus);
       var targetTrackIndex:Number = getObjectTargetTrackIndex(region);
+      var debug = "placeRegion: ";
       if (isNaN(targetTrackIndex)) {
+        debug += "not on a valid track: remove Region";
         removeRegion(region);
       } else {
         tracks[targetTrackIndex].addRegion(region);
         if (Region.STATUS_NULL == region.status) {
+          debug += "new region: ADDED";
           region.status = Region.STATUS_LIVE;
           region.dispatchEvent(new Event(Mixer.REGION_ADDED, true));
         } else {
+          debug += "existing region: MOVED";
           region.dispatchEvent(new Event(Mixer.REGION_MOVED, true));
         }
       }
+      trace(debug);
+    }
+
+    private function duplicateRegion(region:Region) {
+      var newRegion:Region = addRegion(region.sample);
+      var newPosition = globalToLocal(region.parent.localToGlobal(new Point(region.x + region.width, region.y)));
+      newRegion.x = newPosition.x;
+      newRegion.y = newPosition.y;
+      placeRegion(newRegion);
     }
 
     private function getObjectTargetTrackIndex(object:DisplayObject):Number {
@@ -185,18 +218,14 @@ package org.stereofyte.mixer {
 
     }
 
-    private function drawBackground():void {
-      graphics.beginFill(0x999999, 1);
-      graphics.drawRect(0, 0, Width, Height);
-      graphics.endFill();
-    }
-
     private function drawTrackField():void {
       trackField = new Sprite();
+      trackField.x = 10;
+      trackField.y = 11;
       trackFieldMask = new Sprite();
       trackField.mask = trackFieldMask;
       resizeTrackField(width, height);
-      addChild(trackField);
+      ui.addChild(trackField);
       trackField.addChild(trackFieldMask);
       trackField.addEventListener(MouseEvent.MOUSE_WHEEL, function(event) {
         scrollTrackField(new Point(event.delta * 20, 0));
@@ -255,34 +284,65 @@ package org.stereofyte.mixer {
     
     private function addTrack(track:Track):void {
       tracks.push(track);
-      trackField.addChild(track);
+      trackField.addChildAt(track, 0);
       var trackIndex = tracks.length - 1;
       track.index = trackIndex;
       track.y = TRACK_HEIGHT * trackIndex;
     }
     
     private function drawPlayhead():void {
+      playhead = ui.playhead;
+      /*
       playhead = new Sprite();
-      playhead.graphics.lineStyle(0, 0xFF0000, 0.5);
+      playhead.graphics.lineStyle(0, 0xFF0000, 1);
       playhead.graphics.lineTo(0, trackField.mask.height);
-      playhead.x = trackField.x;
-      playhead.y = trackField.y;
-      addChild(playhead);
+      */
+      trackField.addChild(playhead);
+      updatePlayhead(1);
+    }
+
+    public function updatePlayhead(beat:Number):void {
+      playhead.x = beat * snapGrid.x;
     }
     
     private function addBin(bin:Bin):void {
       bins.push(bin);
-      bin.addEventListener(Bin.PULL, function(event:Event) {
-        var region = addRegion(bin.pulledSample);
-        region.grab();
-      });
+      bin.addEventListener(Bin.PULL, grabBin);
       addChild(bin);
       bin.y = 200;
+      if (bins.length > 2) {
+        removeBin(bins[0]);
+      }
+    }
+
+    public function removeBin(bin:Bin):void {
+      for (var i:Number = bins.length - 1; i >= 0; i--) {
+        if (bins[i] === bin) {
+          bins.splice(i, 1);
+          break;
+        }
+      }
+      removeChild(bin);
+      bin.removeEventListener(Bin.PULL, grabBin);
+    }
+
+    private function grabBin(event:Event) {
+      var region = addRegion(event.target.pulledSample);
+      region.grab();
+    }
+
+    private function resize(event:Event = null):void {
+      trace("resize");
+      ui.x = Math.floor(stage.stageWidth / 2 - ui.width / 2);
+      ui.y = 100;
+      bins[0].x = Math.floor(stage.stageWidth / 2 - 250 - bins[0].width);
+      bins[0].y = stage.stageHeight - bins[0].height - 80;
+      bins[1].x = Math.floor(stage.stageWidth / 2 + 250);
+      bins[1].y = stage.stageHeight - bins[1].height - 80;
     }
 
     private function demo():void {
-      trackField.x = 100;
-      trackField.y = 100;
+      addBin(new Bin());
       addBin(new Bin());
     }
 

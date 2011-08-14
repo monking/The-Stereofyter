@@ -17,7 +17,8 @@ package com.chrislovejoy.gui {
     public static const
       DRAG_START = "drag_start",
       DRAG_MOVE = "drag_move",
-      DRAG_STOP = "drag_stop";
+      DRAG_STOP = "drag_stop",
+      NEW_SNAP = "new_snap";
 
     public var options:Object;
 
@@ -38,7 +39,8 @@ package com.chrislovejoy.gui {
         dragOn:                  Event.ENTER_FRAME,
         ghostColor:              0x000000,
         ghostAlpha:              0.2,
-        snapToIntersectionsOnly: false
+        snapToIntersectionsOnly: false,
+        grabAnywhere:            true
       };
       for (var key:String in this.options) {
         if (options.hasOwnProperty(key)) this.options[key] = options[key];
@@ -52,7 +54,7 @@ package com.chrislovejoy.gui {
           dragOn:     this.options.dragOn
         });
       }
-      addEventListener( MouseEvent.MOUSE_DOWN, startMyDrag );
+      this.options.grabAnywhere && addEventListener( MouseEvent.MOUSE_DOWN, startMyDrag );
     }
 
     public function clear(event:Event = null) {
