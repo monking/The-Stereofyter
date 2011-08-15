@@ -8,15 +8,15 @@ package org.stereofyte.mixer {
   public class Track extends Sprite {
     
 		public static const
-			MUTE = "mute",
-			UNMUTE = "unmute",
-			SOLO = "solo",
-			UNSOLO = "solo";
+			MUTE = "track_mute",
+			UNMUTE = "track_unmute",
+			SOLO = "track_solo",
+			UNSOLO = "track_unsolo";
 
     public var
       index:int;
 
-		protected var
+		private var
 			volume:Number = 1,
 			muted:Boolean = false,
 			solo:Boolean = false,
@@ -36,6 +36,7 @@ package org.stereofyte.mixer {
        Height = height;
        MaxBeats = maxBeats;
 			 drawControls();
+       attachBehaviors();
 			 //drawBackground();
     }
 
@@ -114,10 +115,10 @@ package org.stereofyte.mixer {
 			return Width;
 		}
 
-		protected function drawControls():void {
+		private function drawControls():void {
 		}
 
-		protected function drawBackground():void {
+		private function drawBackground():void {
 			graphics.beginFill(0xEEEEEE, 1);
 			graphics.drawRect(0, 0, Width, Height);
 			graphics.endFill();
@@ -125,6 +126,12 @@ package org.stereofyte.mixer {
 			graphics.moveTo(0, Height-1);
 			graphics.lineTo(1000, Height-1);
 		}
+
+    private function attachBehaviors():void {
+      addEventListener(Region.SOLO, function() {
+        dispatchEvent(new Event(Track.SOLO, true));
+      });
+    }
 
   }
 

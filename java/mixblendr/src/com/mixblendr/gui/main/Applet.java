@@ -5,9 +5,12 @@ package com.mixblendr.gui.main;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
+
 import javax.swing.JApplet;
 import javax.swing.SwingUtilities;
 
+import com.mixblendr.audio.AudioRegion;
 import com.mixblendr.util.Debug;
 
 /**
@@ -23,6 +26,8 @@ public class Applet extends JApplet {
 
 	protected Exception exception;
 
+    double  tempo = 96.0;
+
 	/**
 	 * Method called by browser before display of the applet.
 	 */
@@ -37,7 +42,6 @@ public class Applet extends JApplet {
             String redirectURL = getParameter("REDIRECT_URL");
             String defaultTempo = getParameter("DEFAULT_TEMPO");
 
-            double  tempo = 96.0;
             try
             {
                 if (defaultTempo != null) {
@@ -96,6 +100,14 @@ public class Applet extends JApplet {
 		main.close();
 	}
 	
+	/*
+	 * Begin methods to expose for JavaScript
+	 */
+	
+	public long getSamplesFromBeats(float beats) {
+		return ((long) (beats / tempo * main.globals.getPlayer().getMixer().getSampleRate()));
+	}
+	
 	/**
 	 * Call a JavaScript function on the document.
 	 * @param fn
@@ -119,22 +131,51 @@ public class Applet extends JApplet {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Add a new region to a track at the given index.
 	 * @param trackIndex
 	 * @param url
 	 * @param beat
 	 */
-	public void addRegion(int trackIndex, String url, float beat) {
+	private List<AudioRegion> regions = null;
+	public int addRegion(final int trackIndex, final String url, float beats) {
+		final long pos = getSamplesFromBeats(beats);
+		AudioRegion region = java.security.AccessController.doPrivileged(
+		    new java.security.PrivilegedAction<AudioRegion>() {
+		        public AudioRegion run() {
+		        	AudioRegion newRegion = null;
+		    		try {
+		    			newRegion = main.globals.addRegion(main.globals.getPlayer().getMixer().getTrack(trackIndex), new URL(url), pos);
+		    		} catch (Exception e) {
+		    			e.printStackTrace();
+		    		}
+		    		return newRegion;
+		        }
+		    }
+		);
+		main.updateTracks();
+		int i = regions.size();
+		regions.set(i, region);
+		return i;
+		
+	}
+	/**
+	 * Move a region to a track at the given index.
+	 * @param id
+	 * @param trackIndex
+	 * @param beat
+	 */
+	public void moveRegion(int id, int trackIndex, float beat) {
+		long pos = ((long) (beat * Main.QUARTER_BEAT * 4));
+		AudioRegion region = regions.get(id);
 		try {
-			long pos = ((long) (beat * Main.QUARTER_BEAT * 4));
-			main.globals.addRegion(main.globals.getPlayer().getMixer().getTrack(trackIndex), new URL(url), pos);
-			main.updateTracks();
+			//main.globals.addRegion(main.globals.getPlayer().getMixer().getTrack(trackIndex), new URL(url), pos);
 		} catch (Exception e) {
-			callJS("alert", "'"+e+"'");
 			e.printStackTrace();
 		}
+		main.updateTracks();
+		
 	}
 	
 }

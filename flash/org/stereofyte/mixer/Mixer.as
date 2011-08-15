@@ -15,9 +15,12 @@ package org.stereofyte.mixer {
     
     public static const
       BEAT_WIDTH:Number = 88,
-      REGION_ADDED:String = "regionAdded",
-      REGION_MOVED:String = "regionMoved",
-      SEEK:String = "seek",
+      REGION_ADDED:String = "mixer_region_added",
+      REGION_MOVED:String = "mixer_region_moved",
+      REGION_REMOVED:String = "mixer_region_removed",
+      SEEK:String = "mixer_seek",
+      PLAY:String = "mixer_play",
+      STOP:String = "mixer_stop",
       MAX_BEATS:int = 20;
 
     private static const
@@ -112,19 +115,16 @@ package org.stereofyte.mixer {
           regions.splice(i, 1);
         }
       }
+      region.dispatchEvent(new Event(Mixer.REGION_REMOVED, true));
       region.clear();
     }
 
-    /**
-     * Get the playback position of the mixer, or the position of a region, in terms of beats
-     * @region OPTIONAL The region of which to get the position. Returns the playhead position if omitted.
-     */
-    public function getBeat(region:Region = null):Number {
-      if (region) {
-        return region.x / BEAT_WIDTH;
+    public function getRegionPosition(region:Region):Number {
+      if (region && region && region.parent is Track) {
+        var track:Track = region.parent as Track;
+        return track.getRegionIndex(region);
       } else {
-        /* return the playhead position */
-        return 0;
+        return playheadPosition;
       }
     }
 
@@ -172,7 +172,7 @@ package org.stereofyte.mixer {
         var regionPosition = globalToLocal(region.localToGlobal(new Point()));
         if (region.parent is Track) {
           var track:Track = region.parent as Track;
-          liftedRegionData = {trackIndex:getTrackIndex(track), cellIndex:track.getRegionIndex(region)}
+          liftedRegionData = {trackIndex:track.index, cellIndex:track.getRegionIndex(region)}
           track.removeRegion(region);
         }
         addChild(region);
@@ -188,8 +188,8 @@ package org.stereofyte.mixer {
       var targetTrackIndex:Number = getObjectTargetTrackIndex(region);
       var debug = "placeRegion: ";
       if (isNaN(targetTrackIndex)) {
-        debug += "not on a valid track: reset";
-        resetLiftedRegion(region);
+        debug += "not on a valid track: remove";
+        removeRegion(region);
       } else {
         var track:Track = tracks[targetTrackIndex] as Track;
         var targetCellIndex:int = track.getRegionIndex(region);
@@ -231,14 +231,6 @@ package org.stereofyte.mixer {
       newRegion.x = newPosition.x;
       newRegion.y = newPosition.y;
       placeRegion(newRegion, true);
-    }
-
-    private function getTrackIndex(track:Track) {
-			for (var i:int = 0; i < tracks.length; i++) {
-				if (tracks[i] === track) {
-          return i;
-				}
-			}
     }
 
     private function getObjectTargetTrackIndex(object:DisplayObject):Number {
@@ -408,13 +400,15 @@ package org.stereofyte.mixer {
 
     private function attachBehaviors():void {
       /*
-       * Seek
+       * Playback
        */
-      ui.seekbar.addEventListener(MouseEvent.MOUSE_DOWN, onStartSeekbarSlide);
-      addEventListener(Event.ADDED_TO_STAGE, function(event) {
-        stage.addEventListener(MouseEvent.MOUSE_UP, onStopSeekbarSlide);
-        stage.addEventListener(Event.MOUSE_LEAVE, onStopSeekbarSlide);
+      ui.buttonPlay.addEventListener(MouseEvent.CLICK, function(event:MouseEvent) {
+        dispatchEvent(new Event(Mixer.PLAY));
       });
+      ui.buttonStop.addEventListener(MouseEvent.CLICK, function(event:MouseEvent) {
+        dispatchEvent(new Event(Mixer.STOP));
+      });
+      ui.seekbar.addEventListener(MouseEvent.MOUSE_DOWN, onStartSeekbarSlide);
       updateSeekbar();
     }
 
@@ -429,19 +423,22 @@ package org.stereofyte.mixer {
     }
 
     private function onStartSeekbarSlide(event:MouseEvent):void {
-      stage.addEventListener(MouseEvent.MOUSE_MOVE, onSeekbarSlide); ui.seekbar.handle.startDrag(true, SEEKBAR_BOUNDS);
+      stage.addEventListener(MouseEvent.MOUSE_MOVE, onSeekbarSlide);
+      stage.addEventListener(MouseEvent.MOUSE_UP, onStopSeekbarSlide);
+      ui.seekbar.handle.startDrag(true, SEEKBAR_BOUNDS);
       ui.seekbar.handle.x = ui.seekbar.mouseX;
       onSeekbarSlide(event);
     }
 
     private function onSeekbarSlide(event:MouseEvent):void {
       playheadPosition = (ui.seekbar.handle.x - SEEKBAR_BOUNDS.x) / SEEKBAR_BOUNDS.width * MAX_BEATS;
-      dispatchEvent(new Event(SEEK));
+      dispatchEvent(new Event(Mixer.SEEK));
     }
 
     private function onStopSeekbarSlide(event:MouseEvent):void {
       ui.seekbar.handle.stopDrag();
       stage.removeEventListener(MouseEvent.MOUSE_MOVE, onSeekbarSlide);
+      stage.removeEventListener(MouseEvent.MOUSE_UP, onStopSeekbarSlide);
     }
 
     private function updateSeekbar():void {

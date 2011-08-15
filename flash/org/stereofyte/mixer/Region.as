@@ -15,19 +15,22 @@ package org.stereofyte.mixer {
   public class Region extends DragAndDrop {
 
     public static const
-      STATUS_NULL = "null",
-      STATUS_LIVE = "live",
-      VOLUME_CHANGE = "volume_change",
-      MUTE = "mute",
-      SOLO = "solo",
-      DELETE = "delete",
-      DUPLICATE = "duplicate";
+      VOLUME_CHANGE = "region_volume_change",
+      MUTE = "region_mute",
+      UNMUTE = "region_unmute",
+      SOLO = "region_solo",
+      UNSOLO = "region_unsolo",
+      DELETE = "region_delete",
+      DUPLICATE = "region_duplicate",
+      STATUS_NULL = "region_null",
+      STATUS_LIVE = "region_live";
 
     private static const
       VOLUME_BOUNDS:Rectangle = new Rectangle(48, 30, 16, 0);
 
     public var
-      status:String;
+      status:String,
+      id:Object;
 
     private var
       _sample:Sample,
@@ -166,7 +169,7 @@ package org.stereofyte.mixer {
        * Solo
        */
       ui.buttons.buttonSolo.addEventListener(MouseEvent.CLICK, function(event) {
-        dispatchEvent(new Event(SOLO));
+        dispatchEvent(new Event(SOLO, true));
       });
       /*
        * Mute
@@ -178,7 +181,7 @@ package org.stereofyte.mixer {
 
     private function onVolumeSlide(event:MouseEvent):void {
       _volume = (ui.buttons.volumeHandle.x - VOLUME_BOUNDS.x) / VOLUME_BOUNDS.width;
-      dispatchEvent(new Event(VOLUME_CHANGE));
+      dispatchEvent(new Event(VOLUME_CHANGE, true));
     }
 
     private function onStartVolumeSlide(event:MouseEvent):void {

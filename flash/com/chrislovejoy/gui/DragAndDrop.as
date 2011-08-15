@@ -102,7 +102,6 @@ package com.chrislovejoy.gui {
       grabOrigin = new Point(mouseX, mouseY);
 
       stage.addEventListener( options.dragOn, drag );
-      stage.addEventListener( Event.MOUSE_LEAVE, stopMyDrag );
       stage.addEventListener( MouseEvent.MOUSE_UP, stopMyDrag );
 
       dispatchEvent(new Event(DragAndDrop.DRAG_START));
@@ -113,7 +112,6 @@ package com.chrislovejoy.gui {
       if (stage) {
         stage.removeEventListener( options.dragOn, drag );
         stage.removeEventListener( MouseEvent.MOUSE_UP, stopMyDrag );
-        stage.removeEventListener( Event.MOUSE_LEAVE, stopMyDrag );
       }
 
       if (!dragging) return;
