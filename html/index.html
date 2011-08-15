@@ -7,8 +7,8 @@
       html, body { height: 100%; }
       body { height: 100%; margin: 0; padding: 0; /*overflow: hidden;*/ }
       #app_container { width: 100%; height: 100%; margin: 0 auto; }
-      #sfapp { outline:none; }
-      #mbapp { width: 100%; height: 200px; position: absolute; top: 0; left: 100%; z-index: 1; }
+      #sfapp { outline:none; position: relative; z-index: 1; }
+      #mbapp { position: absolute; width: 1px; height: 1px; botom: 0; left: 0; z-index: 0; }
     </style>
 		<script type="text/javascript" src="js/swfobject.js"></script>
 		<script type="text/javascript" src="js/javaobject.js"></script>
@@ -19,13 +19,13 @@
           containerId: "mbapp",
           id: "mixblendr",
           code: "com/mixblendr/gui/main/Applet",
-          archive: "mixblendr/mixblendr.jar",
-          width: 800,
-          height: 600,
+          archive: "mixblendr/mixblendr.jar?TIMESTAMP="+(new Date()).getTime(),
+          width: 1,
+          height: 1,
           params: {
             url: "mixblendr/competition/getfile",
             REDIRECT_URL: "mixblendr/competition/competition-entries/",
-            DEFAULT_TEMPO: "96.0"
+            DEFAULT_TEMPO: "120.0"
           }
         } );
       };

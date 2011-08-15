@@ -10,16 +10,17 @@ package org.stereofyte.mixer {
 		public static const
 			MUTE = "track_mute",
 			UNMUTE = "track_unmute",
-			SOLO = "track_solo",
-			UNSOLO = "track_unsolo";
+			NONE = "NONE",
+			SOLO = "SOLO",
+			OTHER_SOLO = "OTHER_SOLO";
 
     public var
       index:int;
 
 		private var
 			volume:Number = 1,
-			muted:Boolean = false,
-			solo:Boolean = false,
+			Mute:Boolean = false,
+			Solo:String = "",
 			regions:Array = [],
       BeatWidth:Number,
       Width:Number,
@@ -73,42 +74,30 @@ package org.stereofyte.mixer {
       return Math.round(regionPosition.x / BeatWidth);
     }
 
-		public function mute():void {
-			if (muted) return;
-			muted = true;
-			dispatchEvent(new Event(Track.MUTE));
-		}
-
-		public function unmute():void {
-			if (!muted) return;
-			muted = false;
-			dispatchEvent(new Event(Track.UNMUTE));
-		}
-
-		public function goSolo():void {
-      solo = true;
-			dispatchEvent(new Event(Track.SOLO));
-		}
-
-		public function unSolo():void {
-      solo = false;
-			dispatchEvent(new Event(Track.UNSOLO));
-		}
-
-    public function excludeFromSolo():void {
-      alpha = 0.7;
-    }
-
-    public function unexcludeFromSolo():void {
-      alpha = 1;
-    }
-
-		public function get isMute():Boolean {
-			return muted;
-		}
-
     public function get maxBeats():int {
       return MaxBeats;
+    }
+
+    public function get solo():String {
+      return Solo;
+    }
+
+    public function set solo(solo:String):void {
+      Solo = solo;
+      if (solo == Track.OTHER_SOLO) {
+        alpha = 0.5;
+      } else {
+        alpha = 1;
+      }
+    }
+
+    public function get mute():Boolean {
+      return mute;
+    }
+
+    public function set mute(mute:Boolean):void {
+      Mute = mute;
+      alpha = mute? 0.5: 1;
     }
 
 		override public function get width():Number {

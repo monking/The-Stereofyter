@@ -8,6 +8,7 @@ package org.stereofyte {
   import flash.display.StageScaleMode;
   import flash.events.*;
   import flash.external.ExternalInterface;
+  import flash.utils.Timer;
   import com.chrislovejoy.WebAppController;
   import org.stereofyte.gui.*;
   import org.stereofyte.mixblendr.*;
@@ -21,7 +22,8 @@ package org.stereofyte {
     private var
       mixer:Mixer,
       engine:MixblendrInterface,
-      site:StereofyteSite;
+      site:StereofyteSite,
+      feedbackDelay:Timer;
     
     public function StereofyteAppController(root:DisplayObject):void {
       super(root);
@@ -31,6 +33,7 @@ package org.stereofyte {
       engine = new MixblendrInterface();
       site = new StereofyteSite();
       _root.stage.addChild(site);
+      feedbackDelay = new Timer(34, 1);
       addMixer();
       demo();
     }
@@ -50,26 +53,54 @@ package org.stereofyte {
         engine.call("moveRegion", region.id, track.index, mixer.getRegionPosition(region));
       });
       mixer.addEventListener(Track.SOLO, function(event:Event) {
+        return;
         var track:Track = event.target as Track;
-        engine.call("soloTrack", track.index);
-      });
-      mixer.addEventListener(Track.UNSOLO, function(event:Event) {
-        var track:Track = event.target as Track;
-        engine.call("unsoloTrack", track.index);
+        var tracks:Array = engine.call("toggleSolo", track.index);
+        for (var i:int = 0; i < tracks.length; i++) {
+          mixer.getTrack(i).solo = tracks[i];
+        }
       });
       mixer.addEventListener(Mixer.PLAY, function(event:Event) {
         engine.call("startPlayback");
+        startUpdatePlayhead(event);
       });
       mixer.addEventListener(Mixer.STOP, function(event:Event) {
         engine.call("stopPlayback");
+        stopUpdatePlayhead(event);
       });
-      mixer.addEventListener(Mixer.SEEK, function(event:Event) {
-        engine.call("seek", mixer.playheadPosition);
+      mixer.addEventListener(Mixer.SEEK_START, stopUpdatePlayhead);
+      mixer.addEventListener(Mixer.SEEK_FINISH, function(event:Event) {
+        engine.call("setPlaybackPosition", mixer.playbackPosition);
+        feedbackDelay.addEventListener(TimerEvent.TIMER, delayStartUpdatePlayhead);
+        feedbackDelay.start();
       });
       mixer.addEventListener(Region.VOLUME_CHANGE, function(event:Event) {
         var region:Region = event.target as Region;
         engine.call("setRegionVolume", region.id, region.volume);
       });
+      engine.addEventListener("playbackStart", updatePlayhead);
+      engine.addEventListener("playbackStop", function(event:Event) {
+        updatePlayhead(event);
+        stopUpdatePlayhead(event);
+      });
+      engine.addEventListener("playbackPositionChanged", updatePlayhead);
+    }
+
+    private function delayStartUpdatePlayhead(event:Event):void {
+      feedbackDelay.removeEventListener(TimerEvent.TIMER, delayStartUpdatePlayhead);
+      startUpdatePlayhead(event);
+    }
+
+    private function startUpdatePlayhead(event:Event):void {
+      mixer.addEventListener(Event.ENTER_FRAME, updatePlayhead);
+    }
+
+    private function stopUpdatePlayhead(event:Event):void {
+      mixer.removeEventListener(Event.ENTER_FRAME, updatePlayhead);
+    }
+
+    private function updatePlayhead(event:Event):void {
+      mixer.playbackPosition = engine.call("getPlaybackPosition");
     }
 
     private function demo():void {

@@ -257,7 +257,7 @@ public class AudioTrack {
 	 * 
 	 * @param solo the solo state to set
 	 */
-	void setSoloImpl(SoloState solo) {
+	public void setSoloImpl(SoloState solo) {
 		this.solo = solo;
 		calcEffectiveVolume();
 	}

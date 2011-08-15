@@ -10,7 +10,12 @@ import java.util.List;
 import javax.swing.JApplet;
 import javax.swing.SwingUtilities;
 
+import com.mixblendr.audio.AudioMixer;
+import com.mixblendr.audio.AudioPlayer.Listener;
+import com.mixblendr.audio.AudioPlayer;
 import com.mixblendr.audio.AudioRegion;
+import com.mixblendr.audio.AudioTrack;
+import com.mixblendr.audio.AudioTrack.SoloState;
 import com.mixblendr.util.Debug;
 
 /**
@@ -26,8 +31,6 @@ public class Applet extends JApplet {
 
 	protected Exception exception;
 
-    double  tempo = 96.0;
-
 	/**
 	 * Method called by browser before display of the applet.
 	 */
@@ -41,7 +44,8 @@ public class Applet extends JApplet {
             String url = getParameter("URL");
             String redirectURL = getParameter("REDIRECT_URL");
             String defaultTempo = getParameter("DEFAULT_TEMPO");
-
+            	
+            double tempo = 96.0;
             try
             {
                 if (defaultTempo != null) {
@@ -60,15 +64,23 @@ public class Applet extends JApplet {
             main.setUrl(url);
             main.setRedirectUrl(redirectURL);
             main.setApplet(this);
+            
+            JavaScriptListener listener = new JavaScriptListener();
+            main.globals.getPlayer().addListener(listener);
             //main.loadDefaultSong();
             callJS("dispatchMBEvent", "'ready'");
 
-
+/*
+ * comment out this to hide the UI
+ *
             SwingUtilities.invokeAndWait(new Runnable() {
 				public void run() {
 					Applet.this.setContentPane(main.getMasterPanel());
 				}
 			});
+/*
+ * end UI escape
+ */
 		} catch (Exception e) {
 			exception = e;
 		}
@@ -104,10 +116,6 @@ public class Applet extends JApplet {
 	 * Begin methods to expose for JavaScript
 	 */
 	
-	public long getSamplesFromBeats(float beats) {
-		return ((long) (beats / tempo * main.globals.getPlayer().getMixer().getSampleRate()));
-	}
-	
 	/**
 	 * Call a JavaScript function on the document.
 	 * @param fn
@@ -120,16 +128,12 @@ public class Applet extends JApplet {
 		catch (MalformedURLException e) { }
 	}
 	
-	/**
-	 * start the player playing
-	 */
-	public void playerStart() {
-		try {
-			main.globals.getPlayer().start();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public long getSamplesFromBeats(float beats) {
+		return ((long) (beats * main.globals.getPlayer().getMixer().getSampleRate() * 60 / main.getDefaultTempo()));
+	}
+	
+	public float getBeatsFromSamples(long samples) {
+		return ((float) (samples * main.getDefaultTempo() / main.globals.getPlayer().getMixer().getSampleRate() / 60 ));
 	}
 
 	/**
@@ -146,7 +150,18 @@ public class Applet extends JApplet {
 		        public AudioRegion run() {
 		        	AudioRegion newRegion = null;
 		    		try {
-		    			newRegion = main.globals.addRegion(main.globals.getPlayer().getMixer().getTrack(trackIndex), new URL(url), pos);
+		    			AudioMixer mixer = main.globals.getPlayer().getMixer(); 
+		    			AudioTrack track = mixer.getTrack(trackIndex);
+		    			int trackCount = mixer.getTrackCount();
+		    			if (trackIndex >= trackCount) {
+		    				for (int i = trackCount; i <= trackIndex; i++) {
+		    					AudioTrack newTrack = main.globals.getPlayer().addAudioTrack();
+		    					if (i == trackIndex) {
+		    						track = newTrack;
+		    					}
+		    				} 
+		    			}
+		    			newRegion = main.globals.addRegion(track, new URL(url), pos);
 		    		} catch (Exception e) {
 		    			e.printStackTrace();
 		    		}
@@ -167,7 +182,7 @@ public class Applet extends JApplet {
 	 * @param beat
 	 */
 	public void moveRegion(int id, int trackIndex, float beat) {
-		long pos = ((long) (beat * Main.QUARTER_BEAT * 4));
+		long pos = getSamplesFromBeats(beat);
 		AudioRegion region = regions.get(id);
 		try {
 			//main.globals.addRegion(main.globals.getPlayer().getMixer().getTrack(trackIndex), new URL(url), pos);
@@ -175,6 +190,86 @@ public class Applet extends JApplet {
 			e.printStackTrace();
 		}
 		main.updateTracks();
+		
+	}
+	
+	public void startPlayback() {
+		main.globals.startPlayback();
+	}
+	
+	public void stopPlayback() {
+		main.globals.stopPlayback();
+	}
+	
+	public float getPlaybackPosition() {
+		return getBeatsFromSamples(main.globals.getPlayer().getPositionSamples());
+	}
+	
+	public void setPlaybackPosition(float beats) {
+		boolean wasPlaying = isPlaying();
+		//if (wasPlaying) stopPlayback();
+		main.globals.getPlayer().setPositionSamples(getSamplesFromBeats(beats));
+		if (wasPlaying) startPlayback();
+	}
+	
+	public boolean isPlaying() {
+		return main.globals.getPlayer().getOutput().IsPlaying();
+	}
+	
+	public boolean toggleMute(int trackIndex) {
+		AudioTrack track = main.globals.getPlayer().getMixer().getTrack(trackIndex);
+		boolean isMute = !track.isMute();
+		track.setMute(isMute);
+		return isMute;
+	}
+	
+	public List toggleSolo(int trackIndex) {
+		AudioMixer mixer = main.globals.getPlayer().getMixer();
+		List tracks = null;
+		boolean settingSolo = mixer.getTrack(trackIndex).getSolo() != SoloState.SOLO;
+		for (int i = 0; i < mixer.getTrackCount(); i++) {
+			if (settingSolo) {
+				if (i == trackIndex) {
+					mixer.getTrack(i).setSoloImpl(SoloState.SOLO);
+				} else {
+					mixer.getTrack(i).setSoloImpl(SoloState.OTHER_SOLO);
+				}
+			} else {
+				mixer.getTrack(i).setSoloImpl(SoloState.NONE);
+			}
+			tracks.set(i, mixer.getTrack(1).getSolo().toString());
+		}
+		return tracks;
+	}
+	
+	public class JavaScriptListener implements Listener {
+		/**
+		 * this event is called to registered listeners when playback starts.
+		 * This event is called synchronously in the context of the thread
+		 * calling the start method.
+		 */
+		public void onPlaybackStart(AudioPlayer player) {
+            callJS("dispatchMBEvent", "'playbackStart', {position:"+getPlaybackPosition()+"}");
+		}
+
+		/**
+		 * this event is called to registered listeners when playback stops.
+		 * This event is called synchronously in the context of the thread
+		 * calling the stop method.
+		 */
+		public void onPlaybackStop(AudioPlayer player, boolean immediate) {
+            callJS("dispatchMBEvent", "'playbackStop', {immediate:"+immediate+", position:"+getPlaybackPosition()+"}");
+		}
+
+		/**
+		 * this event is called to registered listeners when the sample position
+		 * is changed in non-playback mode This event is called synchronously in
+		 * the context of the thread calling the setSamplePosition() method.
+		 */
+		public void onPlaybackPositionChanged(AudioPlayer player, long samplePos) {
+            //callJS("dispatchMBEvent", "'playbackPositionChanged', {position:"+getBeatsFromSamples(samplePos)+"}");
+            callJS("dispatchMBEvent", "'playbackPositionChanged', {position:"+getBeatsFromSamples(samplePos)+"}");
+		}
 		
 	}
 	

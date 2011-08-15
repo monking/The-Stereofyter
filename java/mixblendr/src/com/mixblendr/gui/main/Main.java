@@ -575,7 +575,7 @@ public class Main implements FatalExceptionListener, AutomationListener,
 	}
 
 	// number of samples in a quarter beat
-	public final static int QUARTER_BEAT = 42336;
+	private final static int QUARTER_BEAT = 42336;
 	private static final String SOUNDS_URL = "http://www.12fb.com/florian/nervesound/sounds/";
 
 	protected void loadDefaultSong() {
