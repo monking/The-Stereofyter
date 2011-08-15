@@ -57,7 +57,7 @@ package com.chrislovejoy.gui {
       this.options.grabAnywhere && addEventListener( MouseEvent.MOUSE_DOWN, startMyDrag );
     }
 
-    public function clear(event:Event = null) {
+    public function clear(event:Event = null):void {
       stopMyDrag();
       parent && parent.removeChild(this);
       ghost.parent && ghost.parent.removeChild(ghost);

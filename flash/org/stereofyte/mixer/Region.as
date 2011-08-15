@@ -8,6 +8,9 @@ package org.stereofyte.mixer {
   import flash.events.MouseEvent;
   import flash.geom.Point;
   import flash.geom.Rectangle;
+  import fl.transitions.Tween;
+  import fl.transitions.TweenEvent;
+  import fl.transitions.easing.None;
 
   public class Region extends DragAndDrop {
 
@@ -15,6 +18,9 @@ package org.stereofyte.mixer {
       STATUS_NULL = "null",
       STATUS_LIVE = "live",
       VOLUME_CHANGE = "volume_change",
+      MUTE = "mute",
+      SOLO = "solo",
+      DELETE = "delete",
       DUPLICATE = "duplicate";
 
     private static const
@@ -32,7 +38,8 @@ package org.stereofyte.mixer {
       deleteSymbol:RegionDeleteSymbol,
       state:String,
       regionData:Object,
-      _volume:Number = 1;
+      _volume:Number = 1,
+      buttonFade:Tween;
 
     public function Region(sample:Sample, width:Number, height:Number, options:Object):void {
       super(options);
@@ -53,7 +60,7 @@ package org.stereofyte.mixer {
       ui = new RegionUI();
       addChild(ui);
       ui.gotoAndStop(_sample.family);
-      ui.buttonBody.addEventListener(MouseEvent.MOUSE_DOWN, startMyDrag);
+      ui.buttons.gotoAndStop(_sample.family);
       drawIcon();
       attachBehaviors();
     }
@@ -73,8 +80,9 @@ package org.stereofyte.mixer {
       if ("delete" == state) return;
       state = "delete";
       addChild(deleteSymbol);
+      addChild(icon);
       ui.visible = false;
-      icon.alpha = 0.5;
+      //icon.alpha = 0.5;
       snapGhost.visible = false;
     }
 
@@ -82,9 +90,34 @@ package org.stereofyte.mixer {
       if ("normal" == state) return;
       state = "normal";
       removeChild(deleteSymbol);
+      ui.buttons.addChild(icon);
       ui.visible = true;
       icon.alpha = 1;
       snapGhost.visible = true;
+    }
+
+    public function showButtons(event:MouseEvent = null, suddenly:Boolean = false):void {
+      if (suddenly) {
+        ui.buttons.alpha = 1;
+        ui.buttons.visible = true;
+      } else {
+        fadeButtons(1);
+      }
+    }
+
+    public function hideButtons(event:MouseEvent = null, suddenly:Boolean = false):void {
+      if (suddenly) {
+        ui.buttons.alpha = 0;
+        ui.buttons.visible = false;
+      } else {
+        fadeButtons(0);
+      }
+    }
+
+    override public function clear(event:Event = null):void {
+      removeEventListener(MouseEvent.MOUSE_OVER, showButtons);
+      removeEventListener(MouseEvent.MOUSE_OUT, hideButtons);
+      super.clear();
     }
 
     public function get volume():Number {
@@ -108,49 +141,92 @@ package org.stereofyte.mixer {
     }
 
     private function attachBehaviors():void {
+      addEventListener(MouseEvent.MOUSE_OVER, showButtons);
+      addEventListener(MouseEvent.MOUSE_OUT, hideButtons);
+      ui.buttons.buttonBody.addEventListener(MouseEvent.MOUSE_DOWN, startMyDrag);
       /*
        * Volume
        */
-      ui.volumeHandle.gotoAndStop(_sample.family);
-      ui.volumeHandle.button.addEventListener(MouseEvent.MOUSE_DOWN, function(event) {
-        ui.volumeHandle.startDrag(false, VOLUME_BOUNDS);
-      });
-      addEventListener(Event.ADDED_TO_STAGE, function(event) {
-        stage.addEventListener(MouseEvent.MOUSE_UP, function(event) {
-          ui.volumeHandle.stopDrag();
-        });
-        stage.addEventListener(Event.MOUSE_LEAVE, function(event) {
-          ui.volumeHandle.stopDrag();
-        });
-      });
+      ui.buttons.volumeHandle.gotoAndStop(_sample.family);
+      ui.buttons.volumeHandle.button.addEventListener(MouseEvent.MOUSE_DOWN, onStartVolumeSlide);
       updateVolumeSlider();
+      /*
+       * Delete
+       */
+      ui.buttons.buttonDelete.addEventListener(MouseEvent.CLICK, function(event) {
+        dispatchEvent(new Event(DELETE));
+      });
       /*
        * Duplicate
        */
-      ui.buttonDupe.addEventListener(MouseEvent.CLICK, function(event) {
+      ui.buttons.buttonDupe.addEventListener(MouseEvent.CLICK, function(event) {
         dispatchEvent(new Event(DUPLICATE));
       });
       /*
        * Solo
        */
+      ui.buttons.buttonSolo.addEventListener(MouseEvent.CLICK, function(event) {
+        dispatchEvent(new Event(SOLO));
+      });
       /*
        * Mute
        */
+      ui.buttons.buttonMute.addEventListener(MouseEvent.CLICK, function(event) {
+        dispatchEvent(new Event(MUTE));
+      });
     }
 
     private function onVolumeSlide(event:MouseEvent):void {
-      _volume = (ui.volumeHandle.x - VOLUME_BOUNDS.x) / VOLUME_BOUNDS.width;
+      _volume = (ui.buttons.volumeHandle.x - VOLUME_BOUNDS.x) / VOLUME_BOUNDS.width;
       dispatchEvent(new Event(VOLUME_CHANGE));
     }
 
+    private function onStartVolumeSlide(event:MouseEvent):void {
+      ui.buttons.volumeHandle.startDrag(false, VOLUME_BOUNDS);
+      stage.addEventListener(MouseEvent.MOUSE_MOVE, onVolumeSlide);
+      stage.addEventListener(MouseEvent.MOUSE_UP, onStopVolumeSlide);
+      stage.addEventListener(Event.MOUSE_LEAVE, onStopVolumeSlide);
+    }
+
+    private function onStopVolumeSlide(event:MouseEvent):void {
+      ui.buttons.volumeHandle.stopDrag();
+      stage.removeEventListener(MouseEvent.MOUSE_MOVE, onVolumeSlide);
+      stage.removeEventListener(MouseEvent.MOUSE_UP, onStopVolumeSlide);
+      stage.removeEventListener(Event.MOUSE_LEAVE, onStopVolumeSlide);
+    }
+
     private function updateVolumeSlider():void {
-      ui.volumeHandle.x = volume * VOLUME_BOUNDS.width + VOLUME_BOUNDS.x;
+      ui.buttons.volumeHandle.x = volume * VOLUME_BOUNDS.width + VOLUME_BOUNDS.x;
+    }
+
+    private function fadeButtons(alpha:Number):void {
+      if (buttonFade && buttonFade.isPlaying) {
+        buttonFade.stop();
+        buttonFade.removeEventListener(TweenEvent.MOTION_FINISH, onFadeButtonsFinish);
+      }
+      if (ui.buttons.alpha == alpha) return;
+      ui.buttons.visible = true;
+      buttonFade = new Tween(
+        ui.buttons,
+        "alpha",
+        fl.transitions.easing.None.easeNone,
+        ui.buttons.alpha,
+        alpha,
+        5
+      );
+      buttonFade.addEventListener(TweenEvent.MOTION_FINISH, onFadeButtonsFinish);
+      buttonFade.start();
+    }
+
+    private function onFadeButtonsFinish(event:TweenEvent):void {
+      buttonFade.removeEventListener(TweenEvent.MOTION_FINISH, onFadeButtonsFinish);
+      if (!ui.buttons.alpha) ui.buttons.visible = false;
     }
 
     private function drawIcon():void {
       icon = new InstrumentIcon();
       icon.gotoAndStop(_sample.family);
-      addChild(icon);
+      ui.buttons.addChild(icon);
       icon.y = 7;
       icon.x = 4;
       icon.mouseEnabled = false;

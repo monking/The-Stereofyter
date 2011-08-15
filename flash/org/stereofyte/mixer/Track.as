@@ -21,37 +21,56 @@ package org.stereofyte.mixer {
 			muted:Boolean = false,
 			solo:Boolean = false,
 			regions:Array = [],
+      BeatWidth:Number,
       Width:Number,
-      Height:Number;
+      Height:Number,
+      MaxBeats:int;
 
-    public function Track(width:Number, height:Number):void {
+    public function Track(beatWidth:Number, height:Number, maxBeats:int):void {
       /*
 			 * Track contains a graphic representation of a track, and can have Regions
 			 * added to it.
        */
-       Width = width;
+       BeatWidth = beatWidth;
+       Width = beatWidth * maxBeats;
        Height = height;
+       MaxBeats = maxBeats;
 			 drawControls();
 			 //drawBackground();
     }
 
-		public function addRegion(region:Region):void {
-			regions.push(region);
-			var regionPosition:Point = globalToLocal(region.localToGlobal(new Point()));
-			addChild(region);
-			region.x = regionPosition.x;
-			region.y = regionPosition.y;
-			/* set region x and y to match prior global position */
+		public function addRegion(region:Region, beatIndex:int = -1):void {
+      if (beatIndex == -1) {
+        beatIndex = getRegionIndex(region);
+      }
+      if (regions[beatIndex]) throw new Error("Cannot add region: position is occupied");
+      addChild(region);
+      region.x = BeatWidth * beatIndex;
+      region.y = 0;
+			regions[beatIndex] = region;
 		}
 
 		public function removeRegion(region:Region):void {
 			try { removeChild(region); } catch(error:Error) {}
-			for (var i:Number = regions.length - 1; i >= 0; i--) {
+      regions[getRegionIndex(region)] = undefined;
+		}
+
+    public function getRegionAtIndex(index:int):Region {
+      return regions[index];
+    }
+
+    public function getRegionIndex(region:Region):int {
+			for (var i:int = 0; i < regions.length; i++) {
 				if (regions[i] === region) {
-					regions.splice(i, 1);
+          return i;
 				}
 			}
-		}
+      var regionPosition:Point = new Point(region.x, region.y);
+      if (region.parent && region.parent !== this) {
+        regionPosition = globalToLocal(region.parent.localToGlobal(regionPosition));
+      }
+      return Math.round(regionPosition.x / BeatWidth);
+    }
 
 		public function mute():void {
 			if (muted) return;
@@ -86,6 +105,10 @@ package org.stereofyte.mixer {
 		public function get isMute():Boolean {
 			return muted;
 		}
+
+    public function get maxBeats():int {
+      return MaxBeats;
+    }
 
 		override public function get width():Number {
 			return Width;
