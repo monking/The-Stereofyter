@@ -255,27 +255,30 @@ package org.stereofyte.mixer {
     private function updateRegionStatus(event:Event):void {
       var region:Region = event.currentTarget as Region;
 
-      /* check for dragging out of bounds... and scroll */
+      /*
+       * check for dragging out of bounds... and scroll
+       *
       var regionTopLeft = region.parent.localToGlobal(new Point(region.x, region.y));
       var regionBottomRight = regionTopLeft.add(new Point(region.width, region.height));
       var bounds = trackField.mask.getRect(stage);
       var scrollModifier = 0.2;
       if (regionTopLeft.x < bounds.x) {
-        /* scroll left */
+        // scroll left
         pushTrackField(new Point((regionTopLeft.x - bounds.x) * scrollModifier, 0));
       } else if (regionTopLeft.y < bounds.y) {
-        /* scroll up */
+        // scroll up
         pushTrackField(new Point(0, (regionTopLeft.y - bounds.y) * scrollModifier));
       } else if (regionBottomRight.x > bounds.x + bounds.width) {
-        /* scroll right */
+        // scroll right
         pushTrackField(new Point((regionBottomRight.x - (bounds.x + bounds.width)) * scrollModifier, 0));
       } else if (regionBottomRight.y > bounds.y + bounds.height) {
-        /* scroll down */
+        // scroll down
         pushTrackField(new Point(0, (regionBottomRight.y - (bounds.y + bounds.height)) * scrollModifier));
       }
+       */
 
       var targetTrackIndex:Number = getObjectTargetTrackIndex(region.snapGhost);
-      /* check for snapping out of bounds */
+      // check for snapping out of bounds
       if (isNaN(targetTrackIndex)) {
         region.showDeleteMode();
       } else {

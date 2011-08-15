@@ -12,13 +12,16 @@ package org.stereofyte.gui {
     public var
       background:SFBackground,
       nav:SFNavBar,
+      logo:StereofyterLogo,
       navWidth:Number = 1000;
     
     public function StereofyteSite():void {
       background = new SFBackground();
       this.addChild(background);
       nav = new SFNavBar();
-      this.addChild(nav);
+      addChild(nav);
+      logo = new StereofyterLogo();
+      addChild(logo);
       addEventListener(Event.ADDED_TO_STAGE, function(event) {
         stage.addEventListener(Event.RESIZE, resize);
         resize();
@@ -30,6 +33,8 @@ package org.stereofyte.gui {
       background.height = stage.stageHeight;
       nav.x = stage.stageWidth / 2 - navWidth / 2;
       nav.y = -32;
+      logo.x = 20;
+      logo.y = 20;
     }
     
   }
