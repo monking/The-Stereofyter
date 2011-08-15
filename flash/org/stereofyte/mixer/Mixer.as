@@ -74,6 +74,7 @@ package org.stereofyte.mixer {
           grid:            snapGrid,
           forceSnapOnStop: true,
           coordinateSpace: trackField,
+          ghostColor:      0xff0000,
           grabAnywhere:    false
         }
       );
