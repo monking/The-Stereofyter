@@ -45,20 +45,16 @@ package org.stereofyte {
         var region:Region = event.target as Region;
         var track:Track = region.parent as Track;
         var sample:Sample = region.sample;
+        trace("adding at beat "+mixer.getRegionPosition(region));
         region.id = engine.call("addRegion", track.index, sample.src, mixer.getRegionPosition(region));
       });
       mixer.addEventListener(Mixer.REGION_MOVED, function(event:Event) {
         var region:Region = event.target as Region;
         var track:Track = region.parent as Track;
-        engine.call("moveRegion", region.id, track.index, mixer.getRegionPosition(region));
+        region.id = engine.call("moveRegion", region.id, mixer.liftedRegionData.trackIndex, track.index, mixer.getRegionPosition(region));
       });
-      mixer.addEventListener(Track.SOLO, function(event:Event) {
-        return;
-        var track:Track = event.target as Track;
-        var tracks:Array = engine.call("toggleSolo", track.index);
-        for (var i:int = 0; i < tracks.length; i++) {
-          mixer.getTrack(i).solo = tracks[i];
-        }
+      mixer.addEventListener(Mixer.REGION_REMOVED, function(event:Event) {
+        engine.call("removeRegion", mixer.removedRegionData.regionId, mixer.removedRegionData.trackIndex);
       });
       mixer.addEventListener(Mixer.PLAY, function(event:Event) {
         engine.call("startPlayback");
@@ -76,7 +72,18 @@ package org.stereofyte {
       });
       mixer.addEventListener(Region.VOLUME_CHANGE, function(event:Event) {
         var region:Region = event.target as Region;
-        engine.call("setRegionVolume", region.id, region.volume);
+        engine.call("setRegionVolume", region.id, (region.parent as Track).index, region.volume);
+      });
+      mixer.addEventListener(Region.MUTE, function(event:Event) {
+        var region:Region = event.target as Region;
+        engine.call("setRegionMuted", region.id, (region.parent as Track).index, region.isMuted);
+      });
+      mixer.addEventListener(Region.SOLO, function(event:Event) {
+        var region:Region = event.target as Region;
+        for (var i:int = 0; i < mixer.regions.length; i++) {
+          var otherRegion:Region = mixer.regions[i];
+          engine.call("setRegionMuted", otherRegion.id, (otherRegion.parent as Track).index, otherRegion.isMuted || otherRegion.solo == Region.SOLO_OTHER);
+        }
       });
       engine.addEventListener("playbackStart", updatePlayhead);
       engine.addEventListener("playbackStop", function(event:Event) {

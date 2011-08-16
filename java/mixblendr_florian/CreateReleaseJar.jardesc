@@ -1,28 +1,30 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="MacRoman" standalone="no"?>
 <jardesc>
-    <jar path="E:/Progs/NerveSound/Release/mixblendr.jar"/>
-    <options buildIfNeeded="true" compress="true" descriptionLocation="/NerveSound.Mixblendr/CreateReleaseJar.jardesc" exportErrors="false" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <jar path="Mixblendr custom Stereofyter/bin/mixblendr.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/Mixblendr custom Stereofyter/CreateReleaseJar.jardesc" exportErrors="false" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
     <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
     <selectedProjects/>
-    <manifest generateManifest="false" manifestLocation="/NerveSound.Mixblendr/Manifest.mf" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
+    <manifest generateManifest="false" manifestLocation="/Mixblendr custom Stereofyter/Manifest.mf" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
         <sealing sealJar="false">
             <packagesToSeal/>
             <packagesToUnSeal/>
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
-        <file path="/NerveSound.Mixblendr/skins/main/skin.txt"/>
-        <javaElement handleIdentifier="=NerveSound.Mixblendr/src&lt;com.mixblendr.effects"/>
-        <javaElement handleIdentifier="=NerveSound.Mixblendr/src&lt;com.mixblendr.automation"/>
-        <javaElement handleIdentifier="=NerveSound.Mixblendr/src&lt;com.mixblendr.gui.main"/>
-        <file path="/NerveSound.Mixblendr/skins/main/MIXBLENDR_UP.png"/>
-        <javaElement handleIdentifier="=NerveSound.Mixblendr/src&lt;com.mixblendr.audio"/>
-        <file path="/NerveSound.Mixblendr/skins/main/MIXBLENDR_OVR.png"/>
-        <javaElement handleIdentifier="=NerveSound.Mixblendr/src&lt;com.mixblendr.test{AudioFileRenamer.java"/>
-        <javaElement handleIdentifier="=NerveSound.Mixblendr/src&lt;com.mixblendr.skin"/>
-        <file path="/NerveSound.Mixblendr/skins/main/MIXBLENDR_special.png"/>
-        <javaElement handleIdentifier="=NerveSound.Mixblendr/src&lt;com.mixblendr.gui.graph"/>
-        <javaElement handleIdentifier="=NerveSound.Mixblendr/src&lt;com.mixblendr.util"/>
-        <file path="/NerveSound.Mixblendr/skins/main/MIXBLENDR_DN.png"/>
+        <file path="/Mixblendr custom Stereofyter/.gitignore"/>
+        <file path="/Mixblendr custom Stereofyter/Mixblendr.ipr"/>
+        <file path="/Mixblendr custom Stereofyter/SignJarOnWeb.xml"/>
+        <file path="/Mixblendr custom Stereofyter/.classpath"/>
+        <javaElement handleIdentifier="=Mixblendr custom Stereofyter/src"/>
+        <file path="/Mixblendr custom Stereofyter/CreateReleaseJar.jardesc"/>
+        <file path="/Mixblendr custom Stereofyter/.project"/>
+        <file path="/Mixblendr custom Stereofyter/Manifest.mf"/>
+        <javaElement handleIdentifier="=Mixblendr custom Stereofyter/skins"/>
+        <file path="/Mixblendr custom Stereofyter/javadoc_private.xml"/>
+        <file path="/Mixblendr custom Stereofyter/Mixblendr.iws"/>
+        <folder path="/Mixblendr custom Stereofyter/misc"/>
+        <folder path="/Mixblendr custom Stereofyter/lib"/>
+        <file path="/Mixblendr custom Stereofyter/CreateJarOnWeb.jardesc"/>
+        <folder path="/Mixblendr custom Stereofyter/doc"/>
     </selectedElements>
 </jardesc>

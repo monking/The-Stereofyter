@@ -1,11 +1,12 @@
 package org.stereofyte.mixer {
 
-  import flash.display.Sprite;
   import com.chrislovejoy.gui.DragAndDrop;
   import org.stereofyte.gui.*;
   import flash.display.Graphics;
+  import flash.display.Sprite;
   import flash.events.Event;
   import flash.events.MouseEvent;
+  import flash.filters.ColorMatrixFilter;
   import flash.geom.Point;
   import flash.geom.Rectangle;
   import fl.transitions.Tween;
@@ -17,11 +18,12 @@ package org.stereofyte.mixer {
     public static const
       VOLUME_CHANGE = "region_volume_change",
       MUTE = "region_mute",
-      UNMUTE = "region_unmute",
       SOLO = "region_solo",
-      UNSOLO = "region_unsolo",
       DELETE = "region_delete",
       DUPLICATE = "region_duplicate",
+      SOLO_THIS = "solo",
+      SOLO_OTHER = "other",
+      SOLO_NONE = "none",
       STATUS_NULL = "region_null",
       STATUS_LIVE = "region_live";
 
@@ -30,7 +32,7 @@ package org.stereofyte.mixer {
 
     public var
       status:String,
-      id:Object;
+      id:int;
 
     private var
       _sample:Sample,
@@ -39,6 +41,8 @@ package org.stereofyte.mixer {
       icon:InstrumentIcon,
       ui:RegionUI,
       deleteSymbol:RegionDeleteSymbol,
+      Solo:String,
+      Muted:Boolean,
       state:String,
       regionData:Object,
       _volume:Number = 1,
@@ -77,6 +81,26 @@ package org.stereofyte.mixer {
     public function setVolume(newVolume:Number):void {
       _volume = newVolume;
       updateVolumeSlider();
+    }
+
+    public function setMuted(muted:Boolean):void {
+      Muted = muted;
+      updateStyle();
+    }
+
+    public function toggleMuted():Boolean {
+      if (Solo == SOLO_THIS) return false;
+      setMuted(!Muted);
+      return true;
+    }
+
+    public function setSolo(solo:String):void {
+      Solo = solo;
+      updateStyle();
+    }
+
+    public function toggleSolo():void {
+      setSolo(Solo == SOLO_THIS? SOLO_NONE: SOLO_THIS);
     }
 
     public function showDeleteMode():void {
@@ -127,6 +151,14 @@ package org.stereofyte.mixer {
       return _volume;
     }
 
+    public function get isMuted():Boolean {
+      return Muted;
+    }
+
+    public function get solo():String {
+      return Solo;
+    }
+
     public function get sample():Sample {
       return _sample;
     }
@@ -175,7 +207,8 @@ package org.stereofyte.mixer {
        * Mute
        */
       ui.buttons.buttonMute.addEventListener(MouseEvent.CLICK, function(event) {
-        dispatchEvent(new Event(MUTE));
+        if (!toggleMuted()) return;
+        dispatchEvent(new Event(MUTE, true));
       });
     }
 
@@ -237,6 +270,20 @@ package org.stereofyte.mixer {
       deleteSymbol = new RegionDeleteSymbol();
       deleteSymbol.x = icon.x;
       deleteSymbol.y = icon.y;
+    }
+
+    private function updateStyle():void {
+      if (Muted || Solo == SOLO_OTHER) {
+
+        var mat:Array = [ .50,.50,.50,0,0,
+                          .50,.50,.50,0,0,
+                          .50,.50,.50,0,0,
+                          .50,.50,.50,1,0 ];
+        var colorMat:ColorMatrixFilter = new ColorMatrixFilter(mat);
+        this.filters = [colorMat];
+      } else {
+        this.filters = [];
+      }
     }
 
   }

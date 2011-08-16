@@ -32,7 +32,7 @@ package org.stereofyte.mixer {
 
     private var
       tracks:Array,
-      regions:Array,
+      Regions:Array,
       bins:Array,
       snapGrid:Point,
       trackField:Sprite,
@@ -44,13 +44,14 @@ package org.stereofyte.mixer {
       trackWidth:Number,
       trackHeight:Number,
       ui:MixerUI,
-      liftedRegionData:Object,
+      LiftedRegionData:Object,
+      RemovedRegionData:Object,
       tempo:Number = 90,
       beatsPerRegion:int = 8;
 
     public function Mixer(width:Number = 500, height:Number = 240, trackCount:Number = 5):void {
       tracks = [];
-      regions = [];
+      Regions = [];
       bins = [];
       Width = width;
       Height = height;
@@ -91,35 +92,39 @@ package org.stereofyte.mixer {
       region.addEventListener(Region.DELETE, onDeleteRegion);
       region.hideButtons(null, true);
       addChild(region);
-      regions.push(region);
+      Regions.push(region);
       return region;
     }
 
     public function resetLiftedRegion(region:Region):void {
-      if (liftedRegionData) {
-        tracks[liftedRegionData.trackIndex].addRegion(region, liftedRegionData.cellIndex);
-        liftedRegionData = null;
+      if (LiftedRegionData) {
+        tracks[LiftedRegionData.trackIndex].addRegion(region, LiftedRegionData.cellIndex);
+        LiftedRegionData = null;
       } else {
         removeRegion(region);
       }
     }
 
     public function removeRegion(region:Region):void {
-      liftedRegionData = null;
+      LiftedRegionData = null;
       region.removeEventListener(DragAndDrop.DRAG_START, onLiftRegion);
       region.removeEventListener(DragAndDrop.DRAG_STOP, onPlaceRegion);
       region.removeEventListener(Region.DUPLICATE, onDuplicateRegion);
       region.removeEventListener(Region.DELETE, onDeleteRegion);
+      var trackIndex = -1;
       if (region.parent is Track) {
         var track:Track = region.parent as Track;
+        trackIndex = track.index;
         track.removeRegion(region);
       }
-      for (var i:Number = regions.length - 1; i >=0; i--) {
-        if (region === regions[i]) {
-          regions.splice(i, 1);
+      for (var i:Number = Regions.length - 1; i >=0; i--) {
+        if (region === Regions[i]) {
+          Regions.splice(i, 1);
         }
       }
-      region.dispatchEvent(new Event(Mixer.REGION_REMOVED, true));
+      RemovedRegionData = {regionId:region.id, trackIndex:trackIndex};
+      dispatchEvent(new Event(Mixer.REGION_REMOVED, true));
+      RemovedRegionData = null;
       region.clear();
     }
 
@@ -130,6 +135,10 @@ package org.stereofyte.mixer {
       } else {
         return playbackPosition;
       }
+    }
+
+    public function get regions():Array {
+      return Regions;
     }
 
     public function addSample(sample:Sample) {
@@ -171,24 +180,24 @@ package org.stereofyte.mixer {
     }
 
     private function liftRegion(region:Region) {
-      liftedRegionData = null;
+      LiftedRegionData = null;
       if (this !== region.parent) {
         var regionPosition = globalToLocal(region.localToGlobal(new Point()));
         if (region.parent is Track) {
           var track:Track = region.parent as Track;
-          liftedRegionData = {trackIndex:track.index, cellIndex:track.getRegionIndex(region)}
+          LiftedRegionData = {trackIndex:track.index, cellIndex:track.getRegionIndex(region)}
           track.removeRegion(region);
         }
         addChild(region);
         region.x = regionPosition.x;
         region.y = regionPosition.y;
       }
-      region.removeEventListener(Event.ENTER_FRAME, updateRegionStatus);
-      region.addEventListener(Event.ENTER_FRAME, updateRegionStatus);
+      region.removeEventListener(Event.ENTER_FRAME, updateRegionstatus);
+      region.addEventListener(Event.ENTER_FRAME, updateRegionstatus);
     }
 
     private function placeRegion(region:Region, useNextOpenSpace:Boolean = false) {
-      region.removeEventListener(Event.ENTER_FRAME, updateRegionStatus);
+      region.removeEventListener(Event.ENTER_FRAME, updateRegionstatus);
       var targetTrackIndex:Number = getObjectTargetTrackIndex(region);
       var debug = "placeRegion: ";
       if (isNaN(targetTrackIndex)) {
@@ -196,25 +205,26 @@ package org.stereofyte.mixer {
         removeRegion(region);
       } else {
         var track:Track = tracks[targetTrackIndex] as Track;
-        var targetCellIndex:int = track.getRegionIndex(region);
-        if (track.getRegionAtIndex(targetCellIndex)) {
-          var collision:Boolean = true;
+        var targetBeatIndex:int = track.getRegionIndex(region);
+        var collision:Boolean = false;
+        if (track.getRegionAtIndex(targetBeatIndex)) {
+          collision = true;
           if (useNextOpenSpace) {
-            for (var i:int = targetCellIndex; i < MAX_BEATS; i+=beatsPerRegion) {
+            for (var i:int = targetBeatIndex; i < MAX_BEATS; i+=beatsPerRegion) {
               trace("trying to place at "+i);
               if (!track.getRegionAtIndex(i)) {
-                track.addRegion(region, i);
+                targetBeatIndex = i;
                 collision = false;
                 break;
               }
             }
           }
-          if (collision) {
-            debug += "existing region at this position: reset";
-            resetLiftedRegion(region);
-          }
+        }
+        if (collision) {
+          debug += "existing region at this position: reset";
+          resetLiftedRegion(region);
         } else {
-          track.addRegion(region);
+          track.addRegion(region, targetBeatIndex);
           if (Region.STATUS_NULL == region.status) {
             debug += "new region: ADDED";
             region.status = Region.STATUS_LIVE;
@@ -225,7 +235,7 @@ package org.stereofyte.mixer {
           }
         }
       }
-      liftedRegionData = null;
+      LiftedRegionData = null;
       trace(debug);
     }
 
@@ -252,7 +262,7 @@ package org.stereofyte.mixer {
       return targetTrackIndex;
     }
 
-    private function updateRegionStatus(event:Event):void {
+    private function updateRegionstatus(event:Event):void {
       var region:Region = event.currentTarget as Region;
 
       /*
@@ -330,6 +340,7 @@ package org.stereofyte.mixer {
       } else if (position.y + trackField.mask.height > trackHeight * tracks.length) {
         position.x = trackHeight * tracks.length - trackField.mask.height;
       }
+      /* for now, no vertical scrolling */ position.y = 0;
       trackField.x = TRACKFIELD_X - position.x;
       trackField.y = TRACKFIELD_Y - position.y;
       trackField.mask.x = position.x;
@@ -421,10 +432,30 @@ package org.stereofyte.mixer {
       });
       ui.seekbar.addEventListener(MouseEvent.MOUSE_DOWN, onStartSeekbarSlide);
       updateSeekbar();
+      /*
+       * Solo
+       */
+      addEventListener(Region.SOLO, function(event:Event) {
+        var region = event.target as Region;
+        region.toggleSolo();
+        for (var i:int = 0; i < Regions.length; i++) {
+          if (Regions[i] !== region) {
+            Regions[i].setSolo(region.solo == Region.SOLO_THIS? Region.SOLO_OTHER: Region.SOLO_NONE);
+          }
+        }
+      });
     }
 
     public function get playbackPosition():Number {
       return PlaybackPosition;
+    }
+
+    public function get liftedRegionData():Object {
+      return LiftedRegionData;
+    }
+
+    public function get removedRegionData():Object {
+      return RemovedRegionData;
     }
 
     public function set playbackPosition(beat:Number):void {

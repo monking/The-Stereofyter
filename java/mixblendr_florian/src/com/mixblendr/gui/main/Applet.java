@@ -17,6 +17,7 @@ import com.mixblendr.audio.AudioRegion;
 import com.mixblendr.audio.AudioTrack;
 import com.mixblendr.audio.AudioPlayer.Listener;
 import com.mixblendr.audio.AudioTrack.SoloState;
+import com.mixblendr.audio.Playlist;
 import com.mixblendr.util.Debug;
 
 /**
@@ -99,6 +100,7 @@ public class Applet extends JApplet {
 						} catch (NumberFormatException e) {
 						}
 						
+						// commenting to hide UI
 						Applet.this.setContentPane(main.getMasterPanel());
 
 						main.start();
@@ -159,22 +161,18 @@ public class Applet extends JApplet {
 	private List<AudioRegion> regions = null;
 	public int addRegion(final int trackIndex, final String url, float beats) {
 		final long pos = getSamplesFromBeats(beats);
+		final AudioMixer mixer = main.globals.getPlayer().getMixer();
+		if (trackIndex >= mixer.getTrackCount()) {
+			for (int i = mixer.getTrackCount(); i <= trackIndex; i++) {
+				main.globals.getPlayer().addAudioTrack();
+			} 
+		}
+		final AudioTrack track = main.globals.getPlayer().getMixer().getTrack(trackIndex);
 		AudioRegion region = java.security.AccessController.doPrivileged(
 		    new java.security.PrivilegedAction<AudioRegion>() {
 		        public AudioRegion run() {
 		        	AudioRegion newRegion = null;
 		    		try {
-		    			AudioMixer mixer = main.globals.getPlayer().getMixer(); 
-		    			AudioTrack track = mixer.getTrack(trackIndex);
-		    			int trackCount = mixer.getTrackCount();
-		    			if (trackIndex >= trackCount) {
-		    				for (int i = trackCount; i <= trackIndex; i++) {
-		    					AudioTrack newTrack = main.globals.getPlayer().addAudioTrack();
-		    					if (i == trackIndex) {
-		    						track = newTrack;
-		    					}
-		    				} 
-		    			}
 		    			newRegion = main.globals.addRegion(track, new URL(url), pos);
 		    		} catch (Exception e) {
 		    			e.printStackTrace();
@@ -184,27 +182,49 @@ public class Applet extends JApplet {
 		    }
 		);
 		main.updateTracks();
-		int i = regions.size();
-		regions.set(i, region);
-		return i;
-		
+		return track.getPlaylist().indexOf(region);
 	}
+	
+	public AudioRegion getRegion(int index, int trackIndex) {
+		return (AudioRegion) main.globals.getPlayer().getMixer().getTrack(trackIndex).getPlaylist().getObject(index);
+	}
+	
 	/**
-	 * Move a region to a track at the given index.
+	 * remove a region from a track.
 	 * @param id
 	 * @param trackIndex
 	 * @param beat
 	 */
-	public void moveRegion(int id, int trackIndex, float beat) {
-		long pos = getSamplesFromBeats(beat);
-		AudioRegion region = regions.get(id);
-		try {
-			//main.globals.addRegion(main.globals.getPlayer().getMixer().getTrack(trackIndex), new URL(url), pos);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public AudioRegion removeRegion(int id, int trackIndex) {
+		Playlist playlist = main.globals.getPlayer().getMixer().getTrack(trackIndex).getPlaylist();
+		AudioRegion region = (AudioRegion) playlist.getObject(id);
+		playlist.removeObject(region);
 		main.updateTracks();
-		
+		return region;
+	}
+	
+	/**
+	 * Move a region to a track at the given index.
+	 * @param id
+	 * @param fromTrackIndex
+	 * @param trackIndex
+	 * @param beat
+	 */
+	public int moveRegion(int id, int fromTrackIndex, int trackIndex, float beats) {
+		AudioRegion region = removeRegion(id, fromTrackIndex);
+		region.setStartTimeSamples(getSamplesFromBeats(beats));
+		Playlist playlist = main.globals.getPlayer().getMixer().getTrack(trackIndex).getPlaylist();
+		playlist.addObject(region);
+		main.updateTracks();
+		return playlist.indexOf(region);
+	}
+	
+	public void setRegionMuted(int index, int trackIndex, boolean muted) {
+		getRegion(index, trackIndex).setMuted(muted);
+	}
+	
+	public void setRegionVolume(int index, int trackIndex, double level) {
+		getRegion(index, trackIndex).setLevel(level);
 	}
 	
 	public void startPlayback() {
