@@ -159,6 +159,7 @@ public class Applet extends JApplet {
 	 * @param beat
 	 */
 	private List<AudioRegion> regions = null;
+	
 	public int addRegion(final int trackIndex, final String url, float beats) {
 		final long pos = getSamplesFromBeats(beats);
 		final AudioMixer mixer = main.globals.getPlayer().getMixer();
@@ -168,7 +169,7 @@ public class Applet extends JApplet {
 			} 
 		}
 		final AudioTrack track = main.globals.getPlayer().getMixer().getTrack(trackIndex);
-		AudioRegion region = java.security.AccessController.doPrivileged(
+		final AudioRegion region = java.security.AccessController.doPrivileged(
 		    new java.security.PrivilegedAction<AudioRegion>() {
 		        public AudioRegion run() {
 		        	AudioRegion newRegion = null;
