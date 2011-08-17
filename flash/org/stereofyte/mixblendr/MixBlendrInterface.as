@@ -16,7 +16,7 @@ package org.stereofyte.mixblendr {
     }
 
     public function call(method, ... arguments):* {
-      trace("calling on MixBlendr: " + method);
+      //trace("calling on MixBlendr: " + method);
       switch (arguments.length) {
         case 0:
           return ExternalInterface.call(jsBridgeName+'.'+method);
@@ -37,7 +37,7 @@ package org.stereofyte.mixblendr {
           return ExternalInterface.call(jsBridgeName+'.'+method, arguments[0], arguments[1], arguments[2], arguments[3], arguments[4]);
           break;
         default:
-          trace("method '"+method+"' could not be called because it had more than the supported 5 arguments");
+          //trace("method '"+method+"' could not be called because it had more than the supported 5 arguments");
           return undefined;
       }
     }

@@ -15,10 +15,10 @@ package com.chrislovejoy.gui {
      */
 
     public static const
-      DRAG_START = "drag_start",
-      DRAG_MOVE = "drag_move",
-      DRAG_STOP = "drag_stop",
-      NEW_SNAP = "new_snap";
+      DRAG_START = "dnd_drag_start",
+      DRAG_MOVE = "dnd_drag_move",
+      DRAG_STOP = "dnd_drag_stop",
+      NEW_SNAP = "dnd_new_snap";
 
     public var options:Object;
 

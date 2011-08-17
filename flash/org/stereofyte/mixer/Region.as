@@ -178,7 +178,25 @@ package org.stereofyte.mixer {
     private function attachBehaviors():void {
       addEventListener(MouseEvent.MOUSE_OVER, showButtons);
       addEventListener(MouseEvent.MOUSE_OUT, hideButtons);
-      ui.buttons.buttonBody.addEventListener(MouseEvent.MOUSE_DOWN, startMyDrag);
+      /*
+       * Instrument Icon button
+       */
+      ui.buttons.buttonBody.addEventListener(MouseEvent.MOUSE_DOWN, function(event:MouseEvent) {
+        if (isDragging) return;
+        function click(event:MouseEvent) {
+          stage.removeEventListener(MouseEvent.MOUSE_MOVE, lift);
+          event.target.removeEventListener(MouseEvent.MOUSE_UP, click);
+          toggleMuted();
+          dispatchEvent(new Event(MUTE, true));
+        }
+        function lift(event:MouseEvent) {
+          stage.removeEventListener(MouseEvent.MOUSE_MOVE, lift);
+          event.target.removeEventListener(MouseEvent.MOUSE_UP, click);
+          startMyDrag(event);
+        }
+        stage.addEventListener(MouseEvent.MOUSE_MOVE, lift);
+        event.target.addEventListener(MouseEvent.MOUSE_UP, click);
+      });
       /*
        * Volume
        */

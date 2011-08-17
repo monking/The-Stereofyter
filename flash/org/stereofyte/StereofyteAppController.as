@@ -66,6 +66,7 @@ package org.stereofyte {
       });
       mixer.addEventListener(Mixer.SEEK_START, stopUpdatePlayhead);
       mixer.addEventListener(Mixer.SEEK_FINISH, function(event:Event) {
+        trace("SEEK_FINISH");
         engine.call("setPlaybackPosition", mixer.playbackPosition);
         feedbackDelay.addEventListener(TimerEvent.TIMER, delayStartUpdatePlayhead);
         feedbackDelay.start();
@@ -85,12 +86,21 @@ package org.stereofyte {
           engine.call("setRegionMuted", otherRegion.id, (otherRegion.parent as Track).index, otherRegion.isMuted || otherRegion.solo == Region.SOLO_OTHER);
         }
       });
-      engine.addEventListener("playbackStart", updatePlayhead);
+      engine.addEventListener("playbackStart", function(event:Event) {
+        trace("playbackStart");
+        mixer.setPlaying(true);
+        updatePlayhead(event);
+      });
       engine.addEventListener("playbackStop", function(event:Event) {
+        trace("playbackStop");
+        mixer.setPlaying(false);
         updatePlayhead(event);
         stopUpdatePlayhead(event);
       });
-      engine.addEventListener("playbackPositionChanged", updatePlayhead);
+      engine.addEventListener("playbackPositionChanged", function(event:Event) {
+        trace("playbackPositionChanged");
+        updatePlayhead(event);
+      });
     }
 
     private function delayStartUpdatePlayhead(event:Event):void {

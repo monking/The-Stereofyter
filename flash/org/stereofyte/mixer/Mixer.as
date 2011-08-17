@@ -26,11 +26,11 @@ package org.stereofyte.mixer {
       MAX_BEATS:int = 160;
 
     private static const
-      SEEKBAR_BOUNDS:Rectangle = new Rectangle(4, 7, 515, 0),
       TRACKFIELD_X:Number = 9,
       TRACKFIELD_Y:Number = 10;
 
     private var
+      seekbarBounds:Rectangle,
       tracks:Array,
       Regions:Array,
       bins:Array,
@@ -39,6 +39,7 @@ package org.stereofyte.mixer {
       trackFieldMask:Sprite,
       playhead:MovieClip,
       PlaybackPosition:Number = 0,
+      playing:Boolean,
       Width:Number,
       Height:Number,
       trackWidth:Number,
@@ -60,6 +61,7 @@ package org.stereofyte.mixer {
       snapGrid = new Point(BEAT_WIDTH * beatsPerRegion, trackHeight);
       ui = new MixerUI();
       addChild(ui);
+      seekbarBounds = new Rectangle(TRACKFIELD_X - ui.seekbar.x, 7, width, 0);
       drawTrackField();
       drawPlayhead();
       attachBehaviors();
@@ -111,6 +113,7 @@ package org.stereofyte.mixer {
       region.removeEventListener(DragAndDrop.DRAG_STOP, onPlaceRegion);
       region.removeEventListener(Region.DUPLICATE, onDuplicateRegion);
       region.removeEventListener(Region.DELETE, onDeleteRegion);
+      if (region.solo == Region.SOLO_THIS) region.dispatchEvent(new Event(Region.SOLO, true));
       var trackIndex = -1;
       if (region.parent is Track) {
         var track:Track = region.parent as Track;
@@ -211,7 +214,6 @@ package org.stereofyte.mixer {
           collision = true;
           if (useNextOpenSpace) {
             for (var i:int = targetBeatIndex; i < MAX_BEATS; i+=beatsPerRegion) {
-              trace("trying to place at "+i);
               if (!track.getRegionAtIndex(i)) {
                 targetBeatIndex = i;
                 collision = false;
@@ -236,7 +238,7 @@ package org.stereofyte.mixer {
         }
       }
       LiftedRegionData = null;
-      trace(debug);
+      //trace(debug);
     }
 
     private function duplicateRegion(region:Region) {
@@ -267,7 +269,7 @@ package org.stereofyte.mixer {
 
       /*
        * check for dragging out of bounds... and scroll
-       *
+       */
       var regionTopLeft = region.parent.localToGlobal(new Point(region.x, region.y));
       var regionBottomRight = regionTopLeft.add(new Point(region.width, region.height));
       var bounds = trackField.mask.getRect(stage);
@@ -277,15 +279,14 @@ package org.stereofyte.mixer {
         pushTrackField(new Point((regionTopLeft.x - bounds.x) * scrollModifier, 0));
       } else if (regionTopLeft.y < bounds.y) {
         // scroll up
-        pushTrackField(new Point(0, (regionTopLeft.y - bounds.y) * scrollModifier));
+        //pushTrackField(new Point(0, (regionTopLeft.y - bounds.y) * scrollModifier));
       } else if (regionBottomRight.x > bounds.x + bounds.width) {
         // scroll right
         pushTrackField(new Point((regionBottomRight.x - (bounds.x + bounds.width)) * scrollModifier, 0));
       } else if (regionBottomRight.y > bounds.y + bounds.height) {
         // scroll down
-        pushTrackField(new Point(0, (regionBottomRight.y - (bounds.y + bounds.height)) * scrollModifier));
+        //pushTrackField(new Point(0, (regionBottomRight.y - (bounds.y + bounds.height)) * scrollModifier));
       }
-       */
 
       var targetTrackIndex:Number = getObjectTargetTrackIndex(region.snapGhost);
       // check for snapping out of bounds
@@ -310,19 +311,30 @@ package org.stereofyte.mixer {
         pushTrackField(new Point(event.delta * 20, 0));
       } );
       addEventListener(Event.ADDED_TO_STAGE, function(event) {
-        stage.addEventListener(KeyboardEvent.KEY_DOWN, function(event) {
+        stage.addEventListener(KeyboardEvent.KEY_UP, function(event) {
           switch (event.keyCode) {
+            case 13/*<ENTER>*/:
+              PlaybackPosition = 0;
+              dispatchEvent(new Event(Mixer.SEEK_FINISH));
+              break;
+            case 32/*<SPACE>*/:
+              ui.buttonPlay.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+              break;
             case 39/*<RIGHT>*/:
-              pushTrackField(new Point(BEAT_WIDTH * beatsPerRegion, 0));
+              PlaybackPosition = Math.min(PlaybackPosition + beatsPerRegion, MAX_BEATS);
+              PlaybackPosition -= PlaybackPosition % beatsPerRegion;
+              dispatchEvent(new Event(Mixer.SEEK_FINISH));
               break;
             case 37/*<LEFT>*/:
-              pushTrackField(new Point(-BEAT_WIDTH * beatsPerRegion, 0));
+              PlaybackPosition = Math.max(PlaybackPosition - 1, 0);
+              PlaybackPosition -= PlaybackPosition % beatsPerRegion;
+              dispatchEvent(new Event(Mixer.SEEK_FINISH));
               break;
             case 38/*<UP>*/:
-              pushTrackField(new Point(0, -trackHeight));
+              //pushTrackField(new Point(0, -trackHeight));
               break;
             case 40/*<DOWN>*/:
-              pushTrackField(new Point(0, trackHeight));
+              //pushTrackField(new Point(0, trackHeight));
               break;
           }
         } );
@@ -384,14 +396,16 @@ package org.stereofyte.mixer {
       playhead.graphics.lineStyle(0, 0xFF0000, 1);
       playhead.graphics.lineTo(0, trackField.mask.height);
       */
-      trackField.addChild(playhead);
-      updatePlayhead();
+      ui.addChild(playhead);
+      ui.addChild(ui.seekbar);
     }
 
     public function updatePlayhead():void {
-      playhead.x = PlaybackPosition * BEAT_WIDTH;
-      playhead.y = 0;
-      scrollTrackField(new Point(playhead.x - trackField.mask.width / 2, 0));
+      ui.seekbar.handle.x = PlaybackPosition / MAX_BEATS * seekbarBounds.width + seekbarBounds.x;
+      ui.seekbar.fill.width = Math.max(0, ui.seekbar.handle.x - ui.seekbar.fill.x);
+      playhead.x = ui.seekbar.x + ui.seekbar.handle.x;
+      playhead.y = 5;
+      scrollTrackField(new Point(PlaybackPosition * BEAT_WIDTH - Width * PlaybackPosition / MAX_BEATS));
     }
     
     private function addBin(bin:Bin):void {
@@ -415,6 +429,15 @@ package org.stereofyte.mixer {
       bin.removeEventListener(Bin.PULL, grabBin);
     }
 
+    public function setPlaying(newPlaying:Boolean):void {
+      trace("setPlaying: "+newPlaying);
+      playing = newPlaying;
+    }
+
+    public function get isPlaying():Boolean {
+      return playing;
+    }
+
     private function grabBin(event:Event) {
       var region = addRegion(event.target.pulledSample);
       region.grab();
@@ -425,13 +448,16 @@ package org.stereofyte.mixer {
        * Playback
        */
       ui.buttonPlay.addEventListener(MouseEvent.CLICK, function(event:MouseEvent) {
+        trace(isPlaying);
+        isPlaying?
+        dispatchEvent(new Event(Mixer.STOP)):
         dispatchEvent(new Event(Mixer.PLAY));
       });
       ui.buttonStop.addEventListener(MouseEvent.CLICK, function(event:MouseEvent) {
         dispatchEvent(new Event(Mixer.STOP));
       });
       ui.seekbar.addEventListener(MouseEvent.MOUSE_DOWN, onStartSeekbarSlide);
-      updateSeekbar();
+      updatePlayhead();
       /*
        * Solo
        */
@@ -461,20 +487,19 @@ package org.stereofyte.mixer {
     public function set playbackPosition(beat:Number):void {
       PlaybackPosition = beat;
       updatePlayhead();
-      updateSeekbar();
     }
 
     private function onStartSeekbarSlide(event:MouseEvent):void {
       stage.addEventListener(MouseEvent.MOUSE_MOVE, onSeekbarSlide);
       stage.addEventListener(MouseEvent.MOUSE_UP, onStopSeekbarSlide);
-      ui.seekbar.handle.startDrag(true, SEEKBAR_BOUNDS);
-      ui.seekbar.handle.x = ui.seekbar.mouseX;
+      ui.seekbar.handle.startDrag(true, seekbarBounds);
+      ui.seekbar.handle.x = Math.min(seekbarBounds.x+seekbarBounds.width, Math.max(ui.seekbar.mouseX, seekbarBounds.x));
       dispatchEvent(new Event(Mixer.SEEK_START));
       onSeekbarSlide(event);
     }
 
     private function onSeekbarSlide(event:MouseEvent):void {
-      playbackPosition = (ui.seekbar.handle.x - SEEKBAR_BOUNDS.x) / SEEKBAR_BOUNDS.width * MAX_BEATS;
+      playbackPosition = (ui.seekbar.handle.x - seekbarBounds.x) / seekbarBounds.width * MAX_BEATS;
       dispatchEvent(new Event(Mixer.SEEK));
     }
 
@@ -485,14 +510,7 @@ package org.stereofyte.mixer {
       dispatchEvent(new Event(Mixer.SEEK_FINISH));
     }
 
-    private function updateSeekbar():void {
-      trace("PlaybackPosition: "+PlaybackPosition);
-      ui.seekbar.handle.x = PlaybackPosition / MAX_BEATS * SEEKBAR_BOUNDS.width + SEEKBAR_BOUNDS.x;
-      ui.seekbar.fill.width = ui.seekbar.handle.x - ui.seekbar.fill.x;
-    }
-
     private function resize(event:Event = null):void {
-      trace("resize");
       ui.x = Math.floor(stage.stageWidth / 2 - ui.width / 2);
       ui.y = 60;
       bins[0].x = Math.floor(stage.stageWidth / 2 - 300 - bins[0].width);
