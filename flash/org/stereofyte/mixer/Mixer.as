@@ -247,6 +247,7 @@ package org.stereofyte.mixer {
       newRegion.x = newPosition.x;
       newRegion.y = newPosition.y;
       placeRegion(newRegion, true);
+      newRegion.setVolume(region.volume);
     }
 
     private function getObjectTargetTrackIndex(object:DisplayObject):Number {
@@ -326,7 +327,7 @@ package org.stereofyte.mixer {
               dispatchEvent(new Event(Mixer.SEEK_FINISH));
               break;
             case 37/*<LEFT>*/:
-              PlaybackPosition = Math.max(PlaybackPosition - 1, 0);
+              PlaybackPosition = Math.max(PlaybackPosition - beatsPerRegion / 2, 0);
               PlaybackPosition -= PlaybackPosition % beatsPerRegion;
               dispatchEvent(new Event(Mixer.SEEK_FINISH));
               break;
