@@ -58,7 +58,7 @@ public class Main implements FatalExceptionListener, AutomationListener,
 	private EffectManager effectManager;
 
 	private AudioPlayer player;
-	public Globals globals;
+	private Globals globals;
 	// these global automation handlers are used in ChannelStrip
 	AutomationHandler volAutoHandler;
 	AutomationHandler panAutoHandler;

@@ -21,9 +21,10 @@ import com.mixblendr.audio.Playlist;
 import com.mixblendr.util.Debug;
 
 /**
- * The main GUI as an applet.
+ * The main GUI as an applet, modified to allow interface with JavaScript
  * 
  * @author Florian Bomers
+ * @author Christopher Lovejoy
  */
 public class Applet extends JApplet {
 
@@ -58,7 +59,6 @@ public class Applet extends JApplet {
 				}
 			});
 			
-            callJS("dispatchMBEvent", "'ready'");
 
 		} catch (Exception e) {
 			exception = e;
@@ -104,6 +104,9 @@ public class Applet extends JApplet {
 						Applet.this.setContentPane(main.getMasterPanel());
 
 						main.start();
+
+			            callJS("dispatchMBEvent", "'ready'");
+			            main.getGlobals().getPlayer().addListener(new JavaScriptListener());
 					} catch (Exception e) {
 						Debug.displayErrorDialogAsync(Applet.this, e, "at startup");
 					}
@@ -145,11 +148,11 @@ public class Applet extends JApplet {
 	}
 	
 	public long getSamplesFromBeats(float beats) {
-		return ((long) (beats * main.globals.getPlayer().getMixer().getSampleRate() * 60 / main.getDefaultTempo()));
+		return ((long) (beats * main.getGlobals().getPlayer().getMixer().getSampleRate() * 60 / main.getDefaultTempo()));
 	}
 	
 	public float getBeatsFromSamples(long samples) {
-		return ((float) (samples * main.getDefaultTempo() / main.globals.getPlayer().getMixer().getSampleRate() / 60 ));
+		return ((float) (samples * main.getDefaultTempo() / main.getGlobals().getPlayer().getMixer().getSampleRate() / 60 ));
 	}
 
 	/**
@@ -162,19 +165,19 @@ public class Applet extends JApplet {
 	
 	public int addRegion(final int trackIndex, final String url, float beats) {
 		final long pos = getSamplesFromBeats(beats);
-		final AudioMixer mixer = main.globals.getPlayer().getMixer();
+		final AudioMixer mixer = main.getGlobals().getPlayer().getMixer();
 		if (trackIndex >= mixer.getTrackCount()) {
 			for (int i = mixer.getTrackCount(); i <= trackIndex; i++) {
-				main.globals.getPlayer().addAudioTrack();
+				main.getGlobals().getPlayer().addAudioTrack();
 			} 
 		}
-		final AudioTrack track = main.globals.getPlayer().getMixer().getTrack(trackIndex);
+		final AudioTrack track = main.getGlobals().getPlayer().getMixer().getTrack(trackIndex);
 		final AudioRegion region = java.security.AccessController.doPrivileged(
 		    new java.security.PrivilegedAction<AudioRegion>() {
 		        public AudioRegion run() {
 		        	AudioRegion newRegion = null;
 		    		try {
-		    			newRegion = main.globals.addRegion(track, new URL(url), pos);
+		    			newRegion = main.getGlobals().addRegion(track, new URL(url), pos);
 		    		} catch (Exception e) {
 		    			e.printStackTrace();
 		    		}
@@ -187,7 +190,7 @@ public class Applet extends JApplet {
 	}
 	
 	public AudioRegion getRegion(int index, int trackIndex) {
-		return (AudioRegion) main.globals.getPlayer().getMixer().getTrack(trackIndex).getPlaylist().getObject(index);
+		return (AudioRegion) main.getGlobals().getPlayer().getMixer().getTrack(trackIndex).getPlaylist().getObject(index);
 	}
 	
 	/**
@@ -197,7 +200,7 @@ public class Applet extends JApplet {
 	 * @param beat
 	 */
 	public AudioRegion removeRegion(int id, int trackIndex) {
-		Playlist playlist = main.globals.getPlayer().getMixer().getTrack(trackIndex).getPlaylist();
+		Playlist playlist = main.getGlobals().getPlayer().getMixer().getTrack(trackIndex).getPlaylist();
 		AudioRegion region = (AudioRegion) playlist.getObject(id);
 		playlist.removeObject(region);
 		main.updateTracks();
@@ -214,7 +217,7 @@ public class Applet extends JApplet {
 	public int moveRegion(int id, int fromTrackIndex, int trackIndex, float beats) {
 		AudioRegion region = removeRegion(id, fromTrackIndex);
 		region.setStartTimeSamples(getSamplesFromBeats(beats));
-		Playlist playlist = main.globals.getPlayer().getMixer().getTrack(trackIndex).getPlaylist();
+		Playlist playlist = main.getGlobals().getPlayer().getMixer().getTrack(trackIndex).getPlaylist();
 		playlist.addObject(region);
 		main.updateTracks();
 		return playlist.indexOf(region);
@@ -229,39 +232,38 @@ public class Applet extends JApplet {
 	}
 	
 	public void startPlayback() {
-		main.globals.startPlayback();
+		main.getGlobals().startPlayback();
 	}
 	
 	public void stopPlayback() {
-		main.globals.stopPlayback();
+		main.getGlobals().stopPlayback();
 	}
 	
 	public float getPlaybackPosition() {
-		return getBeatsFromSamples(main.globals.getPlayer().getPositionSamples());
+		return getBeatsFromSamples(main.getGlobals().getPlayer().getPositionSamples());
 	}
 	
 	public void setPlaybackPosition(float beats) {
 		//boolean wasPlaying = isPlaying();
-		main.globals.getPlayer().setPositionSamples(getSamplesFromBeats(beats));
+		main.getGlobals().getPlayer().setPositionSamples(getSamplesFromBeats(beats));
 		//if (wasPlaying) startPlayback();
 	}
 	
 	/*
 	public boolean isPlaying() {
-		return main.globals.getPlayer().getOutput().IsPlaying();
+		return main.getGlobals().getPlayer().getOutput().IsPlaying();
 	}
 	*/
 	
 	public boolean toggleMute(int trackIndex) {
-		AudioTrack track = main.globals.getPlayer().getMixer().getTrack(trackIndex);
+		AudioTrack track = main.getGlobals().getPlayer().getMixer().getTrack(trackIndex);
 		boolean isMute = !track.isMute();
 		track.setMute(isMute);
 		return isMute;
 	}
 	
-	public List toggleSolo(int trackIndex) {
-		AudioMixer mixer = main.globals.getPlayer().getMixer();
-		List tracks = null;
+	public void toggleSolo(int trackIndex) {
+		AudioMixer mixer = main.getGlobals().getPlayer().getMixer();
 		boolean settingSolo = mixer.getTrack(trackIndex).getSolo() != SoloState.SOLO;
 		for (int i = 0; i < mixer.getTrackCount(); i++) {
 			if (settingSolo) {
@@ -273,9 +275,17 @@ public class Applet extends JApplet {
 			} else {
 				mixer.getTrack(i).setSoloImpl(SoloState.NONE);
 			}
-			tracks.set(i, mixer.getTrack(1).getSolo().toString());
 		}
-		return tracks;
+	}
+	
+	public void save(boolean toWeb) {
+		LoadSave ls = new LoadSave(main.getGlobals());
+		ls.save(toWeb);
+	}
+	public void load(boolean fromWeb) {
+		LoadSave ls = new LoadSave(main.getGlobals());
+		ls.load(fromWeb);
+		main.updateAll();		
 	}
 	
 	public class JavaScriptListener implements Listener {
