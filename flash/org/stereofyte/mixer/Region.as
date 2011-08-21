@@ -78,9 +78,14 @@ package org.stereofyte.mixer {
       startMyDrag();
     }
 
-    public function setVolume(newVolume:Number):void {
+    public function updateVolume(newVolume:Number):void {
       _volume = newVolume;
       updateVolumeSlider();
+    }
+
+    public function setVolume(newVolume:Number):void {
+	  updateVolume(newVolume);
+      dispatchEvent(new Event(VOLUME_CHANGE, true));
     }
 
     public function setMuted(muted:Boolean):void {
@@ -231,8 +236,7 @@ package org.stereofyte.mixer {
     }
 
     private function onVolumeSlide(event:MouseEvent):void {
-      _volume = (ui.buttons.volumeHandle.x - VOLUME_BOUNDS.x) / VOLUME_BOUNDS.width;
-      dispatchEvent(new Event(VOLUME_CHANGE, true));
+      setVolume((ui.buttons.volumeHandle.x - VOLUME_BOUNDS.x) / VOLUME_BOUNDS.width);
     }
 
     private function onStartVolumeSlide(event:MouseEvent):void {

@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-Class-Path: tritonus_share-0.3.7.jar tritonus_mp3-0.3.7.jar tritonus_j
- orbis-0.3.7.jar tritonus_src-0.3.7.jar jogg-0.0.7.jar jorbis-0.0.15.j
- ar javalayer.jar
-Created-By: 1.6.0_24 (Apple Inc.)
-Main-Class: com.mixblendr.gui.main.Main
-
