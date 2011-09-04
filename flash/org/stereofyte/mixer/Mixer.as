@@ -5,6 +5,7 @@ package org.stereofyte.mixer {
   import flash.display.MovieClip;
   import flash.display.Sprite;
   import flash.events.Event;
+  import flash.ui.Keyboard;
   import flash.events.KeyboardEvent;
   import flash.events.MouseEvent;
   import flash.geom.Point;
@@ -314,27 +315,27 @@ package org.stereofyte.mixer {
       addEventListener(Event.ADDED_TO_STAGE, function(event) {
         stage.addEventListener(KeyboardEvent.KEY_UP, function(event) {
           switch (event.keyCode) {
-            case 13/*<ENTER>*/:
+            case Keyboard.ENTER:
               PlaybackPosition = 0;
               dispatchEvent(new Event(Mixer.SEEK_FINISH));
               break;
-            case 32/*<SPACE>*/:
+            case Keyboard.SPACE:
               ui.buttonPlay.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
               break;
-            case 39/*<RIGHT>*/:
+            case Keyboard.RIGHT:
               PlaybackPosition = Math.min(PlaybackPosition + beatsPerRegion, MAX_BEATS);
               PlaybackPosition -= PlaybackPosition % beatsPerRegion;
               dispatchEvent(new Event(Mixer.SEEK_FINISH));
               break;
-            case 37/*<LEFT>*/:
+            case Keyboard.LEFT:
               PlaybackPosition = Math.max(PlaybackPosition - beatsPerRegion / 2, 0);
               PlaybackPosition -= PlaybackPosition % beatsPerRegion;
               dispatchEvent(new Event(Mixer.SEEK_FINISH));
               break;
-            case 38/*<UP>*/:
+            case Keyboard.UP:
               //pushTrackField(new Point(0, -trackHeight));
               break;
-            case 40/*<DOWN>*/:
+            case Keyboard.DOWN:
               //pushTrackField(new Point(0, trackHeight));
               break;
           }
@@ -440,7 +441,7 @@ package org.stereofyte.mixer {
     }
 
     private function grabBin(event:Event) {
-      var region = addRegion(event.target.pulledSample);
+      var region = addRegion(event.target.selectedSample);
       region.grab();
     }
 

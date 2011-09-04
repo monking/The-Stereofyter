@@ -3,14 +3,16 @@
  */
 package com.mixblendr.gui.main;
 
+
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
 
 import javax.swing.JApplet;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
+import com.mixblendr.audio.AudioFile;
+import com.mixblendr.audio.AudioFileDownloadListener;
 import com.mixblendr.audio.AudioMixer;
 import com.mixblendr.audio.AudioPlayer;
 import com.mixblendr.audio.AudioRegion;
@@ -31,6 +33,11 @@ public class Applet extends JApplet {
 	protected Main main;
 
 	protected Exception exception;
+
+	private AudioPlayer previewPlayer;
+	private int previewRegionIndex;
+	private String previewUrl;
+	private boolean previewIsPlaying;
 
 	@Override
 	public String getParameter(String arg) {
@@ -101,10 +108,17 @@ public class Applet extends JApplet {
 						}
 						
 						// commenting to hide UI
-						Applet.this.setContentPane(main.getMasterPanel());
+						//Applet.this.setContentPane(main.getMasterPanel());
+
+						previewPlayer = new AudioPlayer(main, new previewDownloadListener());
+						//previewPlayer.setLoopEnabled(true);
+						previewPlayer.init();
+						previewRegionIndex = -1;
+						previewUrl = "";
+						previewIsPlaying = false;
 
 						main.start();
-
+						
 			            callJS("dispatchMBEvent", "'ready'");
 			            main.getGlobals().getPlayer().addListener(new JavaScriptListener());
 					} catch (Exception e) {
@@ -161,8 +175,6 @@ public class Applet extends JApplet {
 	 * @param url
 	 * @param beat
 	 */
-	private List<AudioRegion> regions = null;
-	
 	public int addRegion(final int trackIndex, final String url, float beats) {
 		final long pos = getSamplesFromBeats(beats);
 		final AudioMixer mixer = main.getGlobals().getPlayer().getMixer();
@@ -286,6 +298,94 @@ public class Applet extends JApplet {
 		LoadSave ls = new LoadSave(main.getGlobals());
 		ls.load(fromWeb);
 		main.updateAll();		
+	}
+	
+	/**
+	 * Toggle a preview of a given URL
+	 * @param url
+	 */
+	public void previewToggle(String url) {
+		if (url == previewUrl && previewIsPlaying) {
+			previewStop();
+		} else {
+			previewStart(url);
+		}
+	}
+	
+	/**
+	 * Preview a sound file
+	 * @param url
+	 */
+	public void previewStart(final String url) {
+		AudioFile af;
+		final AudioTrack at;
+		if (previewPlayer.getMixer().getTrackCount() == 0) {
+			at = previewPlayer.addAudioTrack();
+		} else {
+			at = previewPlayer.getMixer().getTrack(0);
+		}
+		if (url != previewUrl) {
+			if (previewRegionIndex != -1) {
+				Playlist playlist = at.getPlaylist();
+				AudioRegion region = (AudioRegion) playlist.getObject(previewRegionIndex);
+				playlist.removeObject(region);
+			}
+			af = java.security.AccessController.doPrivileged(
+			    new java.security.PrivilegedAction<AudioFile>() {
+			        public AudioFile run() {
+			        	AudioFile newFile = null;
+			        	AudioRegion newRegion = null;
+			    		try {
+			    			newFile = previewPlayer.getFactory().getAudioFile(new URL(url));
+			    			newRegion = at.addRegion(newFile, 0, -1);
+			    			previewUrl = url;
+			    			previewRegionIndex = at.getPlaylist().indexOf(newRegion);
+			    		} catch (Exception e) {
+			    			e.printStackTrace();
+			    		}
+		    			return newFile;
+			        }
+			    }
+			);
+		} else {
+			AudioRegion ar = (AudioRegion) at.getPlaylist().getObject(previewRegionIndex);
+			af = ar.getAudioFile();
+		}
+		previewIsPlaying = true;
+		if (af.isFullyLoaded()) {
+			try {
+				previewPlayer.setPositionSamples(0);
+				previewPlayer.start();
+			} catch (Throwable t) {
+			}
+		}
+	}
+	
+	/**
+	 * stop previewing a sound file
+	 */
+	public void previewStop() {
+		try {
+			previewPlayer.stop(false);
+		} catch (Throwable t) {
+		}
+		previewIsPlaying = false;
+	}
+	
+	public class previewDownloadListener implements AudioFileDownloadListener {
+		public void downloadStarted(AudioFile af) {
+			
+		}
+	
+		public void downloadEnded(AudioFile af) {
+			if (previewIsPlaying) {
+				try {
+					previewPlayer.setPositionSamples(0);
+					previewPlayer.start();
+				} catch (Throwable t) {
+				}
+			}
+		}
 	}
 	
 	public class JavaScriptListener implements Listener {

@@ -21,6 +21,7 @@ package org.stereofyte.mixer {
       this.data = {
         src:"",
         family:Sample.FAMILY_VOCAL,
+        name:"<no name>",
         key:"C+",
         bpm:90,
         duration:6000
@@ -64,6 +65,13 @@ package org.stereofyte.mixer {
      */
     public function get bpm():Number {
       return data.bpm;
+    }
+
+    /**
+     * get name
+     */
+    public function get name():String {
+      return data.name;
     }
 
     /**

@@ -86,6 +86,9 @@ package org.stereofyte {
           engine.call("setRegionMuted", otherRegion.id, (otherRegion.parent as Track).index, otherRegion.isMuted || otherRegion.solo == Region.SOLO_OTHER);
         }
       });
+      mixer.addEventListener(Bin.PREVIEW_TOGGLE, function(event:Event) {
+        engine.call("previewToggle", event.target.selectedSample.src);
+      });
       engine.addEventListener("playbackStart", function(event:Event) {
         trace("playbackStart");
         mixer.setPlaying(true);
@@ -134,42 +137,42 @@ package org.stereofyte {
       }));
       mixer.addSample(new Sample({
         src:SAMPLE_PATH+"African_Mist_Voice_2.ogg",
-        name:"African_Mist_Voice_2.ogg",
+        name:"African Mist Voice 2",
         family:Sample.FAMILY_VOCAL
       }));
       mixer.addSample(new Sample({
         src:SAMPLE_PATH+"Backroads_Banjo.ogg",
-        name:"Backroads_Banjo.ogg",
+        name:"Backroads Banjo",
         family:Sample.FAMILY_GUITAR
       }));
       mixer.addSample(new Sample({
         src:SAMPLE_PATH+"Cuban_Percussion.ogg",
-        name:"Cuban_Percussion.ogg",
+        name:"Cuban Percussion",
         family:Sample.FAMILY_DRUM
       }));
       mixer.addSample(new Sample({
         src:SAMPLE_PATH+"Djembe.ogg",
-        name:"Djembe.ogg",
+        name:"Djembe",
         family:Sample.FAMILY_DRUM
       }));
       mixer.addSample(new Sample({
         src:SAMPLE_PATH+"Electro_Transistor_Beat.ogg",
-        name:"Electro_Transistor_Beat.ogg",
+        name:"Electro Transistor Beat",
         family:Sample.FAMILY_DRUM
       }));
       mixer.addSample(new Sample({
         src:SAMPLE_PATH+"Hip_Hop_Wakka_Guitar.ogg",
-        name:"Hip_Hop_Wakka_Guitar.ogg",
+        name:"Hip Hop Wakka Guitar",
         family:Sample.FAMILY_GUITAR
       }));
       mixer.addSample(new Sample({
         src:SAMPLE_PATH+"House_Lazy_Beat.ogg",
-        name:"House_Lazy_Beat.ogg",
+        name:"House Lazy Beat",
         family:Sample.FAMILY_DRUM
       }));
       mixer.addSample(new Sample({
         src:SAMPLE_PATH+"Jazz_Piano.ogg",
-        name:"Jazz_Piano.ogg",
+        name:"Jazz Piano",
         family:Sample.FAMILY_STRINGS
       }));
     }

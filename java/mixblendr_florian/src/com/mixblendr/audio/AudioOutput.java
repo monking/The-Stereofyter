@@ -15,7 +15,7 @@ import static com.mixblendr.util.Debug.*;
  * 
  * @author Florian Bomers
  */
-class AudioOutput {
+public class AudioOutput {
 
 	private final static boolean TRACE = false;
 	private final static boolean DEBUG = false;
@@ -266,7 +266,7 @@ class AudioOutput {
 		}
 	}
 
-	void setInput(FloatSampleInput input) {
+	public void setInput(FloatSampleInput input) {
 		this.input = input;
 		if (thread != null) {
 			thread.configChange = true;
