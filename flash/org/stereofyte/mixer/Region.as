@@ -26,14 +26,17 @@ package org.stereofyte.mixer {
       SOLO_OTHER = "other",
       SOLO_NONE = "none",
       STATUS_NULL = "region_null",
-      STATUS_LIVE = "region_live";
+      STATUS_LIVE = "region_live",
+      BUTTON_OVER = "button_over",
+      BUTTON_OUT = "button_out";
 
     private static const
       VOLUME_BOUNDS:Rectangle = new Rectangle(12, 3, 16, 0);
 
     public var
       status:String,
-      id:int;
+      id:int,
+      tooltipMessage:String;
 
     private var
       _sample:Sample,
@@ -66,8 +69,6 @@ package org.stereofyte.mixer {
       ui = new RegionUI();
       addChild(ui);
       ui.background.gotoAndStop(_sample.family);
-      ui.buttons.tooltip.visible = false;
-      ui.buttons.tooltip.mouseEnabled = false;
       drawIcon();
       this.width = width;
       this.height = height;
@@ -125,7 +126,6 @@ package org.stereofyte.mixer {
       state = "normal";
       removeChild(deleteSymbol);
       ui.buttons.addChild(icon);
-      ui.buttons.addChild(ui.buttons.tooltip);
       ui.visible = true;
       icon.alpha = 1;
       snapGhost.visible = true;
@@ -261,26 +261,14 @@ package org.stereofyte.mixer {
       });
     }
 
-    private function showTooltip(message:String) {
-      ui.buttons.tooltip.visible = true;
-      ui.buttons.tooltip.label.text = message;
-      ui.buttons.tooltip.background.width = ui.buttons.tooltip.label.textWidth + 12;
-      placeTooltip();
-    }
-
-    private function hideTooltip(event:Event = null) {
-      ui.buttons.tooltip.visible = false;
-    }
-
-    private function placeTooltip(event:Event = null) {
-      ui.buttons.tooltip.x = ui.buttons.mouseX - 4;
-      ui.buttons.tooltip.y = ui.buttons.mouseY;
-    }
-
-    private function addTooltip(object:DisplayObject, message:String):void {
-      object.addEventListener(MouseEvent.MOUSE_OVER, function() { showTooltip(message); });
-      object.addEventListener(MouseEvent.MOUSE_MOVE, placeTooltip);
-      object.addEventListener(MouseEvent.MOUSE_OUT, hideTooltip);
+    public function addTooltip(object:DisplayObject, message:String):void {
+      object.addEventListener(MouseEvent.MOUSE_OVER, function(event:MouseEvent) {
+        tooltipMessage = message;
+        dispatchEvent(new Event(Region.BUTTON_OVER, true));
+      });
+      object.addEventListener(MouseEvent.MOUSE_OUT, function(event:MouseEvent) {
+        dispatchEvent(new Event(Region.BUTTON_OUT, true));
+      });
     }
 
     private function onVolumeSlide(event:MouseEvent):void {
@@ -333,7 +321,6 @@ package org.stereofyte.mixer {
       icon = new InstrumentIcon();
       icon.gotoAndStop(_sample.family);
       ui.buttons.addChild(icon);
-      ui.buttons.addChild(ui.buttons.tooltip);
       icon.x = 4;
       icon.mouseEnabled = false;
       icon.mouseChildren = false;

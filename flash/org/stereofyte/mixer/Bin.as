@@ -122,7 +122,7 @@ package org.stereofyte.mixer {
     }
 
     private function scroll(event:MouseEvent):void {
-      if (event.target.constructor == BinSampleTooltip) return;
+      if (!samples.length || event.target.constructor == BinSampleTooltip) return;
       var firstIndexBelow:int = -1;
       for (var i:int = 0; i < samples.length; i++) {
         var element = samples[i].element;

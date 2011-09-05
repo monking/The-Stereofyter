@@ -68,8 +68,10 @@ package org.stereofyte {
       mixer.addEventListener(Mixer.SEEK_FINISH, function(event:Event) {
         trace("SEEK_FINISH");
         engine.call("setPlaybackPosition", mixer.playbackPosition);
-        feedbackDelay.addEventListener(TimerEvent.TIMER, delayStartUpdatePlayhead);
-        feedbackDelay.start();
+        if (mixer.isPlaying) {
+          feedbackDelay.addEventListener(TimerEvent.TIMER, delayStartUpdatePlayhead);
+          feedbackDelay.start();
+        }
       });
       mixer.addEventListener(Region.VOLUME_CHANGE, function(event:Event) {
         var region:Region = event.target as Region;

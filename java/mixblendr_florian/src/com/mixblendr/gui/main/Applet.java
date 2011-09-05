@@ -108,7 +108,7 @@ public class Applet extends JApplet {
 						}
 						
 						// commenting to hide UI
-						//Applet.this.setContentPane(main.getMasterPanel());
+						Applet.this.setContentPane(main.getMasterPanel());
 
 						previewPlayer = new AudioPlayer(main, new previewDownloadListener());
 						previewPlayer.addListener(new JavaScriptPreviewListener());

@@ -47,10 +47,12 @@ package org.stereofyte.mixer {
       trackHeight:Number,
       ui:MixerUI,
       bottom:SFMixerBottom,
+      tooltip:MixerTooltip,
       LiftedRegionData:Object,
       RemovedRegionData:Object,
       tempo:Number = 90,
-      beatsPerRegion:int = 8;
+      beatsPerRegion:int = 8,
+      trackFieldPushed:Boolean = false;
 
     public function Mixer(width:Number = 500, height:Number = 240, trackCount:Number = 8):void {
       tracks = [];
@@ -65,8 +67,10 @@ package org.stereofyte.mixer {
       ui.scaleX = 1.15;
       ui.scaleY = 1.15;
       bottom = new SFMixerBottom();
+      tooltip = new MixerTooltip();
       addChild(ui);
       addChild(bottom);
+      addChild(tooltip);
       seekbarBounds = new Rectangle(TRACKFIELD_X - ui.seekbar.x, 7, width, 0);
       drawTrackField();
       drawPlayhead();
@@ -244,6 +248,10 @@ package org.stereofyte.mixer {
           }
         }
       }
+      if (trackFieldPushed) {
+        dispatchEvent(new Event(Mixer.SEEK_FINISH));
+        trackFieldPushed = false;
+      }
       LiftedRegionData = null;
       //trace(debug);
     }
@@ -368,7 +376,9 @@ package org.stereofyte.mixer {
     }
 
     public function pushTrackField(delta:Point):void {
-      scrollTrackField(new Point(trackField.mask.x + delta.x, trackField.mask.x + delta.x));
+      //ignoring y coordinate
+      playbackPosition = (trackField.mask.x + delta.x) * MAX_BEATS / (BEAT_WIDTH * MAX_BEATS - Width);
+      trackFieldPushed = true;
     }
 
     public function zoomTrackField(factor:Number):void {
@@ -443,6 +453,12 @@ package org.stereofyte.mixer {
       bin.removeEventListener(Bin.PULL, grabBin);
     }
 
+    public function setPreviewPlaying(playing:Boolean, url:String):void {
+      for (var i:int = 0; i < bins.length; i++) {
+        bins[i].setPreviewPlaying(playing, url);
+      }
+    }
+
     public function setPlaying(newPlaying:Boolean):void {
       trace("setPlaying: "+newPlaying);
       playing = newPlaying;
@@ -450,6 +466,25 @@ package org.stereofyte.mixer {
 
     public function get isPlaying():Boolean {
       return playing;
+    }
+
+    public function get playbackPosition():Number {
+      return PlaybackPosition;
+    }
+
+    public function get liftedRegionData():Object {
+      return LiftedRegionData;
+    }
+
+    public function get removedRegionData():Object {
+      return RemovedRegionData;
+    }
+
+    public function set playbackPosition(beat:Number):void {
+      if (beat < 0) beat = 0;
+      if (beat > MAX_BEATS) beat = MAX_BEATS;
+      PlaybackPosition = beat;
+      updatePlayhead();
     }
 
     private function grabBin(event:Event) {
@@ -484,29 +519,36 @@ package org.stereofyte.mixer {
           }
         }
       });
+      addEventListener(Region.BUTTON_OVER, showRegionTooltip);
+      addEventListener(Region.BUTTON_OUT, hideTooltip);
     }
 
-    public function setPreviewPlaying(playing:Boolean, url:String):void {
-      for (var i:int = 0; i < bins.length; i++) {
-        bins[i].setPreviewPlaying(playing, url);
-      }
+    public function showTooltip(message:String) {
+      tooltip.visible = true;
+      tooltip.label.text = message;
+      tooltip.background.width = tooltip.label.textWidth + 12;
+      stage.addEventListener(MouseEvent.MOUSE_MOVE, placeTooltip);
+      placeTooltip();
     }
 
-    public function get playbackPosition():Number {
-      return PlaybackPosition;
+    public function hideTooltip(event:Event = null) {
+      tooltip.visible = false;
+      stage.removeEventListener(MouseEvent.MOUSE_MOVE, placeTooltip);
     }
 
-    public function get liftedRegionData():Object {
-      return LiftedRegionData;
+    private function placeTooltip(event:Event = null) {
+      tooltip.x = mouseX - 4;
+      tooltip.y = mouseY;
     }
 
-    public function get removedRegionData():Object {
-      return RemovedRegionData;
+    public function addTooltip(object:DisplayObject, message:String):void {
+      object.addEventListener(MouseEvent.MOUSE_OVER, function() { showTooltip(message); });
+      object.addEventListener(MouseEvent.MOUSE_OUT, hideTooltip);
     }
 
-    public function set playbackPosition(beat:Number):void {
-      PlaybackPosition = beat;
-      updatePlayhead();
+    private function showRegionTooltip(event:Event):void {
+      var region:Region = event.target as Region;
+      showTooltip(region.tooltipMessage);
     }
 
     private function onStartSeekbarSlide(event:MouseEvent):void {
