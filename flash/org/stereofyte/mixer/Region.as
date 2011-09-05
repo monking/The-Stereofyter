@@ -2,6 +2,7 @@ package org.stereofyte.mixer {
 
   import com.chrislovejoy.gui.DragAndDrop;
   import org.stereofyte.gui.*;
+  import flash.display.DisplayObject;
   import flash.display.Graphics;
   import flash.display.Sprite;
   import flash.events.Event;
@@ -65,6 +66,8 @@ package org.stereofyte.mixer {
       ui = new RegionUI();
       addChild(ui);
       ui.background.gotoAndStop(_sample.family);
+      ui.buttons.tooltip.visible = false;
+      ui.buttons.tooltip.mouseEnabled = false;
       drawIcon();
       this.width = width;
       this.height = height;
@@ -122,6 +125,7 @@ package org.stereofyte.mixer {
       state = "normal";
       removeChild(deleteSymbol);
       ui.buttons.addChild(icon);
+      ui.buttons.addChild(ui.buttons.tooltip);
       ui.visible = true;
       icon.alpha = 1;
       snapGhost.visible = true;
@@ -162,8 +166,9 @@ package org.stereofyte.mixer {
       var minHeight = 26;
       var smallness = (maxHeight - minHeight) / (newHeight - minHeight);
       smallness = Math.max(0, Math.min(1, smallness));
-      icon.scaleY = 1 - 0.5 * smallness;
+      icon.scaleY = 1 - 0.3 * smallness;
       icon.scaleX = icon.scaleY;
+      icon.y = (height - icon.height) / 2;
       ui.buttons.gotoAndStop(Math.round(1 + 10 * smallness));
     }
 
@@ -201,6 +206,7 @@ package org.stereofyte.mixer {
       /*
        * Instrument Icon button
        */
+      addTooltip(ui.buttons.buttonBody, "Move");
       ui.buttons.buttonBody.addEventListener(MouseEvent.MOUSE_DOWN, function(event:MouseEvent) {
         if (isDragging) return;
         function click(event:MouseEvent) {
@@ -220,34 +226,61 @@ package org.stereofyte.mixer {
       /*
        * Volume
        */
+      addTooltip(ui.buttons.volume.volumeHandle, "Volume");
       ui.buttons.volume.volumeHandle.gotoAndStop(_sample.family);
       ui.buttons.volume.volumeHandle.button.addEventListener(MouseEvent.MOUSE_DOWN, onStartVolumeSlide);
       updateVolumeSlider();
       /*
        * Delete
        */
+      addTooltip(ui.buttons.buttonDelete, "Delete");
       ui.buttons.buttonDelete.addEventListener(MouseEvent.CLICK, function(event) {
         dispatchEvent(new Event(DELETE));
       });
       /*
        * Duplicate
        */
+      addTooltip(ui.buttons.buttonDupe, "Copy");
       ui.buttons.buttonDupe.addEventListener(MouseEvent.CLICK, function(event) {
         dispatchEvent(new Event(DUPLICATE));
       });
       /*
        * Solo
        */
+      addTooltip(ui.buttons.buttonSolo, "Solo");
       ui.buttons.buttonSolo.addEventListener(MouseEvent.CLICK, function(event) {
         dispatchEvent(new Event(SOLO, true));
       });
       /*
        * Mute
        */
+      addTooltip(ui.buttons.volume.buttonMute, "Mute");
       ui.buttons.volume.buttonMute.addEventListener(MouseEvent.CLICK, function(event) {
         if (!toggleMuted()) return;
         dispatchEvent(new Event(MUTE, true));
       });
+    }
+
+    private function showTooltip(message:String) {
+      ui.buttons.tooltip.visible = true;
+      ui.buttons.tooltip.label.text = message;
+      ui.buttons.tooltip.background.width = ui.buttons.tooltip.label.textWidth + 12;
+      placeTooltip();
+    }
+
+    private function hideTooltip(event:Event = null) {
+      ui.buttons.tooltip.visible = false;
+    }
+
+    private function placeTooltip(event:Event = null) {
+      ui.buttons.tooltip.x = ui.buttons.mouseX - 4;
+      ui.buttons.tooltip.y = ui.buttons.mouseY;
+    }
+
+    private function addTooltip(object:DisplayObject, message:String):void {
+      object.addEventListener(MouseEvent.MOUSE_OVER, function() { showTooltip(message); });
+      object.addEventListener(MouseEvent.MOUSE_MOVE, placeTooltip);
+      object.addEventListener(MouseEvent.MOUSE_OUT, hideTooltip);
     }
 
     private function onVolumeSlide(event:MouseEvent):void {
@@ -300,7 +333,7 @@ package org.stereofyte.mixer {
       icon = new InstrumentIcon();
       icon.gotoAndStop(_sample.family);
       ui.buttons.addChild(icon);
-      icon.y = 7;
+      ui.buttons.addChild(ui.buttons.tooltip);
       icon.x = 4;
       icon.mouseEnabled = false;
       icon.mouseChildren = false;
