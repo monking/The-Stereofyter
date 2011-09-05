@@ -28,7 +28,7 @@ package org.stereofyte.mixer {
       STATUS_LIVE = "region_live";
 
     private static const
-      VOLUME_BOUNDS:Rectangle = new Rectangle(48, 30, 16, 0);
+      VOLUME_BOUNDS:Rectangle = new Rectangle(12, 3, 16, 0);
 
     public var
       status:String,
@@ -52,8 +52,6 @@ package org.stereofyte.mixer {
       super(options);
       this.status = Region.STATUS_NULL;
       this._sample = sample;
-      this.Width = width;
-      this.Height = height;
       this.state = "normal",
       /*
        * Region is a drag-and-drop element that snaps to the mixer track grid.
@@ -66,9 +64,10 @@ package org.stereofyte.mixer {
        */
       ui = new RegionUI();
       addChild(ui);
-      ui.gotoAndStop(_sample.family);
-      ui.buttons.gotoAndStop(_sample.family);
+      ui.background.gotoAndStop(_sample.family);
       drawIcon();
+      this.width = width;
+      this.height = height;
       attachBehaviors();
     }
 
@@ -152,6 +151,22 @@ package org.stereofyte.mixer {
       super.clear();
     }
 
+    override public function set width(newWidth:Number):void {
+      Width = newWidth;
+    }
+
+    override public function set height(newHeight:Number):void {
+      Height = newHeight;
+      ui.background.height = newHeight;
+      var maxHeight = 42.3;
+      var minHeight = 26;
+      var smallness = (maxHeight - minHeight) / (newHeight - minHeight);
+      smallness = Math.max(0, Math.min(1, smallness));
+      icon.scaleY = 1 - 0.5 * smallness;
+      icon.scaleX = icon.scaleY;
+      ui.buttons.gotoAndStop(Math.round(1 + 10 * smallness));
+    }
+
     public function get volume():Number {
       return _volume;
     }
@@ -205,8 +220,8 @@ package org.stereofyte.mixer {
       /*
        * Volume
        */
-      ui.buttons.volumeHandle.gotoAndStop(_sample.family);
-      ui.buttons.volumeHandle.button.addEventListener(MouseEvent.MOUSE_DOWN, onStartVolumeSlide);
+      ui.buttons.volume.volumeHandle.gotoAndStop(_sample.family);
+      ui.buttons.volume.volumeHandle.button.addEventListener(MouseEvent.MOUSE_DOWN, onStartVolumeSlide);
       updateVolumeSlider();
       /*
        * Delete
@@ -229,32 +244,32 @@ package org.stereofyte.mixer {
       /*
        * Mute
        */
-      ui.buttons.buttonMute.addEventListener(MouseEvent.CLICK, function(event) {
+      ui.buttons.volume.buttonMute.addEventListener(MouseEvent.CLICK, function(event) {
         if (!toggleMuted()) return;
         dispatchEvent(new Event(MUTE, true));
       });
     }
 
     private function onVolumeSlide(event:MouseEvent):void {
-      setVolume((ui.buttons.volumeHandle.x - VOLUME_BOUNDS.x) / VOLUME_BOUNDS.width);
+      setVolume((ui.buttons.volume.volumeHandle.x - VOLUME_BOUNDS.x) / VOLUME_BOUNDS.width);
     }
 
     private function onStartVolumeSlide(event:MouseEvent):void {
-      ui.buttons.volumeHandle.startDrag(false, VOLUME_BOUNDS);
+      ui.buttons.volume.volumeHandle.startDrag(false, VOLUME_BOUNDS);
       stage.addEventListener(MouseEvent.MOUSE_MOVE, onVolumeSlide);
       stage.addEventListener(MouseEvent.MOUSE_UP, onStopVolumeSlide);
       stage.addEventListener(Event.MOUSE_LEAVE, onStopVolumeSlide);
     }
 
     private function onStopVolumeSlide(event:MouseEvent):void {
-      ui.buttons.volumeHandle.stopDrag();
+      ui.buttons.volume.volumeHandle.stopDrag();
       stage.removeEventListener(MouseEvent.MOUSE_MOVE, onVolumeSlide);
       stage.removeEventListener(MouseEvent.MOUSE_UP, onStopVolumeSlide);
       stage.removeEventListener(Event.MOUSE_LEAVE, onStopVolumeSlide);
     }
 
     private function updateVolumeSlider():void {
-      ui.buttons.volumeHandle.x = volume * VOLUME_BOUNDS.width + VOLUME_BOUNDS.x;
+      ui.buttons.volume.volumeHandle.x = volume * VOLUME_BOUNDS.width + VOLUME_BOUNDS.x;
     }
 
     private function fadeButtons(alpha:Number):void {

@@ -39,7 +39,7 @@ package org.stereofyte {
     }
 
     private function addMixer():void {
-      mixer = new Mixer(523, 225, 5);
+      mixer = new Mixer(523, 225, 8);
       _root.stage.addChild(mixer);
       mixer.addEventListener(Mixer.REGION_ADDED, function(event:Event) {
         var region:Region = event.target as Region;

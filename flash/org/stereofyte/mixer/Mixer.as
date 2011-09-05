@@ -52,7 +52,7 @@ package org.stereofyte.mixer {
       tempo:Number = 90,
       beatsPerRegion:int = 8;
 
-    public function Mixer(width:Number = 500, height:Number = 240, trackCount:Number = 5):void {
+    public function Mixer(width:Number = 500, height:Number = 240, trackCount:Number = 8):void {
       tracks = [];
       Regions = [];
       bins = [];
@@ -79,13 +79,14 @@ package org.stereofyte.mixer {
         resize();
       });
       demo();
+      updatePlayhead();
     }
 
     public function addRegion(sample:Sample):Region {
       var region = new Region(
         sample,
         BEAT_WIDTH * beatsPerRegion,
-        trackHeight,
+        trackHeight - 1,
         {
           grid:            snapGrid,
           forceSnapOnStop: true,
@@ -266,7 +267,7 @@ package org.stereofyte.mixer {
         && targetCoord.y >= 0
         && targetCoord.y < tracks.length * trackHeight
         ) {
-        return Math.floor(targetCoord.y / trackHeight);
+        return Math.floor((targetCoord.y + trackHeight / 2) / trackHeight);
       }
       return targetTrackIndex;
     }
@@ -388,6 +389,12 @@ package org.stereofyte.mixer {
       var trackIndex = tracks.length - 1;
       track.index = trackIndex;
       track.y = trackHeight * trackIndex;
+      if (tracks.length > 1) {
+        var gridLine = new MixerGridLine();
+        gridLine.x = TRACKFIELD_X;
+        gridLine.y = track.y + TRACKFIELD_Y - 1;
+        ui.addChild(gridLine);
+      }
     }
 
     public function getTrack(index:int):Track {
@@ -529,6 +536,7 @@ package org.stereofyte.mixer {
       bottom.y = stage.stageHeight - 229;
       bottom.x = Math.floor(stage.stageWidth / 2);
       bottom.socialLinks.x = -bottom.x + 10;
+      bottom.socialLinks.visible = false;
       bins[0].x = Math.floor(stage.stageWidth / 2 - 200 - bins[0].width);
       bins[0].y = bottom.y + 10;
       bins[1].x = Math.floor(stage.stageWidth / 2 + 200);
