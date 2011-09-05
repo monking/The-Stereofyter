@@ -62,6 +62,8 @@ package org.stereofyte.mixer {
       trackHeight = Height / trackCount;
       snapGrid = new Point(BEAT_WIDTH * beatsPerRegion, trackHeight);
       ui = new MixerUI();
+      ui.scaleX = 1.15;
+      ui.scaleY = 1.15;
       bottom = new SFMixerBottom();
       addChild(ui);
       addChild(bottom);
