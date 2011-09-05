@@ -46,6 +46,7 @@ package org.stereofyte.mixer {
       trackWidth:Number,
       trackHeight:Number,
       ui:MixerUI,
+      bottom:SFMixerBottom,
       LiftedRegionData:Object,
       RemovedRegionData:Object,
       tempo:Number = 90,
@@ -61,7 +62,9 @@ package org.stereofyte.mixer {
       trackHeight = Height / trackCount;
       snapGrid = new Point(BEAT_WIDTH * beatsPerRegion, trackHeight);
       ui = new MixerUI();
+      bottom = new SFMixerBottom();
       addChild(ui);
+      addChild(bottom);
       seekbarBounds = new Rectangle(TRACKFIELD_X - ui.seekbar.x, 7, width, 0);
       drawTrackField();
       drawPlayhead();
@@ -474,6 +477,12 @@ package org.stereofyte.mixer {
       });
     }
 
+    public function setPreviewPlaying(playing:Boolean, url:String):void {
+      for (var i:int = 0; i < bins.length; i++) {
+        bins[i].setPreviewPlaying(playing, url);
+      }
+    }
+
     public function get playbackPosition():Number {
       return PlaybackPosition;
     }
@@ -514,11 +523,14 @@ package org.stereofyte.mixer {
 
     private function resize(event:Event = null):void {
       ui.x = Math.floor(stage.stageWidth / 2 - ui.width / 2);
-      ui.y = 60;
-      bins[0].x = Math.floor(stage.stageWidth / 2 - 300 - bins[0].width);
-      bins[0].y = stage.stageHeight - bins[0].height - 10;
-      bins[1].x = Math.floor(stage.stageWidth / 2 + 300);
-      bins[1].y = stage.stageHeight - bins[1].height - 10;
+      ui.y = 30;
+      bottom.y = stage.stageHeight - 229;
+      bottom.x = Math.floor(stage.stageWidth / 2);
+      bottom.socialLinks.x = -bottom.x + 10;
+      bins[0].x = Math.floor(stage.stageWidth / 2 - 200 - bins[0].width);
+      bins[0].y = bottom.y + 10;
+      bins[1].x = Math.floor(stage.stageWidth / 2 + 200);
+      bins[1].y = bins[0].y;
     }
 
     private function demo():void {

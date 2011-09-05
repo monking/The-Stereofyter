@@ -104,6 +104,14 @@ package org.stereofyte {
         trace("playbackPositionChanged");
         updatePlayhead(event);
       });
+      engine.addEventListener("previewStart", function(event:Event) {
+        trace("previewStart");
+        mixer.setPreviewPlaying(true, engine.data.url);
+      });
+      engine.addEventListener("previewStop", function(event:Event) {
+        trace("previewStop");
+        mixer.setPreviewPlaying(false, engine.data.url);
+      });
     }
 
     private function delayStartUpdatePlayhead(event:Event):void {

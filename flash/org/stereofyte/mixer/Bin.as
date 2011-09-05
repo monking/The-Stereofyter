@@ -21,11 +21,13 @@ package org.stereofyte.mixer {
       SAMPLE_DOWN_FRAME:Number = 8;
 
     private var
-      selectedIndex:Number = NaN,
+      selectedIndex:int = -1,
       samples:Array = [],
       sampleHolder:Sprite,
       ui:BinUI,
-      tooltipFadeTimer:Timer;
+      tooltip:BinSampleTooltip,
+      tooltipFadeTimer:Timer,
+      previewPlayingIndex:int;
 
     public function Bin():void {
       /*
@@ -54,8 +56,21 @@ package org.stereofyte.mixer {
     }
 
     public function get selectedSample():Sample {
-      if (isNaN(selectedIndex)) return null;
+      if (selectedIndex == -1) return null;
       return samples[selectedIndex].sample;
+    }
+
+    public function setPreviewPlaying(playing:Boolean, url:String):void {
+      if (playing) {
+        for (var i:int = 0; i < samples.length; i++) {
+          if (samples[i].sample.src == url) {
+            previewPlayingIndex = i;
+          }
+        }
+      } else {
+        previewPlayingIndex = -1;
+      }
+      updateTooltip();
     }
 
     override public function get width():Number {
@@ -72,7 +87,7 @@ package org.stereofyte.mixer {
 
     private function getSampleIndex(element:BinSampleUI):int {
       /* find the index of the element being clicked */
-      for (var i:Number = 0; i < samples.length; i++) {
+      for (var i:int = 0; i < samples.length; i++) {
         if (samples[i].element === element) {
           return i;
         }
@@ -85,17 +100,20 @@ package org.stereofyte.mixer {
       selectedIndex = getSampleIndex(element);
       element.front.gotoAndPlay(1);
       dispatchEvent(new Event(Bin.PULL, true));
-      selectedIndex = NaN;
+      selectedIndex = -1;
     }
 
     private function drawBin():void {
       ui = new BinUI();
-      ui.tooltip.visible = false;
-      ui.tooltip.mouseChildren = false;
       sampleHolder = new Sprite();
+      tooltip = new BinSampleTooltip();
+      tooltip.mouseChildren = false;
+      tooltip.buttonMode = true;
+      tooltip.x = 33;
+      tooltip.visible = false;
       addChild(ui);
       addChild(sampleHolder);
-      addChild(ui.tooltip);
+      sampleHolder.addChild(tooltip);
       /*
       graphics.beginFill(0x333333, 1);
       graphics.drawRect(0, 0, WIDTH, HEIGHT);
@@ -104,9 +122,9 @@ package org.stereofyte.mixer {
     }
 
     private function scroll(event:MouseEvent):void {
-      if (event.target == ui.tooltip) return;
+      if (event.target.constructor == BinSampleTooltip) return;
       var firstIndexBelow:int = -1;
-      for (var i:Number = 0; i < samples.length; i++) {
+      for (var i:int = 0; i < samples.length; i++) {
         var element = samples[i].element;
         if (element.y <= mouseY) {
           sampleHolder.setChildIndex(element, i);
@@ -122,26 +140,41 @@ package org.stereofyte.mixer {
           sampleHolder.setChildIndex(element, samples.length - 1 - i + firstIndexBelow);
         }
       }
-      ui.tooltip.visible = true;
-      ui.tooltip.y = samples[selectedIndex].element.y + 25;
-      ui.tooltip.gotoAndStop(samples[selectedIndex].sample.family);
-      ui.tooltip.label.text = samples[selectedIndex].sample.name;
-      tooltipFadeTimer.stop();
+      tooltip.visible = true;
+      updateTooltip();
+      tooltipFadeTimer.reset();
     }
 
     private function attachBehaviors():void {
       tooltipFadeTimer = new Timer(1500, 1);
       tooltipFadeTimer.addEventListener(TimerEvent.TIMER, function(event:TimerEvent) {
-        ui.tooltip.visible = false;
+        tooltip.visible = false;
       });
-      ui.tooltip.addEventListener(MouseEvent.CLICK, function(event:MouseEvent) {
+      tooltip.addEventListener(MouseEvent.CLICK, function(event:MouseEvent) {
         dispatchEvent(new Event(Bin.PREVIEW_TOGGLE, true));
       });
       addEventListener(MouseEvent.MOUSE_MOVE, scroll);
+      addEventListener(MouseEvent.MOUSE_OVER, function(event:MouseEvent) {
+        tooltipFadeTimer.reset();
+      });
       addEventListener(MouseEvent.MOUSE_OUT, function(event:MouseEvent) {
-        tooltipFadeTimer.stop();
+        tooltipFadeTimer.reset();
         tooltipFadeTimer.start();
       });
+    }
+
+    private function updateTooltip():void {
+      if (selectedIndex == -1) {
+        return;
+      }
+      tooltip.y = samples[selectedIndex].element.y + 25;
+      tooltip.gotoAndStop(selectedSample.family);
+      tooltip.label.text = selectedSample.name;
+      if (previewPlayingIndex == selectedIndex) {
+        tooltip.previewButton.gotoAndStop("playing");
+      } else {
+        tooltip.previewButton.gotoAndStop("paused");
+      }
     }
 
   }

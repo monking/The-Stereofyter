@@ -111,6 +111,7 @@ public class Applet extends JApplet {
 						//Applet.this.setContentPane(main.getMasterPanel());
 
 						previewPlayer = new AudioPlayer(main, new previewDownloadListener());
+						previewPlayer.addListener(new JavaScriptPreviewListener());
 						//previewPlayer.setLoopEnabled(true);
 						previewPlayer.init();
 						previewRegionIndex = -1;
@@ -176,6 +177,9 @@ public class Applet extends JApplet {
 	 * @param beat
 	 */
 	public int addRegion(final int trackIndex, final String url, float beats) {
+		if (previewIsPlaying) {
+			previewStop();
+		}
 		final long pos = getSamplesFromBeats(beats);
 		final AudioMixer mixer = main.getGlobals().getPlayer().getMixer();
 		if (trackIndex >= mixer.getTrackCount()) {
@@ -304,11 +308,13 @@ public class Applet extends JApplet {
 	 * Toggle a preview of a given URL
 	 * @param url
 	 */
-	public void previewToggle(String url) {
-		if (url == previewUrl && previewIsPlaying) {
+	public boolean previewToggle(String url) {
+		if (previewUrl.equals(url) && previewIsPlaying) {
 			previewStop();
+			return false;
 		} else {
 			previewStart(url);
+			return true;
 		}
 	}
 	
@@ -326,6 +332,8 @@ public class Applet extends JApplet {
 		}
 		if (url != previewUrl) {
 			if (previewRegionIndex != -1) {
+	            callJS("dispatchMBEvent", "'previewStop', {url:'"+previewUrl+"'}");
+	            callJS("dispatchMBEvent", "'previewStart', {url:'"+url+"'}");
 				Playlist playlist = at.getPlaylist();
 				AudioRegion region = (AudioRegion) playlist.getObject(previewRegionIndex);
 				playlist.removeObject(region);
@@ -386,6 +394,36 @@ public class Applet extends JApplet {
 				}
 			}
 		}
+	}
+	
+	public class JavaScriptPreviewListener implements Listener {
+		/**
+		 * this event is called to registered listeners when playback starts.
+		 * This event is called synchronously in the context of the thread
+		 * calling the start method.
+		 */
+		public void onPlaybackStart(AudioPlayer player) {
+            callJS("dispatchMBEvent", "'previewStart', {url:'"+previewUrl+"'}");
+		}
+
+		/**
+		 * this event is called to registered listeners when playback stops.
+		 * This event is called synchronously in the context of the thread
+		 * calling the stop method.
+		 */
+		public void onPlaybackStop(AudioPlayer player, boolean immediate) {
+			previewIsPlaying = false;
+            callJS("dispatchMBEvent", "'previewStop', {url:'"+previewUrl+"'}");
+		}
+
+		/**
+		 * this event is called to registered listeners when the sample position
+		 * is changed in non-playback mode This event is called synchronously in
+		 * the context of the thread calling the setSamplePosition() method.
+		 */
+		public void onPlaybackPositionChanged(AudioPlayer player, long samplePos) {
+		}
+		
 	}
 	
 	public class JavaScriptListener implements Listener {
