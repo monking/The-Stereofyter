@@ -6,7 +6,7 @@ package org.stereofyte.mixer {
       FAMILY_BRASS = "brass",
       FAMILY_DRUM = "drum",
       FAMILY_VOCAL = "vocal",
-      FAMILY_STRINGS = "vocal",
+      FAMILY_STRINGS = "strings",
       FAMILY_GUITAR = "guitar";
     
     private var

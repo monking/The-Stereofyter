@@ -12,7 +12,8 @@ package org.stereofyte.mixer {
     
     public static const
       PULL:String = "pull",
-      PREVIEW_TOGGLE:String = "preview_toggle";
+      PREVIEW_TOGGLE:String = "preview_toggle",
+      CAPACITY:int = 9;
 
     private static const
       WIDTH:Number      = 118,
@@ -40,7 +41,8 @@ package org.stereofyte.mixer {
       attachBehaviors();
     }
 
-    public function addSample(sample:Sample):void {
+    public function addSample(sample:Sample):Boolean {
+      if (isMaxed) return false;
       var element = new BinSampleUI();
       element.front.gotoAndStop(sample.family);
       element.front.sleeve.gotoAndStop(sample.family);
@@ -53,6 +55,7 @@ package org.stereofyte.mixer {
       element.y = 15 * samples.length;
       element.scaleY = 0.7;
       samples.push({element:element, sample:sample});
+      return true;
     }
 
     public function get selectedSample():Sample {
@@ -71,6 +74,15 @@ package org.stereofyte.mixer {
         previewPlayingIndex = -1;
       }
       updateTooltip();
+    }
+
+    public function get length():int {
+      return samples.length;
+    }
+
+    public function get isMaxed():Boolean {
+      if (length >= CAPACITY) return true;
+      return false;
     }
 
     override public function get width():Number {

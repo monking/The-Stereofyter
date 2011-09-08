@@ -24,7 +24,7 @@ package org.stereofyte.mixer {
       SEEK_FINISH:String = "mixer_seek_finish",
       PLAY:String = "mixer_play",
       STOP:String = "mixer_stop",
-      MAX_BEATS:int = 160;
+      MAX_BEATS:int = 240;
 
     private static const
       TRACKFIELD_X:Number = 9,
@@ -156,7 +156,9 @@ package org.stereofyte.mixer {
     }
 
     public function addSample(sample:Sample) {
-      bins[0].addSample(sample);
+      for (var i:int = 0; i < bins.length; i++) {
+        if (bins[i].addSample(sample)) break;
+      }
     }
 
     override public function get width():Number {

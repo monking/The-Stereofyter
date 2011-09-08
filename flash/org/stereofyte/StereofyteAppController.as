@@ -185,6 +185,31 @@ package org.stereofyte {
         name:"Jazz Piano",
         family:Sample.FAMILY_STRINGS
       }));
+      mixer.addSample(new Sample({
+        src:SAMPLE_PATH+"Cuban_Voice.ogg",
+        name:"Cuban Voice",
+        family:Sample.FAMILY_VOCAL
+      }));
+      mixer.addSample(new Sample({
+        src:SAMPLE_PATH+"Eastern_Gold_Voice.ogg",
+        name:"Eastern Gold Voice",
+        family:Sample.FAMILY_VOCAL
+      }));
+      mixer.addSample(new Sample({
+        src:SAMPLE_PATH+"Koto.ogg",
+        name:"Koto",
+        family:Sample.FAMILY_GUITAR
+      }));
+      mixer.addSample(new Sample({
+        src:SAMPLE_PATH+"Sine_Bass.ogg",
+        name:"Sine Bass",
+        family:Sample.FAMILY_GUITAR
+      }));
+      mixer.addSample(new Sample({
+        src:SAMPLE_PATH+"Tremolo_Organ.ogg",
+        name:"Tremolo Organ",
+        family:Sample.FAMILY_STRINGS
+      }));
     }
     
   }
