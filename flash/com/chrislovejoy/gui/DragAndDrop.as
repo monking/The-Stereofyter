@@ -118,6 +118,7 @@ package com.chrislovejoy.gui {
       dragging = false;
       options.forceSnapOnStop && snap(true);
       options.isGhost || stopSnapGhost();
+      trace("DragAndDrop.DRAG_STOP");
       dispatchEvent(new Event(DragAndDrop.DRAG_STOP));
     }
 

@@ -32,13 +32,14 @@ package org.stereofyte.mixer {
 			 * Track contains a graphic representation of a track, and can have Regions
 			 * added to it.
        */
-       BeatWidth = beatWidth;
-       Width = beatWidth * maxBeats;
-       Height = height;
-       MaxBeats = maxBeats;
-			 drawControls();
-       attachBehaviors();
-			 //drawBackground();
+      BeatWidth = beatWidth;
+      // width: max + room to display the last cell
+      Width = beatWidth * (maxBeats+1);
+      Height = height;
+      MaxBeats = maxBeats;
+      drawControls();
+      attachBehaviors();
+      //drawBackground();
     }
 
 		public function addRegion(region:Region, beatIndex:int = -1):void {

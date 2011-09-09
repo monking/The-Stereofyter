@@ -60,7 +60,8 @@ package org.stereofyte.mixer {
       bins = [];
       Width = width;
       Height = height;
-      trackWidth = BEAT_WIDTH * MAX_BEATS;
+      // width: max + room to display the last cell
+      trackWidth = BEAT_WIDTH * (MAX_BEATS+1);
       trackHeight = Height / trackCount;
       snapGrid = new Point(BEAT_WIDTH * beatsPerRegion, trackHeight);
       ui = new MixerUI();
@@ -119,6 +120,7 @@ package org.stereofyte.mixer {
     }
 
     public function removeRegion(region:Region):void {
+      tooltip.visible = false;
       LiftedRegionData = null;
       region.removeEventListener(DragAndDrop.DRAG_START, onLiftRegion);
       region.removeEventListener(DragAndDrop.DRAG_STOP, onPlaceRegion);
@@ -238,6 +240,9 @@ package org.stereofyte.mixer {
         if (collision) {
           debug += "existing region at this position: reset";
           resetLiftedRegion(region);
+        } else if (targetBeatIndex < 0 || targetBeatIndex > MAX_BEATS) {
+          debug += "beyond the range of the mix: reset";
+          resetLiftedRegion(region);
         } else {
           track.addRegion(region, targetBeatIndex);
           if (Region.STATUS_NULL == region.status) {
@@ -255,7 +260,7 @@ package org.stereofyte.mixer {
         trackFieldPushed = false;
       }
       LiftedRegionData = null;
-      //trace(debug);
+      trace(debug);
     }
 
     private function duplicateRegion(region:Region) {
@@ -271,14 +276,9 @@ package org.stereofyte.mixer {
       /* find track the object is hovering over */
       var targetTrackIndex:Number = NaN;
       var targetCoord:Point = trackField.globalToLocal(object.localToGlobal(new Point()));
-      if (
-        targetCoord.x >= 0
-        && targetCoord.x < trackWidth
-        && targetCoord.y >= 0
-        && targetCoord.y < tracks.length * trackHeight
-        ) {
-        return Math.floor((targetCoord.y + trackHeight / 2) / trackHeight);
-      }
+      targetTrackIndex = Math.floor((targetCoord.y + trackHeight / 2) / trackHeight);
+      if (targetTrackIndex < 0 || targetTrackIndex > tracks.length)
+        targetTrackIndex = NaN;
       return targetTrackIndex;
     }
 
@@ -292,18 +292,20 @@ package org.stereofyte.mixer {
       var regionBottomRight = regionTopLeft.add(new Point(region.width, region.height));
       var bounds = trackField.mask.getRect(stage);
       var scrollModifier = 0.2;
-      if (regionTopLeft.x < bounds.x) {
-        // scroll left
-        pushTrackField(new Point((regionTopLeft.x - bounds.x) * scrollModifier, 0));
-      } else if (regionTopLeft.y < bounds.y) {
-        // scroll up
-        //pushTrackField(new Point(0, (regionTopLeft.y - bounds.y) * scrollModifier));
-      } else if (regionBottomRight.x > bounds.x + bounds.width) {
-        // scroll right
-        pushTrackField(new Point((regionBottomRight.x - (bounds.x + bounds.width)) * scrollModifier, 0));
-      } else if (regionBottomRight.y > bounds.y + bounds.height) {
-        // scroll down
-        //pushTrackField(new Point(0, (regionBottomRight.y - (bounds.y + bounds.height)) * scrollModifier));
+      if (regionBottomRight.y < bounds.y + bounds.height + trackHeight) {
+        if (regionTopLeft.x < bounds.x) {
+          // scroll left
+          pushTrackField(new Point((regionTopLeft.x - bounds.x) * scrollModifier, 0));
+        } else if (regionTopLeft.y < bounds.y) {
+          // scroll up
+          //pushTrackField(new Point(0, (regionTopLeft.y - bounds.y) * scrollModifier));
+        } else if (regionBottomRight.x > bounds.x + bounds.width) {
+          // scroll right
+          pushTrackField(new Point((regionBottomRight.x - (bounds.x + bounds.width)) * scrollModifier, 0));
+        } else if (regionBottomRight.y > bounds.y + bounds.height) {
+          // scroll down
+          //pushTrackField(new Point(0, (regionBottomRight.y - (bounds.y + bounds.height)) * scrollModifier));
+        }
       }
 
       var targetTrackIndex:Number = getObjectTargetTrackIndex(region.snapGhost);
