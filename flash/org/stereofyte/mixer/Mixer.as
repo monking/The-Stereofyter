@@ -10,6 +10,7 @@ package org.stereofyte.mixer {
   import flash.events.MouseEvent;
   import flash.geom.Point;
   import flash.geom.Rectangle;
+  import com.chrislovejoy.display.FrameSkipper;
   import com.chrislovejoy.gui.DragAndDrop;
 
   public class Mixer extends Sprite {
@@ -40,13 +41,14 @@ package org.stereofyte.mixer {
       trackFieldMask:Sprite,
       playhead:MovieClip,
       PlaybackPosition:Number = 0,
-      playing:Boolean,
+      playing:Boolean = false,
       Width:Number,
       Height:Number,
       trackWidth:Number,
       trackHeight:Number,
       ui:MixerUI,
-      bottom:SFMixerBottom,
+      bottom:MixerBottom,
+      dj:MovieClip,
       tooltip:MixerTooltip,
       LiftedRegionData:Object,
       RemovedRegionData:Object,
@@ -67,7 +69,8 @@ package org.stereofyte.mixer {
       ui = new MixerUI();
       ui.scaleX = 1.15;
       ui.scaleY = 1.15;
-      bottom = new SFMixerBottom();
+      bottom = new MixerBottom();
+      dj = bottom.djBody;
       tooltip = new MixerTooltip();
       addChild(ui);
       addChild(bottom);
@@ -194,6 +197,7 @@ package org.stereofyte.mixer {
     }
 
     private function onDeleteRegion(event:Event) {
+      stage.focus = stage; // don't trap the focus in the removed object
       removeRegion(event.target as Region);
     }
 
@@ -440,7 +444,7 @@ package org.stereofyte.mixer {
       bins.push(bin);
       bin.addEventListener(Bin.PULL, grabBin);
       addChild(bin);
-      bin.y = 200;
+      bin.y = 210;
       if (bins.length > 2) {
         removeBin(bins[0]);
       }
@@ -464,8 +468,15 @@ package org.stereofyte.mixer {
     }
 
     public function setPlaying(newPlaying:Boolean):void {
-      trace("setPlaying: "+newPlaying);
+      if (newPlaying == playing) return;
       playing = newPlaying;
+      if (playing) {
+        //FrameSkipper.gotoAndPlay(dj, "playing");
+        dj.gotoAndPlay("playing");
+      } else {
+        //FrameSkipper.gotoAndStop(dj, "paused");
+        dj.gotoAndStop("paused");
+      }
     }
 
     public function get isPlaying():Boolean {
@@ -583,9 +594,9 @@ package org.stereofyte.mixer {
       bottom.x = Math.floor(stage.stageWidth / 2);
       bottom.socialLinks.x = -bottom.x + 10;
       bottom.socialLinks.visible = false;
-      bins[0].x = Math.floor(stage.stageWidth / 2 - 200 - bins[0].width);
-      bins[0].y = bottom.y + 10;
-      bins[1].x = Math.floor(stage.stageWidth / 2 + 200);
+      bins[0].x = Math.floor(stage.stageWidth / 2 - 160 - bins[0].width);
+      bins[0].y = bottom.y + 20;
+      bins[1].x = Math.floor(stage.stageWidth / 2 + 160);
       bins[1].y = bins[0].y;
     }
 

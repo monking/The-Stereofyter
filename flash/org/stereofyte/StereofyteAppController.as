@@ -5,6 +5,7 @@ package org.stereofyte {
   import flash.display.Graphics;
   import flash.display.LoaderInfo;
   import flash.display.StageAlign;
+  import flash.display.StageQuality;
   import flash.display.StageScaleMode;
   import flash.events.*;
   import flash.external.ExternalInterface;
@@ -29,6 +30,7 @@ package org.stereofyte {
       super(root);
       _root.stage.frameRate = 60;
       _root.stage.align = StageAlign.TOP_LEFT;
+      _root.stage.quality = StageQuality.HIGH;
       _root.stage.scaleMode = StageScaleMode.NO_SCALE;
       engine = new MixblendrInterface();
       site = new StereofyteSite();

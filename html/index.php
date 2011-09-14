@@ -32,6 +32,9 @@
       var flashvars = {
         samplepath:"http://<?=$_SERVER[SERVER_NAME]?>/audio/samples/"
       };
+      var attributes = {
+        menu: "false"
+      };
       swfobject.embedSWF(
         "swf/main.swf",
         "sfapp",
@@ -41,7 +44,7 @@
         "swf/expressInstall.swf",
         flashvars,
         null,
-        null,
+        attributes,
         function(e){
           e.success && mbinterface.addEventListenerObject(e.ref);
         }
