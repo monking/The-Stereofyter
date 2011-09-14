@@ -11,6 +11,7 @@ package org.stereofyte {
   import flash.external.ExternalInterface;
   import flash.utils.Timer;
   import com.chrislovejoy.WebAppController;
+  import com.chrislovejoy.helpers.Debug;
   import org.stereofyte.gui.*;
   import org.stereofyte.mixblendr.*;
   import org.stereofyte.mixer.*;
@@ -26,8 +27,8 @@ package org.stereofyte {
       site:StereofyteSite,
       feedbackDelay:Timer;
     
-    public function StereofyteAppController(root:DisplayObject):void {
-      super(root);
+    public function StereofyteAppController(root:DisplayObject, debug:Boolean = false):void {
+      super(root, debug);
       _root.stage.frameRate = 60;
       _root.stage.align = StageAlign.TOP_LEFT;
       _root.stage.quality = StageQuality.HIGH;
@@ -139,7 +140,7 @@ package org.stereofyte {
       /*
        * load an XML or JSON file containing the sample data, to be built by PHP querying a database.
        */
-      logObject(flashVars);
+      Debug.deepLog(flashVars, "flashVars");
       var SAMPLE_PATH:String = flashVars.samplepath;
 
       mixer.addSample(new Sample({

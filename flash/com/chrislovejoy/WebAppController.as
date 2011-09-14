@@ -1,6 +1,7 @@
 package com.chrislovejoy {
   
-  import flash.display.DisplayObject
+  import com.chrislovejoy.helpers.Debug;
+  import flash.display.DisplayObject;
   import flash.display.LoaderInfo;
   import flash.external.ExternalInterface;
   
@@ -9,8 +10,9 @@ package com.chrislovejoy {
     protected var
       _root:DisplayObject;
 
-    public function WebAppController(root:DisplayObject) {
+    public function WebAppController(root:DisplayObject, debug:Boolean = false) {
       _root = root;
+      Debug.on = debug;
     }
     
     public function get url():String {
@@ -38,20 +40,6 @@ package com.chrislovejoy {
     public function get flashVars():Object {
       if(!_root.stage.hasOwnProperty('loaderInfo')) return {};
       return LoaderInfo(_root.stage.loaderInfo).parameters;
-    }
-
-    public function log(msg:Object):void {
-      trace(msg.toString());
-      ExternalInterface.call("window.conole.log", msg.toString());
-    }
-
-    public function logObject(object:Object):void {
-      var msg = object.toString();
-      for (var key in object) {
-        msg += "\n  " + key + ": " + object[key];
-      }
-      if (!msg) msg = "[empty Object]";
-      log(msg);
     }
     
   }
