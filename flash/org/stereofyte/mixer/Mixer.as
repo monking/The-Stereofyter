@@ -70,7 +70,7 @@ package org.stereofyte.mixer {
       ui.scaleX = 1.15;
       ui.scaleY = 1.15;
       bottom = new MixerBottom();
-      dj = bottom.djBody;
+      dj = bottom.dj;
       tooltip = new MixerTooltip();
       addChild(ui);
       addChild(bottom);
@@ -186,10 +186,12 @@ package org.stereofyte.mixer {
 
     private function onLiftRegion(event:Event) {
       liftRegion(event.target as Region);
+      dj.gotoAndPlay("grabLeft");
     }
 
     private function onPlaceRegion(event:Event) {
       placeRegion(event.target as Region);
+      dj.gotoAndPlay("throwLeft");
     }
 
     private function onDuplicateRegion(event:Event) {
