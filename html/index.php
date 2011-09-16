@@ -30,7 +30,7 @@
         } );
       };
       var flashvars = {
-        samplepath:"http://<?=$_SERVER[SERVER_NAME]?>/audio/samples/"
+	samplepath:"http://<?php echo $_SERVER['SERVER_NAME']; ?>/audio/samples/"
       };
       var attributes = {
         menu: "false"
