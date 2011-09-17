@@ -6,8 +6,8 @@
     <style type="text/css" media="screen">
       html, body { height: 100%; }
       body { height: 100%; margin: 0; padding: 0; /*overflow: hidden;*/ }
-      #app_container { width: 100%; height: 100%; min-height: 700px; min-width: 1000px; margin: 0 auto; }
-      #sfapp { outline:none; position: relative; z-index: 1; }
+      #app_container { width: 100%; height: 100%; min-height: 740px; min-width: 1000px; margin: 0 auto; }
+      #sfapp { outline:none; position: relative; z-index: 1; min-height: 740px; min-width: 1000px; }
       #mbapp { position: absolute; width: 1px; height: 1px; botom: 0; left: 0; z-index: 0; }
     </style>
 		<script type="text/javascript" src="js/swfobject.js"></script>
@@ -30,7 +30,7 @@
         } );
       };
       var flashvars = {
-        samplepath:"http://<?=$_SERVER[SERVER_NAME]?>/audio/samples/"
+        samplepath:"http://<?=$_SERVER['SERVER_NAME']?>/audio/samples/"
       };
       var attributes = {
         menu: "false"
