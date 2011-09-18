@@ -243,7 +243,7 @@
 			region.addEventListener(Event.ENTER_FRAME, updateRegionstatus);
 		}
 
-		private function placeRegion(region:Region, useNextOpenSpace:Boolean = false):voidyg {
+		private function placeRegion(region:Region, useNextOpenSpace:Boolean = false):void {
 			region.removeEventListener(Event.ENTER_FRAME, updateRegionstatus);
 			var targetTrackIndex:Number = getObjectTargetTrackIndex(region);
 			var debug = "placeRegion: ";
@@ -519,25 +519,30 @@
 			record.x = recordPos.x;
 			record.y = recordPos.y;
 			recordThrowMove = new Move(
-				record,
-				{
-					x:50,
-					y:100,
-					rotation:720
-					//x:region.x + region.width / 2,
-					//y:region.y + region.height / 2,
-					//yScale:0.1
-				},
-				0.1,
-				"easeOut");
+			record,
+			{
+			x:50,
+			y:100,
+			rotation:720
+			//x:region.x + region.width / 2,
+			//y:region.y + region.height / 2,
+			//yScale:0.1
+			},
+			0.1,
+			"easeOut");
 			recordThrowMove.addEventListener(TweenEvent.MOTION_FINISH, function(event:TweenEvent) {
-				startRegionAppear();
-				removeChild(record);
+			startRegionAppear();
+			removeChild(record);
 			});
 			recordThrowMove.start();
 			*/
-			hand.holder.removeChild(record); //TODO: fix this Move
+			hand.holder.removeChild(record);
 			startRegionAppear();
+		}
+
+		private function onSampleDrop(event:Event):void {
+			var hand:MovieClip = event.target as MovieClip;
+			hand.holder.removeChildAt(0); //remove record
 		}
 
 		public function removeBin(bin:Bin):void {
@@ -630,6 +635,7 @@
 			/*Animation events*/
 			addEventListener("DJ_ANIM_GRAB", onGrabFromBin);
 			addEventListener("DJ_ANIM_THROW", onSampleThrow);
+			addEventListener("DJ_ANIM_DROP", onSampleDrop);
 		}
 
 		public function showTooltip(message:String) {
