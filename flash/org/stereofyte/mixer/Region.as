@@ -1,6 +1,7 @@
 package org.stereofyte.mixer {
 
   import com.chrislovejoy.gui.DragAndDrop;
+  import com.chrislovejoy.helpers.Debug;
   import org.stereofyte.gui.*;
   import flash.display.DisplayObject;
   import flash.display.Graphics;
@@ -164,7 +165,7 @@ package org.stereofyte.mixer {
       ui.background.height = newHeight;
       var maxHeight = 42.3;
       var minHeight = 26;
-      var smallness = (maxHeight - minHeight) / (newHeight - minHeight);
+      var smallness = (maxHeight - newHeight) / (maxHeight - minHeight);
       smallness = Math.max(0, Math.min(1, smallness));
       icon.scaleY = 1 - 0.3 * smallness;
       icon.scaleX = icon.scaleY;
@@ -187,15 +188,15 @@ package org.stereofyte.mixer {
     public function get sample():Sample {
       return _sample;
     }
-    
+
     public function get snapGhost():DragAndDrop {
       return ghost;
     }
-    
+
     override public function get width():Number {
       return Width;
     }
-    
+
     override public function get height():Number {
       return Height;
     }

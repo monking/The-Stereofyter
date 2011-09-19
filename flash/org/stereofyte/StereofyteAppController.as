@@ -1,23 +1,25 @@
 package org.stereofyte {
-  
+
+  import com.chrislovejoy.WebAppController;
+  import com.chrislovejoy.helpers.Debug;
+
   import flash.display.DisplayObject;
-  import flash.display.Sprite;
   import flash.display.Graphics;
   import flash.display.LoaderInfo;
+  import flash.display.Sprite;
   import flash.display.StageAlign;
   import flash.display.StageQuality;
   import flash.display.StageScaleMode;
   import flash.events.*;
   import flash.external.ExternalInterface;
   import flash.utils.Timer;
-  import com.chrislovejoy.WebAppController;
-  import com.chrislovejoy.helpers.Debug;
+
   import org.stereofyte.gui.*;
   import org.stereofyte.mixblendr.*;
   import org.stereofyte.mixer.*;
-  
+
   public class StereofyteAppController extends WebAppController {
-    
+
     public static const
       WEBROOT:String = '.';
 
@@ -26,7 +28,7 @@ package org.stereofyte {
       engine:MixblendrInterface,
       site:StereofyteSite,
       feedbackDelay:Timer;
-    
+
     public function StereofyteAppController(root:DisplayObject, debug:Boolean = false):void {
       super(root, debug);
       _root.stage.frameRate = 60;
@@ -40,9 +42,8 @@ package org.stereofyte {
       addMixer();
       demo();
     }
-
     private function addMixer():void {
-      mixer = new Mixer(523, 225, 8);
+      mixer = new Mixer(523, 220, 5);
       _root.stage.addChild(mixer);
       mixer.addEventListener(Mixer.REGION_ADDED, function(event:Event) {
         var region:Region = event.target as Region;
@@ -63,10 +64,14 @@ package org.stereofyte {
         engine.call("startPlayback");
         startUpdatePlayhead(event);
       });
-      mixer.addEventListener(Mixer.STOP, function(event:Event) {
-        engine.call("stopPlayback");
-        stopUpdatePlayhead(event);
-      });
+	  mixer.addEventListener(Mixer.STOP, function(event:Event) {
+		  engine.call("stopPlayback");
+		  stopUpdatePlayhead(event);
+	  });
+	  mixer.addEventListener(Mixer.REWIND, function(event:Event) {
+		  mixer.playbackPosition = 0;
+		  mixer.dispatchEvent(new Event(Mixer.SEEK_FINISH));
+	  });
       mixer.addEventListener(Mixer.SEEK_START, stopUpdatePlayhead);
       mixer.addEventListener(Mixer.SEEK_FINISH, function(event:Event) {
         trace("SEEK_FINISH");
@@ -214,7 +219,7 @@ package org.stereofyte {
         family:Sample.FAMILY_STRINGS
       }));
     }
-    
+
   }
-  
+
 }

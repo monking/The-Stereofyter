@@ -1,19 +1,20 @@
 ﻿package org.stereofyte.mixer {
-
+	import com.chrislovejoy.display.FrameSkipper;
+	import com.chrislovejoy.gui.DragAndDrop;
+	import com.chrislovejoy.motion.Move;
+	import fl.transitions.TweenEvent;
 	import flash.display.DisplayObject;
 	import flash.display.Graphics;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
-	import flash.ui.Keyboard;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
+	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
-	import fl.transitions.TweenEvent
-	import com.chrislovejoy.display.FrameSkipper;
-	import com.chrislovejoy.gui.DragAndDrop;
-	import com.chrislovejoy.motion.Move;
+	import flash.ui.Keyboard;
+	import flash.utils.Timer;
 
 	public class Mixer extends Sprite {
 
@@ -27,7 +28,9 @@
 			SEEK_FINISH:String = "mixer_seek_finish",
 			PLAY:String = "mixer_play",
 			STOP:String = "mixer_stop",
-			MAX_BEATS:int = 240;
+			REWIND:String = "mixer_rewind",
+			MAX_BEATS:int = 240,
+			MAX_TRACKS:int = 8;
 
 		private static const
 			TRACKFIELD_X:Number = 9,
@@ -38,6 +41,7 @@
 			tracks:Array,
 			Regions:Array,
 			bins:Array,
+			gridlines:Array,
 			snapGrid:Point,
 			trackField:Sprite,
 			trackFieldMask:Sprite,
@@ -59,18 +63,16 @@
 			tempo:Number = 90,
 			beatsPerRegion:int = 8,
 			trackFieldPushed:Boolean = false,
-			recordThrowMove:Move;
+			recordThrowMove:Move,
+			newTrackDelay:Timer;
 
 		public function Mixer(width:Number = 500, height:Number = 240, trackCount:Number = 8):void {
 			tracks = [];
 			Regions = [];
 			bins = [];
+			gridlines = [];
 			Width = width;
 			Height = height;
-			// width: max + room to display the last cell
-			trackWidth = BEAT_WIDTH * (MAX_BEATS+1);
-			trackHeight = Height / trackCount;
-			snapGrid = new Point(BEAT_WIDTH * beatsPerRegion, trackHeight);
 			ui = new MixerUI();
 			ui.scaleX = 1.15;
 			ui.scaleY = 1.15;
@@ -83,14 +85,17 @@
 			addBin(new Bin());
 			addBin(new Bin());
 			seekbarBounds = new Rectangle(TRACKFIELD_X - ui.seekbar.x, 7, width, 0);
+			newTrackDelay = new Timer(1000, 1);
 			drawTrackField();
 			drawPlayhead();
 			attachBehaviors();
 			for (var i:Number = 0; i < trackCount; i++) {
-				addTrack(new Track(BEAT_WIDTH, trackHeight, MAX_BEATS));
+				addTrack();
 			}
 			addEventListener(Event.ADDED_TO_STAGE, function(event) {
-				root.addEventListener(Event.RESIZE, resize);
+				root.addEventListener(Event.RESIZE, function(event:Event) {
+					resize();
+				});
 				resize();
 			});
 			updatePlayhead();
@@ -115,6 +120,7 @@
 			region.addEventListener(Region.DELETE, onDeleteRegion);
 			region.hideButtons(null, true);
 			addChild(region);
+			addChild(tooltip); //keep tooltip on top
 			Regions.push(region);
 			return region;
 		}
@@ -178,19 +184,13 @@
 			return Width;
 		}
 
-		override public function set width(newWidth:Number):void {
-			Width = newWidth;
-			resizeTrackField(Width, Height);
-		}
+		override public function set width(newWidth:Number):void {}
 
 		override public function get height():Number {
 			return Height;
 		}
 
-		override public function set height(newHeight:Number):void {
-			Height = newHeight
-			resizeTrackField(Width, Height);
-		}
+		override public function set height(newHeight:Number):void {}
 
 		private function onLiftRegion(event:Event) {
 			var region:Region = event.target as Region;
@@ -327,15 +327,18 @@
 				if (regionTopLeft.x < bounds.x) {
 					// scroll left
 					pushTrackField(new Point((regionTopLeft.x - bounds.x) * scrollModifier, 0));
-				} else if (regionTopLeft.y < bounds.y) {
-					// scroll up
-					//pushTrackField(new Point(0, (regionTopLeft.y - bounds.y) * scrollModifier));
 				} else if (regionBottomRight.x > bounds.x + bounds.width) {
 					// scroll right
 					pushTrackField(new Point((regionBottomRight.x - (bounds.x + bounds.width)) * scrollModifier, 0));
-				} else if (regionBottomRight.y > bounds.y + bounds.height) {
-					// scroll down
-					//pushTrackField(new Point(0, (regionBottomRight.y - (bounds.y + bounds.height)) * scrollModifier));
+				}
+				if (regionTopLeft.y < bounds.y && regionBottomRight.y >= bounds.y) {
+					// show the top "add Track" shape
+					//pushTrackField(new Point(0, (regionTopLeft.y - bounds.y) * scrollModifier));
+				} else if (regionBottomRight.y > bounds.y + bounds.height && regionTopLeft.y > bounds.y + bounds.height) {
+					// show the bottom "add Track" shape
+					//startAddTrackDelay();
+				} else {
+					//stopAddTrackDelay();
 				}
 			}
 
@@ -349,13 +352,31 @@
 
 		}
 
+		private function startAddTrackDelay():void {
+			var track:Track = addTrack();
+			if (!track) return;
+			newTrackDelay.start();
+			track.graphics.beginFill(0xff0000);
+			track.graphics.drawRect(0, 0, track.width, track.height);
+			track.graphics.endFill();
+		}
+
+		private function finishAddTrackDelay(event:TimerEvent):void {
+			tracks[tracks.length - 1].graphics.clear();
+		}
+
+		private function stopAddTrackDelay():void {
+			newTrackDelay.stop();
+			removeTrack();
+		}
+
 		private function drawTrackField():void {
 			trackField = new Sprite();
 			trackField.x = TRACKFIELD_X;
 			trackField.y = TRACKFIELD_Y;
 			trackFieldMask = new Sprite();
 			trackField.mask = trackFieldMask;
-			resizeTrackField(width, height);
+			resizeTrackField(Width, Height);
 			ui.addChild(trackField);
 			trackField.addChild(trackFieldMask);
 			trackField.addEventListener(MouseEvent.MOUSE_WHEEL, function(event) {
@@ -364,12 +385,19 @@
 			addEventListener(Event.ADDED_TO_STAGE, function(event) {
 				stage.addEventListener(KeyboardEvent.KEY_UP, function(event) {
 					switch (event.keyCode) {
+						case Keyboard.EQUAL:
+							addTrack();
+							break;
+						case Keyboard.HOME:
 						case Keyboard.ENTER:
-							PlaybackPosition = 0;
-							dispatchEvent(new Event(Mixer.SEEK_FINISH));
+							dispatchEvent(new Event(Mixer.REWIND));
+							break;
+						case Keyboard.ESCAPE:
+							dispatchEvent(new Event(Mixer.STOP));
+							dispatchEvent(new Event(Mixer.REWIND));
 							break;
 						case Keyboard.SPACE:
-							ui.buttonPlay.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+							togglePause();
 							break;
 						case Keyboard.RIGHT:
 							PlaybackPosition = Math.min(PlaybackPosition + beatsPerRegion, MAX_BEATS);
@@ -390,6 +418,13 @@
 					}
 				} );
 			} );
+		}
+
+		public function togglePause():Boolean {
+			isPlaying?
+				dispatchEvent(new Event(Mixer.STOP)):
+				dispatchEvent(new Event(Mixer.PLAY));
+			return isPlaying;
 		}
 
 		public function scrollTrackField(position:Point):void {
@@ -428,18 +463,29 @@
 			trackFieldMask.graphics.endFill();
 		}
 
-		private function addTrack(track:Track):void {
+		private function addTrack():Track {
+			if (tracks.length >= MAX_TRACKS) return null;
+
+			var track:Track = new Track(BEAT_WIDTH, MAX_BEATS);
 			tracks.push(track);
 			trackField.addChildAt(track, 0);
 			var trackIndex = tracks.length - 1;
 			track.index = trackIndex;
 			track.y = trackHeight * trackIndex;
-			if (tracks.length > 1) {
-				var gridLine = new MixerGridLine();
-				gridLine.x = TRACKFIELD_X;
-				gridLine.y = track.y + TRACKFIELD_Y - 1;
-				ui.addChild(gridLine);
-			}
+			var gridline = new MixerGridLine();
+			gridlines.push(gridline);
+			gridline.x = TRACKFIELD_X;
+			gridline.y = TRACKFIELD_Y + track.y;
+			ui.addChild(gridline);
+			if (tracks.length == 1) gridline.visible = false;
+			resize();
+			return track;
+		}
+
+		private function removeTrack(index:int = -1):void {
+			if (index == -1) index = tracks.length - 1;
+			trackField.removeChild(tracks[index]);
+			tracks.splice(index, 1);
 		}
 
 		public function getTrack(index:int):Track {
@@ -481,9 +527,9 @@
 			var hand:MovieClip = event.target as MovieClip;
 			var record:BinSampleDisc = new BinSampleDisc();
 			record.gotoAndStop(LiftedRegionData.region.sample.family);
+			hand.holder.numChildren && hand.holder.removeChildAt(0);
 			hand.holder.addChild(record);
 		}
-
 
 		private function startRegionAppear():void {
 			var region:Region = PlacedRegionData.region;
@@ -497,7 +543,6 @@
 			region.y = 0;
 			regionAnimation.addEventListener("REGION_ADDED_ANIM_FINISHED", stopRegionAppear);
 		}
-
 
 		private function stopRegionAppear(event:Event):void {
 			var region:Region = PlacedRegionData.region;
@@ -566,10 +611,10 @@
 			if (newPlaying == playing) return;
 			playing = newPlaying;
 			if (playing) {
-				//FrameSkipper.gotoAndPlay(dj, "playing");
+				ui.buttonPlay.gotoAndStop("playing");
 				dj.gotoAndPlay("playing");
 			} else {
-				//FrameSkipper.gotoAndStop(dj, "paused");
+				ui.buttonPlay.gotoAndStop("paused");
 				dj.gotoAndStop("paused");
 			}
 		}
@@ -607,13 +652,11 @@
 			 * Playback
 			 */
 			ui.buttonPlay.addEventListener(MouseEvent.CLICK, function(event:MouseEvent) {
-				trace(isPlaying);
-				isPlaying?
-				dispatchEvent(new Event(Mixer.STOP)):
-				dispatchEvent(new Event(Mixer.PLAY));
+				togglePause();
 			});
 			ui.buttonStop.addEventListener(MouseEvent.CLICK, function(event:MouseEvent) {
 				dispatchEvent(new Event(Mixer.STOP));
+				dispatchEvent(new Event(Mixer.REWIND));
 			});
 			ui.seekbar.addEventListener(MouseEvent.MOUSE_DOWN, onStartSeekbarSlide);
 			updatePlayhead();
@@ -636,6 +679,9 @@
 			addEventListener("DJ_ANIM_GRAB", onGrabFromBin);
 			addEventListener("DJ_ANIM_THROW", onSampleThrow);
 			addEventListener("DJ_ANIM_DROP", onSampleDrop);
+
+			/* Interface events */
+			newTrackDelay.addEventListener(TimerEvent.TIMER, finishAddTrackDelay);
 		}
 
 		public function showTooltip(message:String) {
@@ -687,7 +733,22 @@
 			dispatchEvent(new Event(Mixer.SEEK_FINISH));
 		}
 
-		private function resize(event:Event = null):void {
+		private function resize(width:Number = NaN, height:Number = NaN):void {
+			if (!isNaN(width)) Width = width;
+			if (!isNaN(width)) Height = height;
+			if (!stage) return;
+
+			resizeTrackField(Width, Height);
+			// width: max + room to display the last cell
+			trackWidth = BEAT_WIDTH * (MAX_BEATS+1);
+			trackHeight = Height / tracks.length;
+			snapGrid = new Point(BEAT_WIDTH * beatsPerRegion, trackHeight);
+			for (var i in tracks) {
+				tracks[i].y = i * trackHeight;
+				tracks[i].height = trackHeight;
+				gridlines[i].y = TRACKFIELD_Y + tracks[i].y;
+			}
+
 			ui.x = Math.floor(stage.stageWidth / 2 - ui.width / 2);
 			ui.y = 30;
 			bottom.y = stage.stageHeight - 229;
