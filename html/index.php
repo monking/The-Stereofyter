@@ -8,7 +8,11 @@
       body { height: 100%; margin: 0; padding: 0; /*overflow: hidden;*/ }
       #app_container { width: 100%; height: 100%; min-height: 740px; min-width: 1000px; margin: 0 auto; }
       #sfapp { outline:none; position: relative; z-index: 1; min-height: 740px; min-width: 1000px; }
-      #mbapp { position: absolute; width: 1px; height: 1px; botom: 0; left: 0; z-index: 0; }
+      #mbapp { position: absolute; width: 1px; height: 1px; bottom: 0; left: 0; z-index: 0; }
+      /* debug **
+      #app_container { width: 1000px; height: 740px; min-height: 740px; min-width: 1000px; margin: 0; }
+      #mbapp { position: absolute; width: 1000px; height: 500px; top: 0; left: 1000px; z-index: 2; }
+      ** debug */
     </style>
 		<script type="text/javascript" src="js/swfobject.js"></script>
 		<script type="text/javascript" src="js/javaobject.js"></script>
@@ -20,8 +24,12 @@
           id: "mixblendr",
           code: "com/mixblendr/gui/main/Applet",
           archive: "mixblendr/mixblendr.jar?TIMESTAMP="+(new Date()).getTime(),
+/*
           width: 1,
           height: 1,
+ */
+          width: 1000,
+          height: 500,
           params: {
             url: "mixblendr/competition/getfile",
             REDIRECT_URL: "mixblendr/competition/competition-entries/",

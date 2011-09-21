@@ -1,15 +1,16 @@
 package org.stereofyte.mixer {
 
+  import flash.display.Graphics;
+  import flash.display.Sprite;
   import flash.events.Event;
   import flash.events.MouseEvent;
   import flash.events.TimerEvent;
-  import flash.display.Graphics;
-  import flash.display.Sprite;
   import flash.utils.Timer;
+
   import org.stereofyte.mixblendr.*;
 
   public class Bin extends Sprite {
-    
+
     public static const
       PULL:String = "pull",
       PREVIEW_TOGGLE:String = "preview_toggle",
@@ -49,7 +50,7 @@ package org.stereofyte.mixer {
       element.front.discInside.gotoAndStop(sample.family + "_insleeve");
       element.front.discOutside.gotoAndStop(sample.family);
       sampleHolder.addChild(element);
-      element.addEventListener(MouseEvent.CLICK, pull);
+      element.addEventListener(MouseEvent.MOUSE_DOWN, pull);
       /* position element relative to total number of samples */
       element.x = 11;
       element.y = 15 * samples.length;

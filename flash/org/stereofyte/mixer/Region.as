@@ -36,7 +36,8 @@ package org.stereofyte.mixer {
 
     public var
       status:String,
-      id:int,
+	  regionIndex:int = -1,
+	  trackIndex:int = -1,
       tooltipMessage:String;
 
     private var
@@ -170,6 +171,7 @@ package org.stereofyte.mixer {
       icon.scaleY = 1 - 0.3 * smallness;
       icon.scaleX = icon.scaleY;
       icon.y = (height - icon.height) / 2;
+	  deleteSymbol.y = icon.y;
       ui.buttons.gotoAndStop(Math.round(1 + 10 * smallness));
     }
 
@@ -204,11 +206,10 @@ package org.stereofyte.mixer {
     private function attachBehaviors():void {
       addEventListener(MouseEvent.MOUSE_OVER, showButtons);
       addEventListener(MouseEvent.MOUSE_OUT, hideButtons);
-	  addTooltip(this, sample.name);
       /*
        * Instrument Icon button
        */
-      //addTooltip(ui.buttons.buttonBody, "Move");
+      addTooltip(ui.buttons.buttonBody, sample.name);
       ui.buttons.buttonBody.addEventListener(MouseEvent.MOUSE_DOWN, function(event:MouseEvent) {
         if (isDragging) return;
         function click(event:MouseEvent) {
@@ -228,35 +229,35 @@ package org.stereofyte.mixer {
       /*
        * Volume
        */
-      //addTooltip(ui.buttons.volume.volumeHandle, "Volume");
+      addTooltip(ui.buttons.volume.volumeHandle, "Volume");
       ui.buttons.volume.volumeHandle.gotoAndStop(_sample.family);
       ui.buttons.volume.volumeHandle.button.addEventListener(MouseEvent.MOUSE_DOWN, onStartVolumeSlide);
       updateVolumeSlider();
       /*
        * Delete
        */
-      //addTooltip(ui.buttons.buttonDelete, "Delete");
+      addTooltip(ui.buttons.buttonDelete, "Delete");
       ui.buttons.buttonDelete.addEventListener(MouseEvent.CLICK, function(event) {
         dispatchEvent(new Event(DELETE));
       });
       /*
        * Duplicate
        */
-      //addTooltip(ui.buttons.buttonDupe, "Copy");
+      addTooltip(ui.buttons.buttonDupe, "Copy");
       ui.buttons.buttonDupe.addEventListener(MouseEvent.CLICK, function(event) {
         dispatchEvent(new Event(DUPLICATE));
       });
       /*
        * Solo
        */
-      //addTooltip(ui.buttons.buttonSolo, "Solo");
+      addTooltip(ui.buttons.buttonSolo, "Solo");
       ui.buttons.buttonSolo.addEventListener(MouseEvent.CLICK, function(event) {
         dispatchEvent(new Event(SOLO, true));
       });
       /*
        * Mute
        */
-      //addTooltip(ui.buttons.volume.buttonMute, "Mute");
+      addTooltip(ui.buttons.volume.buttonMute, "Mute");
       ui.buttons.volume.buttonMute.addEventListener(MouseEvent.CLICK, function(event) {
         if (!toggleMuted()) return;
         dispatchEvent(new Event(MUTE, true));

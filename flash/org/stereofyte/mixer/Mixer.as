@@ -1,6 +1,7 @@
 ﻿package org.stereofyte.mixer {
 	import com.chrislovejoy.display.FrameSkipper;
 	import com.chrislovejoy.gui.DragAndDrop;
+	import com.chrislovejoy.helpers.Debug;
 	import com.chrislovejoy.motion.Move;
 	import fl.transitions.TweenEvent;
 	import flash.display.DisplayObject;
@@ -15,9 +16,7 @@
 	import flash.geom.Rectangle;
 	import flash.ui.Keyboard;
 	import flash.utils.Timer;
-
 	public class Mixer extends Sprite {
-
 		public static const
 			BEAT_WIDTH:Number = 11,
 			REGION_ADDED:String = "mixer_region_added",
@@ -31,11 +30,9 @@
 			REWIND:String = "mixer_rewind",
 			MAX_BEATS:int = 240,
 			MAX_TRACKS:int = 8;
-
 		private static const
 			TRACKFIELD_X:Number = 9,
 			TRACKFIELD_Y:Number = 10;
-
 		private var
 			seekbarBounds:Rectangle,
 			tracks:Array,
@@ -65,7 +62,6 @@
 			trackFieldPushed:Boolean = false,
 			recordThrowMove:Move,
 			newTrackDelay:Timer;
-
 		public function Mixer(width:Number = 500, height:Number = 240, trackCount:Number = 8):void {
 			tracks = [];
 			Regions = [];
@@ -100,7 +96,6 @@
 			});
 			updatePlayhead();
 		}
-
 		public function addRegion(sample:Sample):Region {
 			var region = new Region(
 				sample,
@@ -124,16 +119,14 @@
 			Regions.push(region);
 			return region;
 		}
-
 		public function resetLiftedRegion(region:Region):void {
 			if (LiftedRegionData && LiftedRegionData.hasOwnProperty("trackIndex")) {
-				tracks[LiftedRegionData.trackIndex].addRegion(region, LiftedRegionData.cellIndex);
+				tracks[LiftedRegionData.trackIndex].addRegion(region, LiftedRegionData.beatIndex);
 				LiftedRegionData = null;
 			} else {
 				removeRegion(region);
 			}
 		}
-
 		public function removeRegion(region:Region):void {
 			tooltip.visible = false;
 			LiftedRegionData = null;
@@ -142,11 +135,8 @@
 			region.removeEventListener(Region.DUPLICATE, onDuplicateRegion);
 			region.removeEventListener(Region.DELETE, onDeleteRegion);
 			if (region.solo == Region.SOLO_THIS) region.dispatchEvent(new Event(Region.SOLO, true));
-			var trackIndex = -1;
-			if (region.parent is Track) {
-				var track:Track = region.parent as Track;
-				trackIndex = track.index;
-				track.removeRegion(region);
+			if (tracks[region.trackIndex]) {
+				tracks[region.trackIndex].removeRegion(region);
 			} else if (region.parent) {
 				region.parent.removeChild(region);
 			}
@@ -155,44 +145,36 @@
 					Regions.splice(i, 1);
 				}
 			}
-			RemovedRegionData = {regionId:region.id, trackIndex:trackIndex};
+			RemovedRegionData = {regionIndex:region.regionIndex, trackIndex:region.trackIndex};
 			dispatchEvent(new Event(Mixer.REGION_REMOVED, true));
 			RemovedRegionData = null;
 			region.clear();
 		}
-
 		public function getRegionPosition(region:Region):Number {
 			if (region && region && region.parent is Track) {
 				var track:Track = region.parent as Track;
-				return track.getRegionIndex(region);
+				return track.getRegionBeat(region);
 			} else {
 				return playbackPosition;
 			}
 		}
-
 		public function get regions():Array {
 			return Regions;
 		}
-
 		public function addSample(sample:Sample) {
 			for (var i:int = 0; i < bins.length; i++) {
 				if (bins[i].addSample(sample)) break;
 			}
 		}
-
 		override public function get width():Number {
 			return Width;
 		}
-
 		override public function set width(newWidth:Number):void {}
-
 		override public function get height():Number {
 			return Height;
 		}
-
 		override public function set height(newHeight:Number):void {}
-
-		private function onLiftRegion(event:Event) {
+		private function onLiftRegion(event:Event):void {
 			var region:Region = event.target as Region;
 			if (Region.STATUS_NULL == region.status) {
 				if (dj.mouseX < 0) {
@@ -204,47 +186,42 @@
 			}
 			liftRegion(region);
 		}
-
-		private function onPlaceRegion(event:Event) {
+		private function onPlaceRegion(event:Event):void {
 			var region:Region = event.target as Region;
 			var throwing:Boolean = Region.STATUS_NULL == region.status;
-
 			placeRegion(region);
 			if (throwing) {
 				dj.gotoAndPlay((region.parent? "throw": "drop") + djSide);
 				region.visible = false; //prep for appearance animation
 			}
 		}
-
-		private function onDuplicateRegion(event:Event) {
+		private function onDuplicateRegion(event:Event):void {
 			duplicateRegion(event.target as Region);
 		}
-
-		private function onDeleteRegion(event:Event) {
+		private function onDeleteRegion(event:Event):void {
 			stage.focus = stage; // don't trap the focus in the removed object
 			removeRegion(event.target as Region);
 		}
-
-		private function liftRegion(region:Region) {
+		private function liftRegion(region:Region):void {
 			LiftedRegionData = {region:region};
 			if (this !== region.parent) {
 				var regionPosition = globalToLocal(region.localToGlobal(new Point()));
 				if (region.parent is Track) {
 					var track:Track = region.parent as Track;
 					LiftedRegionData.trackIndex = track.index;
-					LiftedRegionData.cellIndex = track.getRegionIndex(region);
+					LiftedRegionData.regionIndex = region.regionIndex;
+					LiftedRegionData.beatIndex = track.getRegionBeat(region);
 					track.removeRegion(region);
 				}
 				addChild(region);
 				region.x = regionPosition.x;
 				region.y = regionPosition.y;
 			}
-			region.removeEventListener(Event.ENTER_FRAME, updateRegionstatus);
-			region.addEventListener(Event.ENTER_FRAME, updateRegionstatus);
+			region.removeEventListener(Event.ENTER_FRAME, updateRegionStatus);
+			region.addEventListener(Event.ENTER_FRAME, updateRegionStatus);
 		}
-
 		private function placeRegion(region:Region, useNextOpenSpace:Boolean = false):void {
-			region.removeEventListener(Event.ENTER_FRAME, updateRegionstatus);
+			region.removeEventListener(Event.ENTER_FRAME, updateRegionStatus);
 			var targetTrackIndex:Number = getObjectTargetTrackIndex(region);
 			var debug = "placeRegion: ";
 			if (isNaN(targetTrackIndex)) {
@@ -252,13 +229,13 @@
 				removeRegion(region);
 			} else {
 				var track:Track = tracks[targetTrackIndex] as Track;
-				var targetBeatIndex:int = track.getRegionIndex(region);
+				var targetBeatIndex:int = track.getRegionPositionBeat(region);
 				var collision:Boolean = false;
-				if (track.getRegionAtIndex(targetBeatIndex)) {
+				if (!!track.getRegionAtBeat(targetBeatIndex)) {
 					collision = true;
 					if (useNextOpenSpace) {
 						for (var i:int = targetBeatIndex; i < MAX_BEATS; i+=beatsPerRegion) {
-							if (!track.getRegionAtIndex(i)) {
+							if (!track.getRegionAtBeat(i)) {
 								targetBeatIndex = i;
 								collision = false;
 								break;
@@ -273,7 +250,10 @@
 					debug += "beyond the range of the mix: reset";
 					resetLiftedRegion(region);
 				} else {
+					Debug.log(track.getRegionAtBeat(targetBeatIndex), "track.getRegionAtBeat("+targetBeatIndex+")");
 					PlacedRegionData = {region:region};
+					tracks[region.trackIndex] && tracks[region.trackIndex].removeRegion(region);
+					var debugOldRegionIndex:int = region.regionIndex;
 					track.addRegion(region, targetBeatIndex);
 					if (Region.STATUS_NULL == region.status) {
 						debug += "new region: ADDED";
@@ -283,17 +263,19 @@
 						debug += "existing region: MOVED";
 						region.dispatchEvent(new Event(Mixer.REGION_MOVED, true));
 					}
+					debug += " (from index " + debugOldRegionIndex + " to " + region.regionIndex + ")";
 				}
 			}
+
 			if (trackFieldPushed) {
 				dispatchEvent(new Event(Mixer.SEEK_FINISH));
 				trackFieldPushed = false;
 			}
 			LiftedRegionData = null;
-			trace(debug);
+			//Debug.log(debug);
 		}
 
-		private function duplicateRegion(region:Region) {
+		private function duplicateRegion(region:Region):void {
 			var newRegion:Region = addRegion(region.sample);
 			var newPosition = globalToLocal(region.parent.localToGlobal(new Point(region.x + region.width, region.y)));
 			newRegion.x = newPosition.x;
@@ -313,7 +295,7 @@
 			return targetTrackIndex;
 		}
 
-		private function updateRegionstatus(event:Event):void {
+		private function updateRegionStatus(event:Event):void {
 			var region:Region = event.currentTarget as Region;
 
 			/*
@@ -467,11 +449,10 @@
 			if (tracks.length >= MAX_TRACKS) return null;
 
 			var track:Track = new Track(BEAT_WIDTH, MAX_BEATS);
+			track.index = tracks.length;
 			tracks.push(track);
 			trackField.addChildAt(track, 0);
-			var trackIndex = tracks.length - 1;
-			track.index = trackIndex;
-			track.y = trackHeight * trackIndex;
+			track.y = trackHeight * track.index;
 			var gridline = new MixerGridLine();
 			gridlines.push(gridline);
 			gridline.x = TRACKFIELD_X;
@@ -587,7 +568,7 @@
 
 		private function onSampleDrop(event:Event):void {
 			var hand:MovieClip = event.target as MovieClip;
-			hand.holder.removeChildAt(0); //remove record
+			hand.holder.numChildren && hand.holder.removeChildAt(0); //remove record
 		}
 
 		public function removeBin(bin:Bin):void {
@@ -642,9 +623,17 @@
 			updatePlayhead();
 		}
 
-		private function grabBin(event:Event) {
+		private function grabBin(event:Event):void {
 			var region = addRegion(event.target.selectedSample);
 			region.grab();
+			/* enable click-move-click as well as drag-drop */
+			addEventListener(MouseEvent.MOUSE_MOVE, dragFromBin);
+			region.mouseUpBuffer = 1;
+		}
+
+		private function dragFromBin(event:MouseEvent):void {
+			removeEventListener(MouseEvent.MOUSE_MOVE, dragFromBin);
+			if (LiftedRegionData.region) LiftedRegionData.region.mouseUpBuffer = 0;
 		}
 
 		private function attachBehaviors():void {

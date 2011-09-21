@@ -3,7 +3,6 @@
  */
 package com.mixblendr.gui.main;
 
-
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -24,7 +23,7 @@ import com.mixblendr.util.Debug;
 
 /**
  * The main GUI as an applet, modified to allow interface with JavaScript
- * 
+ *
  * @author Florian Bomers
  * @author Christopher Lovejoy
  */
@@ -107,7 +106,7 @@ public class Applet extends JApplet {
 						} catch (NumberFormatException e) {
 						}
 						
-						// commenting to hide UI
+						// commenting to hide UI (breaks auto-mix length measurement)
 						Applet.this.setContentPane(main.getMasterPanel());
 
 						previewPlayer = new AudioPlayer(main, new previewDownloadListener());
@@ -153,7 +152,7 @@ public class Applet extends JApplet {
 	/**
 	 * Call a JavaScript function on the document.
 	 * @param fn
-	 * @param args: 
+	 * @param args:
 	 */
 	public void callJS(String fn, String args) {
 		try {
@@ -174,7 +173,7 @@ public class Applet extends JApplet {
 	 * Add a new region to a track at the given index.
 	 * @param trackIndex
 	 * @param url
-	 * @param beat
+	 * @param beats
 	 */
 	public int addRegion(final int trackIndex, final String url, float beats) {
 		if (previewIsPlaying) {
@@ -185,7 +184,7 @@ public class Applet extends JApplet {
 		if (trackIndex >= mixer.getTrackCount()) {
 			for (int i = mixer.getTrackCount(); i <= trackIndex; i++) {
 				main.getGlobals().getPlayer().addAudioTrack();
-			} 
+			}
 		}
 		final AudioTrack track = main.getGlobals().getPlayer().getMixer().getTrack(trackIndex);
 		final AudioRegion region = java.security.AccessController.doPrivileged(
@@ -205,19 +204,18 @@ public class Applet extends JApplet {
 		return track.getPlaylist().indexOf(region);
 	}
 	
-	public AudioRegion getRegion(int index, int trackIndex) {
-		return (AudioRegion) main.getGlobals().getPlayer().getMixer().getTrack(trackIndex).getPlaylist().getObject(index);
+	public AudioRegion getRegion(int regionIndex, int trackIndex) {
+		return (AudioRegion) main.getGlobals().getPlayer().getMixer().getTrack(trackIndex).getPlaylist().getObject(regionIndex);
 	}
 	
 	/**
 	 * remove a region from a track.
-	 * @param id
+	 * @param regionIndex
 	 * @param trackIndex
-	 * @param beat
 	 */
-	public AudioRegion removeRegion(int id, int trackIndex) {
+	public AudioRegion removeRegion(int regionIndex, int trackIndex) {
 		Playlist playlist = main.getGlobals().getPlayer().getMixer().getTrack(trackIndex).getPlaylist();
-		AudioRegion region = (AudioRegion) playlist.getObject(id);
+		AudioRegion region = (AudioRegion) playlist.getObject(regionIndex);
 		playlist.removeObject(region);
 		main.updateTracks();
 		return region;
@@ -225,15 +223,22 @@ public class Applet extends JApplet {
 	
 	/**
 	 * Move a region to a track at the given index.
-	 * @param id
+	 * @param regionIndex
 	 * @param fromTrackIndex
 	 * @param trackIndex
 	 * @param beat
 	 */
-	public int moveRegion(int id, int fromTrackIndex, int trackIndex, float beats) {
-		AudioRegion region = removeRegion(id, fromTrackIndex);
+	public int moveRegion(int regionIndex, int fromTrackIndex, int trackIndex, float beats) {
+		AudioRegion region = removeRegion(regionIndex, fromTrackIndex);
 		region.setStartTimeSamples(getSamplesFromBeats(beats));
-		Playlist playlist = main.getGlobals().getPlayer().getMixer().getTrack(trackIndex).getPlaylist();
+		AudioPlayer player = main.getGlobals().getPlayer();
+		AudioMixer mixer = player.getMixer();
+		if (trackIndex >= mixer.getTrackCount()) {
+			for (int i = mixer.getTrackCount(); i <= trackIndex; i++) {
+				player.addAudioTrack();
+			}
+		}
+		Playlist playlist = mixer.getTrack(trackIndex).getPlaylist();
 		playlist.addObject(region);
 		main.updateTracks();
 		return playlist.indexOf(region);
