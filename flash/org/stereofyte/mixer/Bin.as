@@ -5,8 +5,9 @@ package org.stereofyte.mixer {
   import flash.events.Event;
   import flash.events.MouseEvent;
   import flash.events.TimerEvent;
+  import flash.sampler.Sample;
   import flash.utils.Timer;
-
+  
   import org.stereofyte.mixblendr.*;
 
   public class Bin extends Sprite {
@@ -58,6 +59,24 @@ package org.stereofyte.mixer {
       samples.push({element:element, sample:sample});
       return true;
     }
+	
+	public function removeSample(sample:Sample):Boolean {
+		for (var i:int = samples.length; i >=0; i--) {
+			if (samples[i].sample === sample) {
+				removeChild(samples[i].element);
+				samples.splice(i, 1);
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public function clearSamples():void {
+		for (var i:int = 0; i < samples.length; i++) {
+			removeChild(samples[i].element);
+		}
+		samples = [];
+	}
 
     public function get selectedSample():Sample {
       if (selectedIndex == -1) return null;
