@@ -1,6 +1,7 @@
 package com.chrislovejoy {
   
-  import com.chrislovejoy.helpers.Debug;
+  import com.chrislovejoy.util.Debug;
+  
   import flash.display.DisplayObject;
   import flash.display.LoaderInfo;
   import flash.external.ExternalInterface;

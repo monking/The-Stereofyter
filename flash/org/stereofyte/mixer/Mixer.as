@@ -4,7 +4,7 @@
 	import com.adobe.utils.ArrayUtil;
 	import com.chrislovejoy.display.FrameSkipper;
 	import com.chrislovejoy.gui.DragAndDrop;
-	import com.chrislovejoy.helpers.Debug;
+	import com.chrislovejoy.util.Debug;
 	import com.chrislovejoy.motion.Move;
 	
 	import fl.transitions.TweenEvent;
@@ -797,7 +797,8 @@ import flash.events.Event;
 			}
 			
 			ui.x = Math.floor(stage.stageWidth / 2 - ui.width / 2);
-			ui.y = 30;
+			ui.y = 50;
+			
 			bottom.y = stage.stageHeight - 229;
 			bottom.x = Math.floor(stage.stageWidth / 2);
 			bottom.socialLinks.x = -bottom.x + 10;

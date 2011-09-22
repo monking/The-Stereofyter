@@ -1,4 +1,4 @@
-package com.chrislovejoy.helpers {
+package com.chrislovejoy.util {
 
 	import flash.display.DisplayObject;
 	import flash.external.ExternalInterface;

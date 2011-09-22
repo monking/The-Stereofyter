@@ -1,7 +1,8 @@
 package org.stereofyte {
 
 	import com.chrislovejoy.WebAppController;
-	import com.chrislovejoy.helpers.Debug;
+	import com.chrislovejoy.util.Debug;
+	import com.chrislovejoy.util.ContextMenuUtil;
 
 	import flash.display.DisplayObject;
 	import flash.display.Graphics;
@@ -40,10 +41,39 @@ package org.stereofyte {
 			_root.stage.addChild(site);
 			feedbackDelay = new Timer(34, 1);
 			addMixer();
+			ContextMenuUtil.setContextMenu(site, [
+				{
+					caption:"©2011 On The Map Records",
+					action:null
+				},
+				{
+					caption:"Notify me with updates",
+					action:function(){
+						site.dispatchEvent(new Event("SHOW_NEWSLETTER_SIGNUP"));
+					}
+				},
+				{
+					caption:"About StereoFyter",
+					action:function(){
+						site.dispatchEvent(new Event("SHOW_ABOUT"));
+					}
+				}
+			]);
+			attachSiteListeners();
 		}
+		
+		private function attachSiteListeners():void {
+			site.addEventListener("SHOW_ABOUT", function() {
+				site.showSiteInfoPane();
+			});
+			site.addEventListener("SHOW_NEWSLETTER_SIGNUP", function() {
+				Debug.log("newsletter signup", "from event");
+			});
+		}
+
 		private function addMixer():void {
 			mixer = new Mixer(523, 220, 5);
-			_root.stage.addChild(mixer);
+			site.midground.addChildAt(mixer, 0);
 			mixer.addEventListener(Mixer.REGION_ADDED, function(event:Event) {
 				var region:Region = event.target as Region;
 				var track:Track = region.parent as Track;
@@ -121,22 +151,22 @@ package org.stereofyte {
 				mixer.setPreviewPlaying(false, engine.data.url);
 			});
 			
-			mixer.loadSampleList(flashVars.samplelist);
+			flashVars.samplelist && mixer.loadSampleList(flashVars.samplelist);
 		}
-
+		
 		private function delayStartUpdatePlayhead(event:Event):void {
 			feedbackDelay.removeEventListener(TimerEvent.TIMER, delayStartUpdatePlayhead);
 			startUpdatePlayhead(event);
 		}
-
+		
 		private function startUpdatePlayhead(event:Event):void {
 			mixer.addEventListener(Event.ENTER_FRAME, updatePlayhead);
 		}
-
+		
 		private function stopUpdatePlayhead(event:Event):void {
 			mixer.removeEventListener(Event.ENTER_FRAME, updatePlayhead);
 		}
-
+		
 		private function updatePlayhead(event:Event):void {
 			mixer.playbackPosition = engine.call("getPlaybackPosition");
 		}
