@@ -20,7 +20,7 @@ function loadMixblendr() {
 var flashvars = {
 	sampleListUrl:"samples.json.php",
 	countryListUrl:"js/country_codes.json",
-	registerUrl:"scripts/register.php"
+	registerUrl:"register.php"
 };
 var attributes = {
 	menu: "false"

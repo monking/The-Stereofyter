@@ -29,8 +29,9 @@ function assoc_to_mysql($assoc, $method, $table_name, $db_name = null) {
 			$query .= ';';
 		}
 	} else {
-		throw new Exception("SQL method '$method' not supported");
+		return false;
 	}
+  //echo $query;
 	if (!mysql_query($query)) return false;
 	return true;
 }
