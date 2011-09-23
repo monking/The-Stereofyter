@@ -1,4 +1,4 @@
-package org.stereofyte.mixblendr {
+package org.stereofyter.mixblendr {
   
   import flash.events.*;
   import flash.external.ExternalInterface;

@@ -1,4 +1,4 @@
-package org.stereofyte.gui {
+package org.stereofyter.gui {
 
   import flash.display.Sprite;
 

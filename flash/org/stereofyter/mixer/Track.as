@@ -1,4 +1,4 @@
-package org.stereofyte.mixer {
+package org.stereofyter.mixer {
 
 	//import flash.display.Graphics;
 	import com.chrislovejoy.util.Debug;

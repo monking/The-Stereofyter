@@ -1,8 +1,8 @@
-package org.stereofyte.mixer {
+package org.stereofyter.mixer {
 
   import com.chrislovejoy.gui.DragAndDrop;
   import com.chrislovejoy.util.Debug;
-  import org.stereofyte.gui.*;
+  import org.stereofyter.gui.*;
   import flash.display.DisplayObject;
   import flash.display.Graphics;
   import flash.display.Sprite;

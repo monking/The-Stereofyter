@@ -1,4 +1,4 @@
-﻿package org.stereofyte.mixer {
+﻿package org.stereofyter.mixer {
 	
 	import com.adobe.serialization.json.JSON;
 	import com.adobe.utils.ArrayUtil;
@@ -276,7 +276,6 @@
 					debug += "beyond the range of the mix: reset";
 					resetLiftedRegion(region);
 				} else {
-					Debug.log(track.getRegionAtBeat(targetBeatIndex), "track.getRegionAtBeat("+targetBeatIndex+")");
 					PlacedRegionData = {region:region};
 					tracks[region.trackIndex] && tracks[region.trackIndex].removeRegion(region);
 					var debugOldRegionIndex:int = region.regionIndex;

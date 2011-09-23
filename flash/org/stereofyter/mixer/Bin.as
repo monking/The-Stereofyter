@@ -1,4 +1,4 @@
-package org.stereofyte.mixer {
+package org.stereofyter.mixer {
 
   import flash.display.Graphics;
   import flash.display.Sprite;
@@ -8,7 +8,7 @@ package org.stereofyte.mixer {
   import flash.sampler.Sample;
   import flash.utils.Timer;
   
-  import org.stereofyte.mixblendr.*;
+  import org.stereofyter.mixblendr.*;
 
   public class Bin extends Sprite {
 

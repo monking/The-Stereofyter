@@ -1,4 +1,4 @@
-package org.stereofyte.mixer {
+package org.stereofyter.mixer {
 
   public class Sample extends Object {
     

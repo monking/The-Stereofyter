@@ -1,4 +1,4 @@
-package org.stereofyte {
+package org.stereofyter {
 
 	import com.chrislovejoy.WebAppController;
 	import com.chrislovejoy.util.Debug;
@@ -15,11 +15,11 @@ package org.stereofyte {
 	import flash.external.ExternalInterface;
 	import flash.utils.Timer;
 
-	import org.stereofyte.gui.*;
-	import org.stereofyte.mixblendr.*;
-	import org.stereofyte.mixer.*;
+	import org.stereofyter.gui.*;
+	import org.stereofyter.mixblendr.*;
+	import org.stereofyter.mixer.*;
 
-	public class StereofyteAppController extends WebAppController {
+	public class StereofyterAppController extends WebAppController {
 
 		public static const
 			WEBROOT:String = '.';
@@ -27,17 +27,17 @@ package org.stereofyte {
 		private var
 			mixer:Mixer,
 			engine:MixblendrInterface,
-			site:StereofyteSite,
+			site:StereofyterSite,
 			feedbackDelay:Timer;
 
-		public function StereofyteAppController(root:DisplayObject, debug:Boolean = false):void {
+		public function StereofyterAppController(root:DisplayObject, debug:Boolean = false):void {
 			super(root, debug);
 			_root.stage.frameRate = 60;
 			_root.stage.align = StageAlign.TOP_LEFT;
 			_root.stage.quality = StageQuality.HIGH;
 			_root.stage.scaleMode = StageScaleMode.NO_SCALE;
 			engine = new MixblendrInterface();
-			site = new StereofyteSite();
+			site = new StereofyterSite();
 			_root.stage.addChild(site);
 			feedbackDelay = new Timer(34, 1);
 			addMixer();
@@ -49,13 +49,13 @@ package org.stereofyte {
 				{
 					caption:"Notify me with updates",
 					action:function(){
-						site.dispatchEvent(new Event("SHOW_NEWSLETTER_SIGNUP"));
+						site.dispatchEvent(new Event(StereofyterSite.SHOW_NEWSLETTER));
 					}
 				},
 				{
 					caption:"About StereoFyter",
 					action:function(){
-						site.dispatchEvent(new Event("SHOW_ABOUT"));
+						site.dispatchEvent(new Event(StereofyterSite.SHOW_ABOUT));
 					}
 				}
 			]);
@@ -63,11 +63,13 @@ package org.stereofyte {
 		}
 		
 		private function attachSiteListeners():void {
-			site.addEventListener("SHOW_ABOUT", function() {
-				site.showSiteInfoPane();
+			site.addEventListener(StereofyterSite.SHOW_ABOUT, function() {
+				site.toggleSiteInfoPane();
+				site.hideNewsletterSignup();
 			});
-			site.addEventListener("SHOW_NEWSLETTER_SIGNUP", function() {
-				Debug.log("newsletter signup", "from event");
+			site.addEventListener(StereofyterSite.SHOW_NEWSLETTER, function() {
+				site.toggleNewsletterSignup();
+				site.hideSiteInfoPane();
 			});
 		}
 
@@ -151,7 +153,7 @@ package org.stereofyte {
 				mixer.setPreviewPlaying(false, engine.data.url);
 			});
 			
-			flashVars.samplelist && mixer.loadSampleList(flashVars.samplelist);
+			FlashVars.sampleListUrl && mixer.loadSampleList(FlashVars.sampleListUrl);
 		}
 		
 		private function delayStartUpdatePlayhead(event:Event):void {

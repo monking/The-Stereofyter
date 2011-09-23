@@ -1,4 +1,4 @@
-package org.stereofyte.map {
+package org.stereofyter.map {
 
   import flash.display.Sprite;
 

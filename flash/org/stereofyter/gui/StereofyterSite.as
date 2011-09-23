@@ -1,4 +1,4 @@
-package org.stereofyte.gui {
+package org.stereofyter.gui {
 	
 	import flash.display.DisplayObject;
 	import flash.display.Graphics;
@@ -9,7 +9,11 @@ package org.stereofyte.gui {
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	
-	public class StereofyteSite extends Sprite {
+	public class StereofyterSite extends Sprite {
+		
+		public static const
+			SHOW_NEWSLETTER:String = "show_newsletter",
+			SHOW_ABOUT:String = "show_about";
 
 		public var
 			foreground:Sprite,
@@ -18,13 +22,14 @@ package org.stereofyte.gui {
 			backdrop:SFBackground,
 			nav:SFNavBar,
 			info:SiteInfoPane,
+			newsletterSignup:NewsletterSignup,
 			logo:StereofyterLogo,
 			navWidth:Number = 1000;
 		
 		private var
 			previewButtons:SiteButtons;
 		
-		public function StereofyteSite():void {
+		public function StereofyterSite():void {
 			background = new Sprite();
 			midground = new Sprite();
 			foreground = new Sprite();
@@ -33,12 +38,14 @@ package org.stereofyte.gui {
 			addChild(foreground);
 			backdrop = new SFBackground();
 			background.addChild(backdrop);
+			newsletterSignup = new NewsletterSignup();
+			foreground.addChild(newsletterSignup);
 			addSiteInfoPane();
 			nav = new SFNavBar();
 			foreground.addChild(nav);
 			addPreviewButtons();
 			logo = new StereofyterLogo();
-			foreground.addChild(logo);
+			background.addChild(logo);
 			addEventListener(Event.ADDED_TO_STAGE, function(event) {
 				stage.addEventListener(Event.RESIZE, resize);
 				resize();
@@ -50,11 +57,12 @@ package org.stereofyte.gui {
 			backdrop.height = stage.stageHeight;
 			nav.x = stage.stageWidth / 2 - navWidth / 2;
 			nav.y = -32;
-			logo.x = 20;
+			logo.x = 50;
 			logo.y = 20;
 			previewButtons.x = stage.stageWidth / 2 + 350;
 			previewButtons.y = 90;
 			info.x = stage.stageWidth / 2 - info.width / 2;
+			newsletterSignup.x = stage.stageWidth / 2 - newsletterSignup.width / 2;
 		}
 		
 		public function showSiteInfoPane():void {
@@ -67,6 +75,22 @@ package org.stereofyte.gui {
 			info.gotoAndPlay("hide");
 		}
 		
+		public function toggleSiteInfoPane():void {
+			info.visible? hideSiteInfoPane(): showSiteInfoPane();
+		}
+		
+		public function showNewsletterSignup():void {
+			newsletterSignup.show();
+		}
+		
+		public function hideNewsletterSignup():void {
+			newsletterSignup.hide();
+		}
+		
+		public function toggleNewsletterSignup():void {
+			newsletterSignup.toggle();
+		}
+		
 		private function addPreviewButtons():void {
 			previewButtons = new SiteButtons();
 			midground.addChild(previewButtons);
@@ -74,13 +98,13 @@ package org.stereofyte.gui {
 				"About":{
 					"label":"ABOUT",
 					"action":function(event:MouseEvent) {
-						dispatchEvent(new Event("SHOW_ABOUT", true));
+						dispatchEvent(new Event(StereofyterSite.SHOW_ABOUT, true));
 					}
 				},
 				"Connect":{
 					"label":"NEWSLETTER",
 					"action":function(event:MouseEvent) {
-						dispatchEvent(new Event("SHOW_NEWSLETTER_SIGNUP", true));
+						dispatchEvent(new Event(StereofyterSite.SHOW_NEWSLETTER, true));
 					}
 				},
 				"Save":null,
@@ -114,8 +138,7 @@ package org.stereofyte.gui {
 			info.visible = false;
 			foreground.addChild(info);
 			info.newsletterButton.addEventListener(MouseEvent.CLICK, function() {
-				hideSiteInfoPane();
-				dispatchEvent(new Event("SHOW_NEWSLETTER_SIGNUP", true));
+				dispatchEvent(new Event(StereofyterSite.SHOW_NEWSLETTER, true));
 			});
 			info.closeButton.addEventListener(MouseEvent.CLICK, function() {
 				hideSiteInfoPane();
