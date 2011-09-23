@@ -393,9 +393,6 @@ import flash.events.Event;
 			addEventListener(Event.ADDED_TO_STAGE, function(event) {
 				stage.addEventListener(KeyboardEvent.KEY_UP, function(event) {
 					switch (event.keyCode) {
-						case Keyboard.EQUAL:
-							addTrack();
-							break;
 						case Keyboard.HOME:
 						case Keyboard.ENTER:
 							dispatchEvent(new Event(Mixer.REWIND));

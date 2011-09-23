@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		<title><? isset($page_title) || ( $page_title = 'stereofyter' ); print $page_title ?></title>
+		<title><? isset($page_title) || ( $page_title = 'The Stereofyter' ); print $page_title ?></title>
 <?php
 if(isset($includes)) {
 	array_unshift($includes, '_config');

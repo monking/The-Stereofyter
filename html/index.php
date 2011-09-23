@@ -12,8 +12,8 @@ require('inc/header.php');
 			</div>
 		</div>
 		<div class="footer">
-			The Stereofyter is a project of On the Map Records (OtMR), a non-pro?t organization that uses music to ?ght stereotypes.<br />
-			OtMR is ?scally sponsored by Artspire, a project of the New York Foundation for the Arts (NYFA). Visit <a href="http://www.onthemaprecords.org" target="_blank">www.onthemaprecords.org</a> for more information. 
+			The Stereofyter is a project of On the Map Records (OtMR), a non-profit organization that uses music to fight stereotypes.<br />
+			OtMR is fiscally sponsored by Artspire, a project of the New York Foundation for the Arts (NYFA). Visit <a href="http://www.onthemaprecords.org" target="_blank">www.onthemaprecords.org</a> for more information. 
 		</div>
 		<div id="mbapp">
 			<!--<applet CODE="com/mixblendr/gui/main/Applet" ARCHIVE="mixblendr/mixblendr.jar" WIDTH="800" HEIGHT="600" ALT="Your browser is not configured to view the applet. Please install Jave Runtime JRE 1.5 or higher." id="mixblendr"><PARAM name="url" value="competition/getfile"><PARAM name="REDIRECT_URL" value="competition/competition-entries/"><PARAM name="DEFAULT_TEMPO" value="120.0"></applet>-->

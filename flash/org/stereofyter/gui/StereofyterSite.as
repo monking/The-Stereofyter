@@ -73,6 +73,7 @@ package org.stereofyter.gui {
 		public function hideSiteInfoPane():void {
 			if (!info.visible) return;
 			info.gotoAndPlay("hide");
+			stage.focus = stage;
 		}
 		
 		public function toggleSiteInfoPane():void {
@@ -85,6 +86,7 @@ package org.stereofyter.gui {
 		
 		public function hideNewsletterSignup():void {
 			newsletterSignup.hide();
+			stage.focus = stage;
 		}
 		
 		public function toggleNewsletterSignup():void {

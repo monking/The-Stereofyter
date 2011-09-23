@@ -38,12 +38,11 @@ if ($method == 'UPDATE')
 else
 	$query['created'] = array('function' => 'NOW');
 if (!assoc_to_mysql(array($query), $method, 'users')) die('{"error":"retry"}');
-$message = 'You\'ve subscribed to the Stereofyter Newsletter.'."\n\n";
-$message .= 'Thank you for your interest in Stereofyter. We\'ll let you know as updates are available on the site.'."\n\n";
+$message = 'You\'ve subscribed to The Stereofyter newsletter. Thanks for your interest in The Stereofyter - we\'ll let you know as updates are available.'."\n\n";
 $message .= 'If you no longer wish to receive this newsletter, you can unsubscribe by pasting this link into your browser:'."\n";
 $message .= 'http://'.$_SERVER['SERVER_NAME'].'/unsubscribe.php?email='.$email."\n\n";
 $message .= 'Please do not reply to this email directly. You will not receive a response.';
-@mail($email, 'Stereofyter Newsletter Subscription', $message, 'From:"Stereofyter Newsletter" <news@stereofyter.org>');
+@mail($email, 'The Stereofyter - newsletter subscription', $message, 'From:"The Stereofyter" <news@stereofyter.org>');
 echo '{"status":"ok"}';
 
 ?>

@@ -74,7 +74,7 @@ package org.stereofyter {
 		}
 
 		private function addMixer():void {
-			mixer = new Mixer(523, 220, 5);
+			mixer = new Mixer(523, 220, 8);
 			site.midground.addChildAt(mixer, 0);
 			mixer.addEventListener(Mixer.REGION_ADDED, function(event:Event) {
 				var region:Region = event.target as Region;
