@@ -5,7 +5,7 @@
 		<title><? isset($page_title) || ( $page_title = 'The Stereofyter' ); print $page_title ?></title>
 <?php
 if(isset($includes)) {
-	array_unshift($includes, '_config');
+	array_unshift($includes, '../../_config');
 	$includes = array_unique($includes);
 	foreach($includes as $include_name) {
 		if(file_exists("inc/$include_name.php"))

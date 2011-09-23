@@ -10,9 +10,9 @@ if ($_SERVER['SERVER_NAME'] == 'local.stereofyter.org') {
   $DB_PASS = 'australia';
   $DB_NAME = 'db7816_stereofyte';
 } else {
-  $DB_HOST = '127.0.0.1';
-  $DB_USER = 'root';
-  $DB_PASS = '0';
-  $DB_NAME = 'database';
+  $DB_HOST = 'internal-db.s85217.gridserver.com';
+  $DB_USER = 'db85217_sfweb';
+  $DB_PASS = 'australia';
+  $DB_NAME = 'db85217_stereofyte_app';
 }
 ?>

@@ -7,7 +7,7 @@ header('Content-type: application/json');
 if (!isset($_REQUEST['email'])) {
 	die('{"error":"no email"}');
 }
-require_once('inc/_config.php');
+require_once('../_config.php');
 require_once('inc/db.php');
 require_once('inc/validation.php');
 
