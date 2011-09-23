@@ -24,7 +24,7 @@ function assoc_to_mysql($assoc, $method, $table_name, $db_name = null) {
 				}
 			}
 			if (array_key_exists('WHERE', $row)) {
-				$query .= assoc_to_mysql_where($row[WHERE]);
+				$query .= assoc_to_mysql_where($row['WHERE']);
 			}
 			$query .= ';';
 		}
