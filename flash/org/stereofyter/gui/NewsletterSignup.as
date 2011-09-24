@@ -48,11 +48,13 @@ package org.stereofyter.gui {
 		public function show():void {
 			pane.visible = true;
 			pane.gotoAndPlay("show");
+			stage.focus = pane.graphic.email;
 		}
 		
 		public function hide():void {
 			if (!pane.visible) return;
 			pane.gotoAndPlay("hide");
+			stage.focus = stage;
 		}
 		
 		public function toggle():void {

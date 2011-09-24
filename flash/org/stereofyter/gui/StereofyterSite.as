@@ -1,5 +1,9 @@
 package org.stereofyter.gui {
 
+	import com.chrislovejoy.WebAppController;
+	import com.chrislovejoy.audio.MP3Stream;
+	import com.chrislovejoy.util.Debug;
+	
 	import flash.display.DisplayObject;
 	import flash.display.Graphics;
 	import flash.display.LoaderInfo;
@@ -8,10 +12,6 @@ package org.stereofyter.gui {
 	import flash.display.Stage;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
-	
-	import com.chrislovejoy.util.Debug;
-	import com.chrislovejoy.audio.MP3Stream;
-	import com.chrislovejoy.WebAppController;
 	
 	public class StereofyterSite extends Sprite {
 		
@@ -48,11 +48,10 @@ package org.stereofyter.gui {
 			addSiteInfoPane();
 			nav = new SFNavBar();
 			foreground.addChild(nav);
+			demoMix = new MP3Stream();
 			addPreviewButtons();
 			logo = new StereofyterLogo();
 			background.addChild(logo);
-			
-			demoMix = new MP3Stream();
 			
 			addEventListener(Event.ADDED_TO_STAGE, function(event) {
 				stage.addEventListener(Event.RESIZE, resize);
@@ -159,6 +158,9 @@ package org.stereofyter.gui {
 					event.currentTarget.parent.tooltip.visible = false;
 				});
 			}
+			demoMix.addEventListener(Event.SOUND_COMPLETE, function(event:Event) {
+				previewButtons.buttonDemo.button.gotoAndStop("paused");
+			});
 		}
 		
 		private function addSiteInfoPane():void {

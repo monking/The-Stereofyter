@@ -1,6 +1,7 @@
 package com.chrislovejoy.audio
 {
 	import flash.events.Event;
+	import flash.events.EventDispatcher;
 	import flash.events.ProgressEvent;
 	import flash.media.ID3Info;
 	import flash.media.Sound;
@@ -8,7 +9,7 @@ package com.chrislovejoy.audio
 	import flash.media.SoundLoaderContext;
 	import flash.net.URLRequest;
 	
-	public class MP3Stream
+	public class MP3Stream extends EventDispatcher
 	{
 		protected var
 			sound:Sound,
@@ -88,6 +89,7 @@ package com.chrislovejoy.audio
 		protected function playbackComplete(event:Event):void {
 			IsPlaying = false;
 			channel = null;
+			dispatchEvent(new Event(Event.SOUND_COMPLETE));
 		}
 		
 		protected function onLoadProgress(event:ProgressEvent):void {
