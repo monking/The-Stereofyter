@@ -1,5 +1,5 @@
 package org.stereofyter.gui {
-	
+
 	import flash.display.DisplayObject;
 	import flash.display.Graphics;
 	import flash.display.LoaderInfo;
@@ -8,6 +8,10 @@ package org.stereofyter.gui {
 	import flash.display.Stage;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	
+	import com.chrislovejoy.util.Debug;
+	import com.chrislovejoy.audio.MP3Stream;
+	import com.chrislovejoy.WebAppController;
 	
 	public class StereofyterSite extends Sprite {
 		
@@ -24,7 +28,8 @@ package org.stereofyter.gui {
 			info:SiteInfoPane,
 			newsletterSignup:NewsletterSignup,
 			logo:StereofyterLogo,
-			navWidth:Number = 1000;
+			navWidth:Number = 1000,
+			demoMix:MP3Stream;
 		
 		private var
 			previewButtons:SiteButtons;
@@ -46,6 +51,9 @@ package org.stereofyter.gui {
 			addPreviewButtons();
 			logo = new StereofyterLogo();
 			background.addChild(logo);
+			
+			demoMix = new MP3Stream();
+			
 			addEventListener(Event.ADDED_TO_STAGE, function(event) {
 				stage.addEventListener(Event.RESIZE, resize);
 				resize();
@@ -110,7 +118,21 @@ package org.stereofyter.gui {
 					}
 				},
 				"Save":null,
-				"Login":null
+				"Login":null,
+				"Demo":{
+					"label":"DEMO",
+					"action":function(event:MouseEvent) {
+						if (!demoMix.bytesTotal)
+							demoMix.load(WebAppController.flashVars.demoMixUrl);
+						if (demoMix.isPlaying) {
+							demoMix.pause();
+							previewButtons.buttonDemo.button.gotoAndStop("paused");
+						} else {
+							demoMix.play();
+							previewButtons.buttonDemo.button.gotoAndStop("playing");
+						}
+					}
+				}
 			};
 			for (var name:String in buttonData) {
 				var button:MovieClip = previewButtons["button"+name];
@@ -121,16 +143,20 @@ package org.stereofyter.gui {
 				button.tooltip.label.text = buttonData[name].label;
 				button.tooltip.mouseEnabled = false;
 				button.tooltip.mouseChildren = false;
-				button.symbol.gotoAndStop(name);
-				button.symbol.mouseEnabled = false;
+				if (button.symbol) {
+					button.symbol.gotoAndStop(name);
+					button.symbol.mouseEnabled = false;
+				} else {
+					button.button.buttonMode = true;
+				}
 				button.tooltip.mouseChildren = false;
 				button.tooltip.visible = false;
 				button.button.addEventListener(MouseEvent.CLICK, buttonData[name].action);
 				button.button.addEventListener(MouseEvent.MOUSE_OVER, function(event:MouseEvent) {
-					event.target.parent.tooltip.visible = true;
+					event.currentTarget.parent.tooltip.visible = true;
 				});
 				button.button.addEventListener(MouseEvent.MOUSE_OUT, function(event:MouseEvent) {
-					event.target.parent.tooltip.visible = false;
+					event.currentTarget.parent.tooltip.visible = false;
 				});
 			}
 		}

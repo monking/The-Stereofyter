@@ -20,7 +20,8 @@ function loadMixblendr() {
 var flashvars = {
 	sampleListUrl:"samples.json.php",
 	countryListUrl:"js/country_codes.json",
-	registerUrl:"register.php"
+	registerUrl:"register.php",
+	demoMixUrl:"audio/mixes/demo_mix_01.mp3"
 };
 var attributes = {
 	menu: "false"
