@@ -134,6 +134,9 @@ package org.stereofyter {
 				mixer.setPlaying(true);
 				updatePlayhead(event);
 			});
+			engine.addEventListener("ready", function(event:Event) {
+				Debug.log("Flash heard: Java is ready");
+			});
 			engine.addEventListener("playbackStop", function(event:Event) {
 				trace("playbackStop");
 				mixer.setPlaying(false);
