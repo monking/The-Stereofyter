@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="WINDOWS-1252" standalone="no"?>
 <jardesc>
-    <jar path="/Users/BJ/Documents/work/sites/stereofyte.org/html/mixblendr/mixblendr.jar"/>
-    <options buildIfNeeded="true" compress="true" descriptionLocation="/Mixblendr StereoFyter/CreateJarOnWeb_win.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="true" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <jar path="C:/Users/Christopher/Documents/work/sites/stereofyter.org/html/mixblendr/mixblendr.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/Mixblendr Stereofyte (preview)/CreateJarOnWeb_win.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="true" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
     <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
     <selectedProjects/>
-    <manifest generateManifest="false" manifestLocation="/Mixblendr StereoFyter/Manifest.mf" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
+    <manifest generateManifest="false" manifestLocation="/Mixblendr Stereofyte (preview)/Manifest.mf" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
         <sealing sealJar="false">
             <packagesToSeal/>
             <packagesToUnSeal/>
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
-        <javaElement handleIdentifier="=Mixblendr StereoFyter/src"/>
-        <javaElement handleIdentifier="=Mixblendr StereoFyter/skins"/>
+        <javaElement handleIdentifier="=Mixblendr Stereofyte \(preview)/src"/>
+        <javaElement handleIdentifier="=Mixblendr Stereofyte \(preview)/skins"/>
     </selectedElements>
 </jardesc>
