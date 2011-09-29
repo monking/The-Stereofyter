@@ -1,5 +1,8 @@
 <?php
 
+$includes = array('db', 'validation');
+require_once('../inc/includes.php');
+
 header('Cache-Control: no-cache, must-revalidate');
 //header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 header('Content-type: application/json');
@@ -7,16 +10,13 @@ header('Content-type: application/json');
 if (!isset($_REQUEST['email'])) {
 	die('{"error":"no email"}');
 }
-require_once('../_config.php');
-require_once('inc/db.php');
-require_once('inc/validation.php');
 
 $email = mysql_real_escape_string($_REQUEST['email']);
 if (!check_email_address($email)) die('{"error":"invalid email"}');
 $updates = 'yes';
 
-$result = mysql_query("SELECT subscribe_updates AS subscribed FROM users WHERE email='$email';");
-if (!$result) die('{"error":"retry"}');
+$result = mysql_query("SELECT subscribe_updates AS subscribed FROM sf_users WHERE email='$email';");
+if (!$result) die('{"error":"retry","note":"'.mysql_real_escape_string(mysql_error()).'"}');
 
 $method = 'INSERT';
 if (mysql_num_rows($result)) {
@@ -37,7 +37,7 @@ if ($method == 'UPDATE')
 	$query['WHERE'] = array('email' => $email);
 else
 	$query['created'] = array('function' => 'NOW');
-if (!assoc_to_mysql(array($query), $method, 'users')) die('{"error":"retry"}');
+if (!assoc_to_mysql(array($query), $method, 'sf_users')) die('{"error":"retry"}');
 $message = 'You\'ve subscribed to The Stereofyter newsletter. Thanks for your interest in The Stereofyter - we\'ll let you know as updates are available.'."\n\n";
 $message .= 'If you no longer wish to receive this newsletter, you can unsubscribe by pasting this link into your browser:'."\n";
 $message .= 'http://'.$_SERVER['SERVER_NAME'].'/unsubscribe.php?email='.$email."\n\n";

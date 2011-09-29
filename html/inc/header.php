@@ -4,18 +4,8 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<title><? isset($page_title) || ( $page_title = 'The Stereofyter' ); print $page_title ?></title>
 <?php
-if(isset($includes)) {
-	array_unshift($includes, '../../_config');
-	$includes = array_unique($includes);
-	foreach($includes as $include_name) {
-		if(file_exists("inc/$include_name.php"))
-			require_once("inc/$include_name.php");
-		else
-			echo "<!--inc/$include_name.php doesn't exist-->";
-	}
-}
-?>
-<?php
+require_once('inc/includes.php');
+
 if(!isset($css)) {
 	$css = array();
 }
@@ -37,6 +27,7 @@ foreach($js as $script):
 		<script type="text/javascript" src="js/<?=$script?>.js"></script>
 <?php
 endforeach;
+if(function_exists('headerContent')) headerContent();
 ?>
 	</head>
 	<body>

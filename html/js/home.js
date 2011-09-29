@@ -18,9 +18,10 @@ function loadMixblendr() {
 	} );
 };
 var flashvars = {
-	sampleListUrl:"samples.json.php",
+	sampleListUrl:"scripts/samples.json.php",
 	countryListUrl:"js/country_codes.json",
-	registerUrl:"register.php",
+	saveUrl:"scripts/save_mix.php",
+	registerUrl:"scripts/register.php",
 	demoMixUrl:"audio/mixes/demo_mix_01.mp3"
 };
 var attributes = {
