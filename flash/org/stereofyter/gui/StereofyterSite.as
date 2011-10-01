@@ -17,7 +17,8 @@ package org.stereofyter.gui {
 		
 		public static const
 			SHOW_NEWSLETTER:String = "show_newsletter",
-			SHOW_ABOUT:String = "show_about";
+			SHOW_ABOUT:String = "show_about",
+			SAVE_MIX:String = "save_mix";
 
 		public var
 			foreground:Sprite,
@@ -116,7 +117,12 @@ package org.stereofyter.gui {
 						dispatchEvent(new Event(StereofyterSite.SHOW_NEWSLETTER, true));
 					}
 				},
-				"Save":null,
+				"Save":{
+					"label":"SAVE",
+					"action":function(event:MouseEvent) {
+						dispatchEvent(new Event(StereofyterSite.SAVE_MIX, true));
+					}
+				},
 				"Login":null,
 				"Demo":{
 					"label":"DEMO",

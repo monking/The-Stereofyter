@@ -4,8 +4,9 @@
 	import com.adobe.utils.ArrayUtil;
 	import com.chrislovejoy.display.FrameSkipper;
 	import com.chrislovejoy.gui.DragAndDrop;
-	import com.chrislovejoy.util.Debug;
 	import com.chrislovejoy.motion.Move;
+	import com.chrislovejoy.util.Debug;
+	import com.chrislovejoy.WebAppController;
 	
 	import fl.transitions.TweenEvent;
 	
@@ -21,6 +22,8 @@
 	import flash.geom.Rectangle;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
+	import flash.net.URLRequestMethod;
+	import flash.sampler.Sample;
 	import flash.ui.Keyboard;
 	import flash.utils.Timer;
 	
@@ -74,9 +77,14 @@
 			beatsPerRegion:int = 8,
 			trackFieldPushed:Boolean = false,
 			recordThrowMove:Move,
-			newTrackDelay:Timer;
+			newTrackDelay:Timer,
+			saveLoader:URLLoader,
+			loadLoader:URLLoader;
 		
 		public function Mixer(width:Number = 500, height:Number = 240, trackCount:Number = 8):void {
+			saveLoader = new URLLoader();
+			loadLoader = new URLLoader();
+			
 			Width = width;
 			Height = height;
 			ui = new MixerUI();
@@ -94,17 +102,12 @@
 			newTrackDelay = new Timer(1000, 1);
 			drawTrackField();
 			drawPlayhead();
+			
 			attachBehaviors();
+			
 			for (var i:Number = 0; i < trackCount; i++) {
 				addTrack();
 			}
-			addEventListener(Event.ADDED_TO_STAGE, function(event) {
-				root.addEventListener(Event.RESIZE, function(event:Event) {
-					resize();
-				});
-				resize();
-			});
-			updatePlayhead();
 		}
 		
 		public function addRegion(sample:Sample):Region {
@@ -181,6 +184,54 @@
 			for (var i:int = 0; i < bins.length; i++) {
 				if (bins[i].addSample(sample)) break;
 			}
+		}
+		
+		public function saveMix():void {
+			var encodedMix:Object = {
+				properties:{
+					name:"",
+					tempo:"120",
+					key:"*",
+					volume:"1"
+				},
+				samples:[],
+				tracks:[]
+			};
+			for (var trackIndex:int = 0; trackIndex < tracks.length; trackIndex++) {
+				var track:Track = tracks[trackIndex];
+				if (!track.numRegions) continue;
+				var encodedTrack:Object = {};
+				for (var beat:String in track.beats) {
+					var region:Region = track.beats[beat];
+					if (!region) continue;
+					var encodedSampleIndex:int = -1;
+					for (var i:int = 0; i < encodedMix.samples.length; i++) {
+						//get index if sample is already recorded
+						if (encodedMix.samples[i] == region.sample.src) encodedSampleIndex = i;
+					}
+					if (encodedSampleIndex == -1) {
+						//record sample
+						encodedMix.samples.push(region.sample.src);
+						encodedSampleIndex = encodedMix.samples.length - 1;
+					}
+					encodedTrack[beat] = {
+						sample:encodedSampleIndex,
+						mute:region.isMuted,
+							volume:region.volume,
+							solo:region.solo || ""
+					};
+				}
+				encodedMix.tracks[trackIndex] = encodedTrack;
+			}
+			
+			var saveReq:URLRequest = new URLRequest(WebAppController.flashVars.saveUrl);
+			saveReq.data = "mix="+encodeURIComponent(JSON.encode(encodedMix));
+			saveReq.method = URLRequestMethod.POST;
+			saveLoader.load(saveReq);
+		}
+		
+		public function loadMix(mixData:JSON):void {
+			Debug.deepLog(mixData);
 		}
 		
 		override public function get width():Number {
@@ -675,8 +726,17 @@ import flash.events.Event;
 		}
 		
 		private function attachBehaviors():void {
+			/* Resize */
+			addEventListener(Event.ADDED_TO_STAGE, function(event) {
+				root.addEventListener(Event.RESIZE, function(event:Event) {
+					resize();
+				});
+				resize();
+			});
 			/* Data Events */
 			addEventListener(SAMPLE_LIST_LOADED, onSampleListLoad);
+			saveLoader.addEventListener(Event.COMPLETE, saveCompleteListener);
+			loadLoader.addEventListener(Event.COMPLETE, loadCompleteListener);
 			
 			/* Playback */
 			ui.buttonPlay.addEventListener(MouseEvent.CLICK, function(event:MouseEvent) {
@@ -803,6 +863,14 @@ import flash.events.Event;
 			bins[0].y = 20;
 			bins[1].x = 160;
 			bins[1].y = bins[0].y;
+		}
+		
+		private function saveCompleteListener(event:Event):void {
+			Debug.log(saveLoader.data);
+		}
+		
+		private function loadCompleteListener(event:Event):void {
+			Debug.log(loadLoader.data);
 		}
 		
 	}
