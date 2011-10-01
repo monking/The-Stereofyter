@@ -61,6 +61,7 @@ package org.stereofyter {
 			]);
 			site.alert("loading mixer engine...");
 			attachSiteListeners();
+			engine.check(); //if Java loaded first, this was already called when creating engine. Find a way to do this without redundancy
 		}
 		
 		private function attachSiteListeners():void {

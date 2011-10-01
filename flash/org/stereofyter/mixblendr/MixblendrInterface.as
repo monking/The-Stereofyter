@@ -2,6 +2,7 @@ package org.stereofyter.mixblendr {
   
   import flash.events.*;
   import flash.external.ExternalInterface;
+  import com.chrislovejoy.util.Debug;
   
   public class MixblendrInterface extends EventDispatcher {
     
@@ -12,7 +13,7 @@ package org.stereofyter.mixblendr {
     public function MixblendrInterface():void {
       ExternalInterface.addCallback("dispatchMBEvent", dispatchMBEvent);
       addEventListener("ready", onready);
-      ExternalInterface.call("loadMixblendr");
+	  check();
     }
 
     public function call(method, ... arguments):* {
@@ -41,9 +42,14 @@ package org.stereofyter.mixblendr {
           return undefined;
       }
     }
+	
+	public function check():void {
+		ExternalInterface.call("checkMixblendr");
+	}
 
     protected function dispatchMBEvent(type, data):void {
       this.data = data;
+	  Debug.log(type, "dispatchMBEvent (Flash)");
       dispatchEvent(new Event(type));
     }
 
