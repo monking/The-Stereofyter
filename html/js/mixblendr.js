@@ -32,7 +32,7 @@ function dispatchMBEvent(type, data) {
 	}
 }
 
-function checkMixblendr(options) {
+function checkMixblendr() {
 	if (mbinterface.applet) dispatchMBEvent("ready");
 }
 
