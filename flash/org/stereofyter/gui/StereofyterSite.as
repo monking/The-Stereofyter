@@ -32,7 +32,8 @@ package org.stereofyter.gui {
 			demoMix:MP3Stream;
 		
 		private var
-			previewButtons:SiteButtons;
+			previewButtons:SiteButtons,
+			alertBubble:TextBubble;
 		
 		public function StereofyterSite():void {
 			background = new Sprite();
@@ -52,7 +53,13 @@ package org.stereofyter.gui {
 			addPreviewButtons();
 			logo = new StereofyterLogo();
 			background.addChild(logo);
-			
+			alertBubble = new TextBubble({
+				textAlign: "center",
+				fontSize: 16,
+				fontFamily: "Helvetica_Medium",
+				padding: 20,
+				borderRadius: 10
+			});
 			addEventListener(Event.ADDED_TO_STAGE, function(event) {
 				stage.addEventListener(Event.RESIZE, resize);
 				resize();
@@ -70,6 +77,8 @@ package org.stereofyter.gui {
 			previewButtons.y = 90;
 			info.x = stage.stageWidth / 2 - info.width / 2;
 			newsletterSignup.x = stage.stageWidth / 2 - newsletterSignup.width / 2;
+			alertBubble.x = stage.stageWidth / 2 - alertBubble.width / 2;
+			alertBubble.y = stage.stageHeight/ 2 - alertBubble.height / 2;
 		}
 		
 		public function showSiteInfoPane():void {
@@ -98,6 +107,19 @@ package org.stereofyter.gui {
 		
 		public function toggleNewsletterSignup():void {
 			newsletterSignup.toggle();
+		}
+		
+		public function alert(message:String):void {
+			alertBubble.text = message;
+			addChild(alertBubble);
+			if (stage) {
+				alertBubble.x = stage.stageWidth / 2 - alertBubble.width / 2;
+				alertBubble.y = stage.stageHeight/ 2 - alertBubble.height / 2;
+			}
+		}
+		
+		public function hideAlert():void {
+			removeChild(alertBubble);
 		}
 		
 		private function addPreviewButtons():void {

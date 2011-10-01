@@ -1,9 +1,9 @@
 package org.stereofyter {
 
 	import com.chrislovejoy.WebAppController;
-	import com.chrislovejoy.util.Debug;
 	import com.chrislovejoy.util.ContextMenuUtil;
-
+	import com.chrislovejoy.util.Debug;
+	
 	import flash.display.DisplayObject;
 	import flash.display.Graphics;
 	import flash.display.LoaderInfo;
@@ -14,7 +14,7 @@ package org.stereofyter {
 	import flash.events.*;
 	import flash.external.ExternalInterface;
 	import flash.utils.Timer;
-
+	
 	import org.stereofyter.gui.*;
 	import org.stereofyter.mixblendr.*;
 	import org.stereofyter.mixer.*;
@@ -59,6 +59,7 @@ package org.stereofyter {
 					}
 				}
 			]);
+			site.alert("loading mixer engine...");
 			attachSiteListeners();
 		}
 		
@@ -135,7 +136,8 @@ package org.stereofyter {
 				updatePlayhead(event);
 			});
 			engine.addEventListener("ready", function(event:Event) {
-				Debug.log("Flash heard: Java is ready");
+				site.hideAlert();
+				mixer.introDJ();
 			});
 			engine.addEventListener("playbackStop", function(event:Event) {
 				trace("playbackStop");

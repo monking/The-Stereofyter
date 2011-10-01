@@ -183,6 +183,10 @@
 			}
 		}
 		
+		public function introDJ():void {
+			bottom.gotoAndPlay("introDJ");
+		}
+		
 		override public function get width():Number {
 			return Width;
 		}

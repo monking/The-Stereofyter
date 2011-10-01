@@ -35,7 +35,8 @@ package org.stereofyter.gui {
 			addChild(pane);
 			countryLoader = new URLLoader();
 			countryLoader.addEventListener(Event.COMPLETE, populateCountries);
-			countryLoader.load(new URLRequest(WebAppController.flashVars.countryListUrl));
+			if (WebAppController.flashVars.countryListUrl)
+				countryLoader.load(new URLRequest(WebAppController.flashVars.countryListUrl));
 			signupLoader = new URLLoader();
 			signupLoader.addEventListener(Event.COMPLETE, onSignupResult);
 			pane.graphic.submit.addEventListener(MouseEvent.CLICK, submitForm);
