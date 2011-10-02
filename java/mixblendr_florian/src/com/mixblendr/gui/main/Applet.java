@@ -34,6 +34,7 @@ public class Applet extends JApplet {
 	protected Exception exception;
 
 	private AudioPlayer previewPlayer;
+	private boolean IsPlaying;
 	private int previewRegionIndex;
 	private String previewUrl;
 	private boolean previewIsPlaying;
@@ -270,11 +271,11 @@ public class Applet extends JApplet {
 		//if (wasPlaying) startPlayback();
 	}
 	
-	/*
+	
 	public boolean isPlaying() {
-		return main.getGlobals().getPlayer().getOutput().IsPlaying();
+		return IsPlaying;
 	}
-	*/
+	
 	
 	public boolean toggleMute(int trackIndex) {
 		AudioTrack track = main.getGlobals().getPlayer().getMixer().getTrack(trackIndex);
@@ -408,6 +409,7 @@ public class Applet extends JApplet {
 		 * calling the start method.
 		 */
 		public void onPlaybackStart(AudioPlayer player) {
+			IsPlaying = true;
             callJS("dispatchMBEvent", "'previewStart', {url:'"+previewUrl+"'}");
 		}
 
@@ -417,6 +419,7 @@ public class Applet extends JApplet {
 		 * calling the stop method.
 		 */
 		public void onPlaybackStop(AudioPlayer player, boolean immediate) {
+			IsPlaying = false;
 			previewIsPlaying = false;
             callJS("dispatchMBEvent", "'previewStop', {url:'"+previewUrl+"'}");
 		}

@@ -95,10 +95,12 @@ package org.stereofyter {
 			mixer.addEventListener(Mixer.PLAY, function(event:Event) {
 				engine.call("startPlayback");
 				startUpdatePlayhead(event);
+				mixer.setPlaying(true);
 			});
 			mixer.addEventListener(Mixer.STOP, function(event:Event) {
 				engine.call("stopPlayback");
 				stopUpdatePlayhead(event);
+				mixer.setPlaying(false);
 			});
 			mixer.addEventListener(Mixer.REWIND, function(event:Event) {
 				mixer.playbackPosition = 0;
