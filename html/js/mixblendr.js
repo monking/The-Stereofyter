@@ -10,7 +10,7 @@ window.alert = function(msg) {
 }
 var mbinterface = {
 	applet:null,
-  containerId:"mbapp",
+	containerId:"mbapp",
 	listeners:[],
 	addEventListenerObject:function(listenerObject) {
 		this.listeners.push(listenerObject);
@@ -21,9 +21,7 @@ function dispatchMBEvent(type, data) {
 	if ("ready" == type) {
 		if (!data) data = {};
 		data.appletVarName = "mbinterface.applet";
-    var container = document.getElementById(mbinterface.containerId);
-    if (!container) return;
-    mbinterface.applet = container.getElementsByTagName("applet")[0]; 
+		setMBApplet();
 	}
 	for (var i = 0; i < mbinterface.listeners.length; i++) {
 		var listener = mbinterface.listeners[i];
@@ -32,7 +30,14 @@ function dispatchMBEvent(type, data) {
 	}
 }
 
+function setMBApplet() {
+	var container = document.getElementById(mbinterface.containerId);
+	if (!container) return;
+	mbinterface.applet = container.getElementsByTagName("applet")[0]; 
+}
+
 function checkMixblendr() {
+	setMBApplet();
 	if (mbinterface.applet) dispatchMBEvent("ready");
 }
 
