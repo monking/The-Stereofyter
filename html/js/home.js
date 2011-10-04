@@ -1,4 +1,4 @@
-function loadMixblendr() {
+﻿function loadMixblendr() {
 	embedMixblendr( {
 		containerId: "mbapp",
 		id: "mixblendr",

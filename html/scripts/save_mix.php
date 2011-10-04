@@ -1,8 +1,9 @@
 ﻿<?php
 
+header('Content-type: application/json; charset=utf-8');
+
 $includes = array('db', 'db_sf');
 require_once('../inc/includes.php');
-header('Content-type: application/json; charset=utf-8');
 
 if (!isset($_POST['data'])) die('{"error":"no data to save"}');
 $mix_data['data'] = $_POST['data'];
