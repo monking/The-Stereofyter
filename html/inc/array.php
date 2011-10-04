@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /** array_conform
   *	$input (array) : array to conform to default

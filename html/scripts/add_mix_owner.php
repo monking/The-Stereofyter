@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 $includes = array('db', 'db_sf');
 require_once('../inc/includes.php');
