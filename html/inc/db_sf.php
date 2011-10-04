@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_from_inc_dir('array');
 
