@@ -2,11 +2,11 @@
 	
 	import com.adobe.serialization.json.JSON;
 	import com.adobe.utils.ArrayUtil;
+	import com.chrislovejoy.WebAppController;
 	import com.chrislovejoy.display.FrameSkipper;
 	import com.chrislovejoy.gui.DragAndDrop;
 	import com.chrislovejoy.motion.Move;
 	import com.chrislovejoy.util.Debug;
-	import com.chrislovejoy.WebAppController;
 	
 	import fl.transitions.TweenEvent;
 	
@@ -18,6 +18,7 @@
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
+	import flash.external.ExternalInterface;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.net.URLLoader;
@@ -79,7 +80,8 @@
 			recordThrowMove:Move,
 			newTrackDelay:Timer,
 			saveLoader:URLLoader,
-			loadLoader:URLLoader;
+			loadLoader:URLLoader,
+			mixData:Object = {};
 		
 		public function Mixer(width:Number = 500, height:Number = 240, trackCount:Number = 8):void {
 			saveLoader = new URLLoader();
@@ -225,13 +227,22 @@
 			}
 			
 			var saveReq:URLRequest = new URLRequest(WebAppController.flashVars.saveUrl);
-			saveReq.data = "mix="+encodeURIComponent(JSON.encode(encodedMix));
+			saveReq.data = "data="+encodeURIComponent(JSON.encode(encodedMix));
+			if (mixData.hasOwnProperty("id"))
+				saveReq.data += "&id="+mixData.id;
 			saveReq.method = URLRequestMethod.POST;
 			saveLoader.load(saveReq);
 		}
 		
-		public function loadMix(mixData:JSON):void {
-			Debug.deepLog(mixData);
+		public function loadMix(id:int):void {
+			Debug.log(id, "load mix id");
+			var loadReq:URLRequest = new URLRequest(WebAppController.flashVars.loadUrl);
+			loadReq.data = "id="+id;
+			loadLoader.load(loadReq);
+		}
+		
+		public function parseMix():void {
+			Debug.deepLog(mixData.data, "parse mix data");
 		}
 		
 		override public function get width():Number {
@@ -737,6 +748,10 @@ import flash.events.Event;
 			addEventListener(SAMPLE_LIST_LOADED, onSampleListLoad);
 			saveLoader.addEventListener(Event.COMPLETE, saveCompleteListener);
 			loadLoader.addEventListener(Event.COMPLETE, loadCompleteListener);
+			ui.buttonLoadMix.addEventListener(MouseEvent.CLICK, function(event:MouseEvent) {
+				var id = ExternalInterface.call('prompt', 'Enter the ID of a mix to load', mixData.hasOwnProperty('id')? mixData.id: '');
+				loadMix(id);
+			});
 			
 			/* Playback */
 			ui.buttonPlay.addEventListener(MouseEvent.CLICK, function(event:MouseEvent) {
@@ -866,11 +881,16 @@ import flash.events.Event;
 		}
 		
 		private function saveCompleteListener(event:Event):void {
-			Debug.log(saveLoader.data);
+			Debug.log(saveLoader.data, "saveCompleteListener");
 		}
 		
 		private function loadCompleteListener(event:Event):void {
-			Debug.log(loadLoader.data);
+			Debug.log(loadLoader.data, "loadCompleteListener");
+			var data:Object = JSON.decode(loadLoader.data);
+			if (data) {
+				mixData = data;
+				parseMix();
+			}
 		}
 		
 	}

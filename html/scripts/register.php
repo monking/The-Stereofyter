@@ -36,8 +36,8 @@ if (isset($_REQUEST['musician'])) $query['musician'] = $_REQUEST['musician'];
 if ($method == 'UPDATE')
 	$query['WHERE'] = array('email' => $email);
 else
-	$query['created'] = array('function' => 'NOW');
-if (!assoc_to_mysql(array($query), $method, 'sf_users')) die('{"error":"retry"}');
+	$query['created'] = array('function' => 'NOW()');
+if (!assoc_to_mysql(array($query), $method, 'sf_users')) die('{"error":"retry","note":"'.mysql_real_escape_string(mysql_error()).'"}');
 $message = 'You\'ve subscribed to The Stereofyter newsletter. Thanks for your interest in The Stereofyter - we\'ll let you know as updates are available.'."\n\n";
 $message .= 'If you no longer wish to receive this newsletter, you can unsubscribe by pasting this link into your browser:'."\n";
 $message .= 'http://'.$_SERVER['SERVER_NAME'].'/unsubscribe.php?email='.$email."\n\n";

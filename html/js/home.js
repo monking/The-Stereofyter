@@ -21,6 +21,7 @@ var flashvars = {
 	sampleListUrl:"scripts/samples.json.php",
 	countryListUrl:"js/country_codes.json",
 	saveUrl:"scripts/save_mix.php",
+	loadUrl:"scripts/load_mix.php",
 	registerUrl:"scripts/register.php",
 	demoMixUrl:"audio/mixes/demo_mix_01.mp3"
 };
