@@ -821,6 +821,7 @@
 				var id = ExternalInterface.call('prompt', 'Enter the ID of a mix to load', mixData.hasOwnProperty('id')? mixData.id: '');
 				loadMix(id);
 			});
+			ui.buttonLoadMix.buttonMode = true;
 			
 			/* Playback */
 			ui.buttonPlay.addEventListener(MouseEvent.CLICK, function(event:MouseEvent) {

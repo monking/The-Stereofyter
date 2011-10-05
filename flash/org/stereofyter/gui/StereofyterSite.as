@@ -75,7 +75,7 @@ package org.stereofyter.gui {
 			logo.x = 50;
 			logo.y = 20;
 			previewButtons.x = stage.stageWidth / 2 + 350;
-			previewButtons.y = 20;
+			previewButtons.y = 40;
 			info.x = stage.stageWidth / 2 - info.width / 2;
 			newsletterSignup.x = stage.stageWidth / 2 - newsletterSignup.width / 2;
 			alertBubble.x = stage.stageWidth / 2 - alertBubble.width / 2;
