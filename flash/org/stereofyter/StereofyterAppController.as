@@ -73,6 +73,9 @@ package org.stereofyter {
 				site.toggleNewsletterSignup();
 				site.hideSiteInfoPane();
 			});
+			site.addEventListener(StereofyterSite.SAVE_MIX, function() {
+				mixer.saveMix();
+			});
 		}
 
 		private function addMixer():void {

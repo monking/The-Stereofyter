@@ -17,7 +17,8 @@ package org.stereofyter.gui {
 		
 		public static const
 			SHOW_NEWSLETTER:String = "show_newsletter",
-			SHOW_ABOUT:String = "show_about";
+			SHOW_ABOUT:String = "show_about",
+			SAVE_MIX:String = "save_mix";
 
 		public var
 			foreground:Sprite,
@@ -74,7 +75,7 @@ package org.stereofyter.gui {
 			logo.x = 50;
 			logo.y = 20;
 			previewButtons.x = stage.stageWidth / 2 + 350;
-			previewButtons.y = 90;
+			previewButtons.y = 20;
 			info.x = stage.stageWidth / 2 - info.width / 2;
 			newsletterSignup.x = stage.stageWidth / 2 - newsletterSignup.width / 2;
 			alertBubble.x = stage.stageWidth / 2 - alertBubble.width / 2;
@@ -138,7 +139,12 @@ package org.stereofyter.gui {
 						dispatchEvent(new Event(StereofyterSite.SHOW_NEWSLETTER, true));
 					}
 				},
-				"Save":null,
+				"Save":{
+					"label":"SAVE",
+					"action":function(event:MouseEvent) {
+						dispatchEvent(new Event(StereofyterSite.SAVE_MIX, true));
+					}
+				},
 				"Login":null,
 				"Demo":{
 					"label":"DEMO",
@@ -158,7 +164,7 @@ package org.stereofyter.gui {
 			for (var name:String in buttonData) {
 				var button:MovieClip = previewButtons["button"+name];
 				if (!buttonData[name]) {
-					button.visible = false;
+					previewButtons.removeChild(button);
 					continue;
 				}
 				button.tooltip.label.text = buttonData[name].label;
@@ -180,6 +186,12 @@ package org.stereofyter.gui {
 					event.currentTarget.parent.tooltip.visible = false;
 				});
 			}
+			// move buttonDemo to bottom
+			var demo = previewButtons.buttonDemo;
+			previewButtons.removeChild(demo);
+			demo.y = previewButtons.height + 20;
+			previewButtons.addChild(demo);
+			
 			demoMix.addEventListener(Event.SOUND_COMPLETE, function(event:Event) {
 				previewButtons.buttonDemo.button.gotoAndStop("paused");
 			});

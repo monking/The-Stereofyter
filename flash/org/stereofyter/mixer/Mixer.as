@@ -2,10 +2,11 @@
 	
 	import com.adobe.serialization.json.JSON;
 	import com.adobe.utils.ArrayUtil;
+	import com.chrislovejoy.WebAppController;
 	import com.chrislovejoy.display.FrameSkipper;
 	import com.chrislovejoy.gui.DragAndDrop;
-	import com.chrislovejoy.util.Debug;
 	import com.chrislovejoy.motion.Move;
+	import com.chrislovejoy.util.Debug;
 	
 	import fl.transitions.TweenEvent;
 	
@@ -17,10 +18,13 @@
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
+	import flash.external.ExternalInterface;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
+	import flash.net.URLRequestMethod;
+	import flash.sampler.Sample;
 	import flash.ui.Keyboard;
 	import flash.utils.Timer;
 	
@@ -37,12 +41,20 @@
 			STOP:String = "mixer_stop",
 			REWIND:String = "mixer_rewind",
 			SAMPLE_LIST_LOADED:String = "mixer_sample_list_loaded",
+			PARSE_BEGIN:String = "mixer_parse_begin",
+			PARSE_END:String = "mixer_parse_end",
 			MAX_BEATS:int = 240,
 			MAX_TRACKS:int = 8;
 		
 		private static const
 			TRACKFIELD_X:Number = 9,
-			TRACKFIELD_Y:Number = 10;
+			TRACKFIELD_Y:Number = 10,
+			ENCODED_KEY_SAMPLE:String = "S",
+			ENCODED_KEY_BEAT:String = "b",
+			ENCODED_KEY_VOLUME:String = "v",
+			ENCODED_KEY_MUTE:String = "m",
+			ENCODED_KEY_SOLO:String = "s",
+			PARSE_REGION_INTERVAL:int = 0;
 		
 		private var
 			seekbarBounds:Rectangle,
@@ -51,6 +63,7 @@
 			bins:Array = [],
 			gridlines:Array = [],
 			samples:Array = [],
+			sampleData:Array = [],
 			sampleRoot:String,
 			snapGrid:Point,
 			trackField:Sprite,
@@ -70,13 +83,20 @@
 			LiftedRegionData:Object,
 			PlacedRegionData:Object,
 			RemovedRegionData:Object,
-			tempo:Number = 90,
+			Tempo:Number = 90,
 			beatsPerRegion:int = 8,
 			trackFieldPushed:Boolean = false,
 			recordThrowMove:Move,
-			newTrackDelay:Timer;
+			newTrackDelay:Timer,
+			saveLoader:URLLoader,
+			loadLoader:URLLoader,
+			mixData:Object = {},
+			Volume:Number = 1;
 		
 		public function Mixer(width:Number = 500, height:Number = 240, trackCount:Number = 8):void {
+			saveLoader = new URLLoader();
+			loadLoader = new URLLoader();
+			
 			Width = width;
 			Height = height;
 			ui = new MixerUI();
@@ -94,17 +114,12 @@
 			newTrackDelay = new Timer(1000, 1);
 			drawTrackField();
 			drawPlayhead();
+			
 			attachBehaviors();
+			
 			for (var i:Number = 0; i < trackCount; i++) {
 				addTrack();
 			}
-			addEventListener(Event.ADDED_TO_STAGE, function(event) {
-				root.addEventListener(Event.RESIZE, function(event:Event) {
-					resize();
-				});
-				resize();
-			});
-			updatePlayhead();
 		}
 		
 		public function addRegion(sample:Sample):Region {
@@ -178,13 +193,201 @@
 		}
 		
 		public function addSample(sample:Sample) {
+			samples.push(sample);
 			for (var i:int = 0; i < bins.length; i++) {
 				if (bins[i].addSample(sample)) break;
 			}
 		}
-		
+
 		public function introDJ():void {
 			bottom.gotoAndPlay("introDJ");
+		}
+
+		public function saveMix():void {
+			//volume range is converted from 0-1 to 0-100
+			var encodedMix:Object = {
+				properties:{
+					name:mixData.name,
+					tempo:Tempo,
+					key:mixData.key,
+					volume:Math.round(Volume * 100)
+				},
+				samples:[],
+				tracks:[]
+			};
+			for (var trackIndex:int = 0; trackIndex < tracks.length; trackIndex++) {
+				var track:Track = tracks[trackIndex];
+				if (!track.numRegions) continue;
+				var encodedTrack:Array = [];
+				for (var beat:String in track.beats) {
+					var region:Region = track.beats[beat];
+					if (!region) continue;
+					var encodedSampleIndex:int = -1;
+					for (var i:int = 0; i < encodedMix.samples.length; i++) {
+						//get index if sample is already recorded
+						if (encodedMix.samples[i] == region.sample.src) encodedSampleIndex = i;
+					}
+					if (encodedSampleIndex == -1) {
+						//record sample
+						encodedMix.samples.push(region.sample.src);
+						encodedSampleIndex = encodedMix.samples.length - 1;
+					}
+					var encodedRegion:Object = {};
+					encodedRegion[ENCODED_KEY_SAMPLE] = encodedSampleIndex;
+					encodedRegion[ENCODED_KEY_BEAT] = new int(beat);
+					encodedRegion[ENCODED_KEY_VOLUME] = new int(region.volume * 100);
+					encodedRegion[ENCODED_KEY_MUTE] = region.isMuted? 1: 0;
+					encodedRegion[ENCODED_KEY_SOLO] = region.solo == Region.SOLO_THIS? 1: 0;
+					encodedTrack.push(encodedRegion);
+				}
+				encodedMix.tracks[trackIndex] = encodedTrack;
+			}
+			
+			var saveReq:URLRequest = new URLRequest(WebAppController.flashVars.saveUrl);
+			saveReq.data = "data="+encodeURIComponent(JSON.encode(encodedMix));
+			if (mixData.hasOwnProperty("id"))
+				saveReq.data += "&id="+mixData.id;
+			saveReq.method = URLRequestMethod.POST;
+			saveLoader.load(saveReq);
+		}
+		
+		public function loadMix(id:int):void {
+			var loadReq:URLRequest = new URLRequest(WebAppController.flashVars.loadUrl);
+			loadReq.data = "id="+id;
+			loadLoader.load(loadReq);
+		}
+		
+		public function togglePause():Boolean {
+			isPlaying?
+				dispatchEvent(new Event(Mixer.STOP)):
+				dispatchEvent(new Event(Mixer.PLAY));
+			return isPlaying;
+		}
+		
+		public function scrollTrackField(position:Point):void {
+			position = new Point(Math.round(position.x), Math.round(position.y));
+			if (position.x < 0) {
+				position.x = 0;
+			} else if (position.y < 0) {
+				position.y = 0;
+			} else if (position.x + trackField.mask.width > trackWidth) {
+				position.x = trackWidth - trackField.mask.width;
+			} else if (position.y + trackField.mask.height > trackHeight * tracks.length) {
+				position.x = trackHeight * tracks.length - trackField.mask.height;
+			}
+			/* for now, no vertical scrolling */ position.y = 0;
+			trackField.x = TRACKFIELD_X - position.x;
+			trackField.y = TRACKFIELD_Y - position.y;
+			trackField.mask.x = position.x;
+			trackField.mask.y = position.y;
+		}
+		
+		public function pushTrackField(delta:Point):void {
+			//ignoring y coordinate
+			playbackPosition = (trackField.mask.x + delta.x) * MAX_BEATS / (BEAT_WIDTH * MAX_BEATS - Width);
+			trackFieldPushed = true;
+		}
+		
+		public function zoomTrackField(factor:Number):void {
+			trackField.scaleX = factor;
+			//snapGrid = new Point(BEAT_WIDTH * factor, trackHeight * factor);
+		}
+		
+		public function getTrack(index:int):Track {
+			return tracks[index] as Track;
+		}
+		
+		public function updatePlayhead():void {
+			ui.seekbar.handle.x = PlaybackPosition / MAX_BEATS * seekbarBounds.width + seekbarBounds.x;
+			ui.seekbar.fill.width = Math.max(0, ui.seekbar.handle.x - ui.seekbar.fill.x);
+			playhead.x = ui.seekbar.x + ui.seekbar.handle.x;
+			playhead.y = 5;
+			scrollTrackField(new Point(PlaybackPosition * BEAT_WIDTH - Width * PlaybackPosition / MAX_BEATS));
+		}
+		
+		public function removeBin(bin:Bin):void {
+			for (var i:Number = bins.length - 1; i >= 0; i--) {
+				if (bins[i] === bin) {
+					bins.splice(i, 1);
+					break;
+				}
+			}
+			removeChild(bin);
+			bin.removeEventListener(Bin.PULL, grabBin);
+		}
+		
+		public function setPreviewPlaying(playing:Boolean, url:String):void {
+			for (var i:int = 0; i < bins.length; i++) {
+				bins[i].setPreviewPlaying(playing, url);
+			}
+		}
+		
+		public function setPlaying(newPlaying:Boolean):void {
+			if (newPlaying == playing) return;
+			playing = newPlaying;
+			if (playing) {
+				ui.buttonPlay.gotoAndStop("playing");
+				dj.gotoAndPlay("playing");
+			} else {
+				ui.buttonPlay.gotoAndStop("paused");
+				dj.gotoAndStop("paused");
+			}
+		}
+		
+		public function loadSampleList(url:String):void {
+			var loader:URLLoader = new URLLoader();
+			loader.addEventListener(Event.COMPLETE, function(event:Event) {
+				try {
+					var json:Object = JSON.decode(loader.data);
+					sampleRoot = json.sampleRoot;
+					sampleData = ArrayUtil.createUniqueCopy(sampleData.concat(json.samples));
+					dispatchEvent(new Event(SAMPLE_LIST_LOADED, true));
+				} catch (error:Error) {
+					Debug.log(error, "loading sample list failed ('"+url+"')");
+				}
+			});
+			loader.load(new URLRequest(url));
+		}
+		
+		public function showTooltip(message:String) {
+			tooltip.visible = true;
+			tooltip.label.text = message;
+			tooltip.background.width = tooltip.label.textWidth + 12;
+			stage.addEventListener(MouseEvent.MOUSE_MOVE, placeTooltip);
+			placeTooltip();
+		}
+		
+		public function addTooltip(object:DisplayObject, message:String):void {
+			object.addEventListener(MouseEvent.MOUSE_OVER, function() { showTooltip(message); });
+			object.addEventListener(MouseEvent.MOUSE_OUT, hideTooltip);
+		}
+		
+		public function hideTooltip(event:Event = null) {
+			tooltip.visible = false;
+			stage.removeEventListener(MouseEvent.MOUSE_MOVE, placeTooltip);
+		}
+		
+		public function get isPlaying():Boolean {
+			return playing;
+		}
+		
+		public function get playbackPosition():Number {
+			return PlaybackPosition;
+		}
+		
+		public function get liftedRegionData():Object {
+			return LiftedRegionData;
+		}
+		
+		public function get removedRegionData():Object {
+			return RemovedRegionData;
+		}
+		
+		public function set playbackPosition(beat:Number):void {
+			if (beat < 0) beat = 0;
+			if (beat > MAX_BEATS) beat = MAX_BEATS;
+			PlaybackPosition = beat;
+			updatePlayhead();
 		}
 		
 		override public function get width():Number {
@@ -198,6 +401,46 @@
 		}
 		
 		override public function set height(newHeight:Number):void {}
+		
+		private function parseMix():void {
+			dispatchEvent(new Event(Mixer.PARSE_BEGIN, true));
+			//make successive actions asynchonous, to avoid unresponsiveness
+			var parseTrackPointer:int = 0;
+			var parseRegionPointer:int = 0;
+			var indexedSamples:Array = [];
+			for (var i:int = 0; i < mixData.data.samples.length; i++) {
+				for each (var sample:Sample in samples) {
+					if (sample.src == mixData.data.samples[i])
+						indexedSamples[i] = sample;
+				}
+			}
+			var soloRegion:Region = null;
+			var parseTimer:Timer = new Timer(PARSE_REGION_INTERVAL, 1);
+			parseTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function(event:TimerEvent) {
+				if (mixData.data.tracks[parseTrackPointer] && !mixData.data.tracks[parseTrackPointer][parseRegionPointer]) {
+					parseRegionPointer = 0;
+					parseTrackPointer++;
+				}
+				if (parseTrackPointer >= mixData.data.tracks.length) {
+					parseTrackPointer--;
+					//TODO: set the defined soloRegion to solo
+					//if (soloRegion) soloRegion.setSolo(Region.SOLO_THIS);
+					dispatchEvent(new Event(Mixer.PARSE_END, true));
+					return;
+				}
+				var regionData = mixData.data.tracks[parseTrackPointer][parseRegionPointer];
+				var region = addRegion(indexedSamples[regionData[ENCODED_KEY_SAMPLE]]);
+				tracks[parseTrackPointer].addRegion(region, regionData[ENCODED_KEY_BEAT]);
+				region.status = Region.STATUS_LIVE;
+				region.dispatchEvent(new Event(Mixer.REGION_ADDED, true));
+				region.setVolume(regionData[ENCODED_KEY_VOLUME] / 100);
+				region.setMuted(!!regionData[ENCODED_KEY_MUTE]);
+				if (regionData[ENCODED_KEY_SOLO]) soloRegion = region;
+				parseRegionPointer++
+				parseTimer.start();
+			});
+			parseTimer.start();
+		}
 		
 		private function onLiftRegion(event:Event):void {
 			var region:Region = event.target as Region;
@@ -295,7 +538,6 @@
 					debug += " (from index " + debugOldRegionIndex + " to " + region.regionIndex + ")";
 				}
 			}
-import flash.events.Event;
 			
 			if (trackFieldPushed) {
 				dispatchEvent(new Event(Mixer.SEEK_FINISH));
@@ -429,42 +671,6 @@ import flash.events.Event;
 			} );
 		}
 		
-		public function togglePause():Boolean {
-			isPlaying?
-				dispatchEvent(new Event(Mixer.STOP)):
-				dispatchEvent(new Event(Mixer.PLAY));
-			return isPlaying;
-		}
-		
-		public function scrollTrackField(position:Point):void {
-			position = new Point(Math.round(position.x), Math.round(position.y));
-			if (position.x < 0) {
-				position.x = 0;
-			} else if (position.y < 0) {
-				position.y = 0;
-			} else if (position.x + trackField.mask.width > trackWidth) {
-				position.x = trackWidth - trackField.mask.width;
-			} else if (position.y + trackField.mask.height > trackHeight * tracks.length) {
-				position.x = trackHeight * tracks.length - trackField.mask.height;
-			}
-			/* for now, no vertical scrolling */ position.y = 0;
-			trackField.x = TRACKFIELD_X - position.x;
-			trackField.y = TRACKFIELD_Y - position.y;
-			trackField.mask.x = position.x;
-			trackField.mask.y = position.y;
-		}
-		
-		public function pushTrackField(delta:Point):void {
-			//ignoring y coordinate
-			playbackPosition = (trackField.mask.x + delta.x) * MAX_BEATS / (BEAT_WIDTH * MAX_BEATS - Width);
-			trackFieldPushed = true;
-		}
-		
-		public function zoomTrackField(factor:Number):void {
-			trackField.scaleX = factor;
-			//snapGrid = new Point(BEAT_WIDTH * factor, trackHeight * factor);
-		}
-		
 		private function resizeTrackField(width:Number, height:Number):void {
 			trackFieldMask.graphics.clear();
 			trackFieldMask.graphics.beginFill(0x000000, 1);
@@ -496,10 +702,6 @@ import flash.events.Event;
 			tracks.splice(index, 1);
 		}
 		
-		public function getTrack(index:int):Track {
-			return tracks[index] as Track;
-		}
-		
 		private function drawPlayhead():void {
 			playhead = ui.playhead;
 			playhead.mouseEnabled = false;
@@ -511,14 +713,6 @@ import flash.events.Event;
 			*/
 			ui.addChild(playhead);
 			ui.addChild(ui.seekbar);
-		}
-		
-		public function updatePlayhead():void {
-			ui.seekbar.handle.x = PlaybackPosition / MAX_BEATS * seekbarBounds.width + seekbarBounds.x;
-			ui.seekbar.fill.width = Math.max(0, ui.seekbar.handle.x - ui.seekbar.fill.x);
-			playhead.x = ui.seekbar.x + ui.seekbar.handle.x;
-			playhead.y = 5;
-			scrollTrackField(new Point(PlaybackPosition * BEAT_WIDTH - Width * PlaybackPosition / MAX_BEATS));
 		}
 		
 		private function addBin(bin:Bin):void {
@@ -598,73 +792,6 @@ import flash.events.Event;
 			hand.holder.numChildren && hand.holder.removeChildAt(0); //remove record
 		}
 		
-		public function removeBin(bin:Bin):void {
-			for (var i:Number = bins.length - 1; i >= 0; i--) {
-				if (bins[i] === bin) {
-					bins.splice(i, 1);
-					break;
-				}
-			}
-			removeChild(bin);
-			bin.removeEventListener(Bin.PULL, grabBin);
-		}
-		
-		public function setPreviewPlaying(playing:Boolean, url:String):void {
-			for (var i:int = 0; i < bins.length; i++) {
-				bins[i].setPreviewPlaying(playing, url);
-			}
-		}
-		
-		public function setPlaying(newPlaying:Boolean):void {
-			if (newPlaying == playing) return;
-			playing = newPlaying;
-			if (playing) {
-				ui.buttonPlay.gotoAndStop("playing");
-				dj.gotoAndPlay("playing");
-			} else {
-				ui.buttonPlay.gotoAndStop("paused");
-				dj.gotoAndStop("paused");
-			}
-		}
-		
-		public function loadSampleList(url:String):void {
-			var loader:URLLoader = new URLLoader();
-			loader.addEventListener(Event.COMPLETE, function(event:Event) {
-				try {
-					var json:Object = JSON.decode(loader.data);
-					sampleRoot = json.sampleRoot;
-					samples = ArrayUtil.createUniqueCopy(samples.concat(json.samples));
-					dispatchEvent(new Event(SAMPLE_LIST_LOADED, true));
-				} catch (error:Error) {
-					Debug.log(error, "loading sample list failed ('"+url+"')");
-				}
-			});
-			loader.load(new URLRequest(url));
-		}
-		
-		public function get isPlaying():Boolean {
-			return playing;
-		}
-		
-		public function get playbackPosition():Number {
-			return PlaybackPosition;
-		}
-		
-		public function get liftedRegionData():Object {
-			return LiftedRegionData;
-		}
-		
-		public function get removedRegionData():Object {
-			return RemovedRegionData;
-		}
-		
-		public function set playbackPosition(beat:Number):void {
-			if (beat < 0) beat = 0;
-			if (beat > MAX_BEATS) beat = MAX_BEATS;
-			PlaybackPosition = beat;
-			updatePlayhead();
-		}
-		
 		private function grabBin(event:Event):void {
 			var region = addRegion(event.target.selectedSample);
 			region.grab();
@@ -679,8 +806,21 @@ import flash.events.Event;
 		}
 		
 		private function attachBehaviors():void {
+			/* Resize */
+			addEventListener(Event.ADDED_TO_STAGE, function(event) {
+				root.addEventListener(Event.RESIZE, function(event:Event) {
+					resize();
+				});
+				resize();
+			});
 			/* Data Events */
 			addEventListener(SAMPLE_LIST_LOADED, onSampleListLoad);
+			saveLoader.addEventListener(Event.COMPLETE, saveCompleteListener);
+			loadLoader.addEventListener(Event.COMPLETE, loadCompleteListener);
+			ui.buttonLoadMix.addEventListener(MouseEvent.CLICK, function(event:MouseEvent) {
+				var id = ExternalInterface.call('prompt', 'Enter the ID of a mix to load', mixData.hasOwnProperty('id')? mixData.id: '');
+				loadMix(id);
+			});
 			
 			/* Playback */
 			ui.buttonPlay.addEventListener(MouseEvent.CLICK, function(event:MouseEvent) {
@@ -715,41 +855,23 @@ import flash.events.Event;
 			newTrackDelay.addEventListener(TimerEvent.TIMER, finishAddTrackDelay);
 		}
 		
-		public function showTooltip(message:String) {
-			tooltip.visible = true;
-			tooltip.label.text = message;
-			tooltip.background.width = tooltip.label.textWidth + 12;
-			stage.addEventListener(MouseEvent.MOUSE_MOVE, placeTooltip);
-			placeTooltip();
-		}
-		
-		public function hideTooltip(event:Event = null) {
-			tooltip.visible = false;
-			stage.removeEventListener(MouseEvent.MOUSE_MOVE, placeTooltip);
-		}
-		
 		private function placeTooltip(event:Event = null) {
 			tooltip.x = mouseX - 4;
 			tooltip.y = mouseY;
-		}
-		
-		public function addTooltip(object:DisplayObject, message:String):void {
-			object.addEventListener(MouseEvent.MOUSE_OVER, function() { showTooltip(message); });
-			object.addEventListener(MouseEvent.MOUSE_OUT, hideTooltip);
 		}
 		
 		private function onSampleListLoad(event:Event):void {
 			/*for preview, just put all samples in the bin*/
 			bins[0].clearSamples();
 			bins[1].clearSamples();
-			for (var i:int = 0; i < samples.length; i++) {
+			for (var i:int = 0; i < sampleData.length; i++) {
 				addSample(new Sample({
-					src:sampleRoot+samples[i].src,
-					name:samples[i].name,
-					family:samples[i].family,
-					country:samples[i].country,
-					tempo:samples[i].tempo,
-					key:samples[i].key
+					src:sampleRoot+sampleData[i].src,
+					name:sampleData[i].name,
+					family:sampleData[i].family,
+					country:sampleData[i].country,
+					tempo:sampleData[i].tempo,
+					key:sampleData[i].key
 				}));
 			}
 		}
@@ -807,6 +929,18 @@ import flash.events.Event;
 			bins[0].y = 20;
 			bins[1].x = 160;
 			bins[1].y = bins[0].y;
+		}
+		
+		private function saveCompleteListener(event:Event):void {
+			Debug.log(saveLoader.data, "saveCompleteListener");
+		}
+		
+		private function loadCompleteListener(event:Event):void {
+			var data:Object = JSON.decode(loadLoader.data);
+			if (data) {
+				mixData = data;
+				parseMix();
+			}
 		}
 		
 	}

@@ -49,7 +49,6 @@ package org.stereofyter.mixblendr {
 
     protected function dispatchMBEvent(type, data):void {
       this.data = data;
-	  Debug.log(type, "dispatchMBEvent (Flash)");
       dispatchEvent(new Event(type));
     }
 

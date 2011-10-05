@@ -91,7 +91,7 @@ package org.stereofyter.gui {
 					case "no email": message = "Please enter your email address"; break;
 					case "email exists": message = "This email address has already been registered."; break;
 					case "invalid email": message = "Please check that your email address is entered correctly."; break;
-					case "retry": message = "There was a problem processing your request. Please try again in a moment."; break;
+					case "retry": message = "There was a problem processing your request. Please try again in a moment."; Debug.log(response.note); break;
 					default: message = response.error; break;
 				}
 			} else if (response.status && response.status == "ok") {

@@ -23,7 +23,7 @@ package org.stereofyter.mixer {
 			Mute:Boolean = false,
 			Solo:String = "",
 			regions:Array = [],
-			beats:Array = [],
+			Beats:Array = [],
 			BeatWidth:Number,
 			Width:Number,
 			Height:Number,
@@ -45,12 +45,12 @@ package org.stereofyter.mixer {
 			if (beatIndex == -1) {
 				beatIndex = getRegionBeat(region);
 			}
-			if (beats[beatIndex] && beats[beatIndex] !== region) throw new Error("Cannot add region: position is occupied");
+			if (Beats[beatIndex] && Beats[beatIndex] !== region) throw new Error("Cannot add region: position is occupied");
 			region.trackIndex = this.index;
 			addChild(region);
 			region.x = BeatWidth * beatIndex;
 			region.y = 0;
-			beats[beatIndex] = region;
+			Beats[beatIndex] = region;
 			regions.push(region);
 			updateRegionIndices();
 		}
@@ -65,12 +65,12 @@ package org.stereofyter.mixer {
 				}
 			}
 			if (!regionRemoved) return;
-			beats[getRegionBeat(region)] = undefined;
+			Beats[getRegionBeat(region)] = undefined;
 			updateRegionIndices();
 		}
 
 		public function getRegionAtBeat(index:int):Region {
-			return beats[index];
+			return Beats[index];
 		}
 
 		public function getRegionAtIndex(index:int):Region {
@@ -81,8 +81,8 @@ package org.stereofyter.mixer {
 		}
 
 		public function getRegionBeat(region:Region):int {
-			for (var i:int = 0; i < beats.length; i++) {
-				if (beats[i] === region) {
+			for (var i:int = 0; i < Beats.length; i++) {
+				if (Beats[i] === region) {
 					return i;
 				}
 			}
@@ -99,6 +99,10 @@ package org.stereofyter.mixer {
 
 		public function get maxBeats():int {
 			return MaxBeats;
+		}
+		
+		public function get numRegions():int {
+			return regions.length;
 		}
 
 		public function get solo():String {
@@ -121,6 +125,10 @@ package org.stereofyter.mixer {
 		public function set mute(mute:Boolean):void {
 			Mute = mute;
 			alpha = mute? 0.5: 1;
+		}
+		
+		public function get beats():Array {
+			return Beats;
 		}
 
 		override public function get width():Number {
@@ -150,10 +158,10 @@ package org.stereofyter.mixer {
 
 		private function updateRegionIndices():void {
 			var index:int = -1;
-			for (var i:uint = 0; i < beats.length; i++) {
-				if (beats[i]) {
+			for (var i:uint = 0; i < Beats.length; i++) {
+				if (Beats[i]) {
 					index++;
-					beats[i].regionIndex = index;
+					Beats[i].regionIndex = index;
 				}
 			}
 		}

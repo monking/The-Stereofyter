@@ -4,6 +4,10 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<title><? isset($page_title) || ( $page_title = 'The Stereofyter' ); print $page_title ?></title>
 <?php
+if(!isset($includes)) {
+	$includes = array();
+}
+array_unshift($includes, 'array');
 require_once('inc/includes.php');
 
 if(!isset($css)) {
