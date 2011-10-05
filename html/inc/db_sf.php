@@ -2,6 +2,9 @@
 
 require_from_inc_dir('array');
 
+// TODO: log in user, so that this value is already set
+$_SESSION['user_id'] = '16';
+
 /** filter_sf_mysql_assoc
   * filter function for array_conform
   * removes elements with the value -1 and escapes values for MySQL input
@@ -24,8 +27,6 @@ function save_mix($mix_data)
 	{
 	global $ERROR;
 	if (!isset($_SESSION)) session_start();
-	// TODO: log in user, so that this value is already set
-	$_SESSION['user_id'] = '22';
 
 	if (!isset($_SESSION['user_id']))
 		{
@@ -173,6 +174,7 @@ function get_mix_owners($mix_id)
   */
 function save_message($mix_data)
 	{
+	if (!isset($_SESSION)) session_start();
 	if (!assoc_to_mysql(
 		array(array_conform(
 			$mix_data,

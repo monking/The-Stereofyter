@@ -1,7 +1,7 @@
 package org.stereofyter.mixer {
 
 	//import flash.display.Graphics;
-	import com.chrislovejoy.util.Debug;
+	import com.chrislovejoy.utils.Debug;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.geom.Point;

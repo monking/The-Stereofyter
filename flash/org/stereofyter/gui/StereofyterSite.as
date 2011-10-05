@@ -2,7 +2,8 @@ package org.stereofyter.gui {
 
 	import com.chrislovejoy.WebAppController;
 	import com.chrislovejoy.audio.MP3Stream;
-	import com.chrislovejoy.util.Debug;
+	import com.chrislovejoy.gui.Block;
+	import com.chrislovejoy.utils.Debug;
 	
 	import flash.display.DisplayObject;
 	import flash.display.Graphics;
@@ -34,7 +35,8 @@ package org.stereofyter.gui {
 		
 		private var
 			previewButtons:SiteButtons,
-			alertBubble:TextBubble;
+			hoverBlock:Block,
+			loadingWheel:SFLoadingWheel;
 		
 		public function StereofyterSite():void {
 			background = new Sprite();
@@ -54,13 +56,17 @@ package org.stereofyter.gui {
 			addPreviewButtons();
 			logo = new StereofyterLogo();
 			background.addChild(logo);
-			alertBubble = new TextBubble({
+			loadingWheel = new SFLoadingWheel();
+			hoverBlock = new Block({
+				padding: 20,
+				borderRadius: 10,
 				textAlign: "center",
 				fontSize: 16,
 				fontFamily: "Helvetica_Medium",
-				padding: 20,
-				borderRadius: 10
+				backgroundColor: 0xEEEEEE,
+				close: "bottom right"
 			});
+			hoverBlock.addEventListener(Block.CLOSE, hideHover);
 			addEventListener(Event.ADDED_TO_STAGE, function(event) {
 				stage.addEventListener(Event.RESIZE, resize);
 				resize();
@@ -78,8 +84,8 @@ package org.stereofyter.gui {
 			previewButtons.y = 40;
 			info.x = stage.stageWidth / 2 - info.width / 2;
 			newsletterSignup.x = stage.stageWidth / 2 - newsletterSignup.width / 2;
-			alertBubble.x = stage.stageWidth / 2 - alertBubble.width / 2;
-			alertBubble.y = stage.stageHeight/ 2 - alertBubble.height / 2;
+			hoverBlock.x = stage.stageWidth / 2 - hoverBlock.width / 2;
+			hoverBlock.y = stage.stageHeight/ 2 - hoverBlock.height / 2;
 		}
 		
 		public function showSiteInfoPane():void {
@@ -110,17 +116,25 @@ package org.stereofyter.gui {
 			newsletterSignup.toggle();
 		}
 		
-		public function alert(message:String):void {
-			alertBubble.text = message;
-			addChild(alertBubble);
+		public function hover(content:*, options:Object = null):void {
+			hoverBlock.setOptions(options, false);
+			hoverBlock.setContent(content);
+			if (options && options.hasOwnProperty("progress")) {
+				loadingWheel.width = 30;
+				loadingWheel.height = 30;
+				loadingWheel.x = hoverBlock.innerWidth + 25;
+				loadingWheel.y = hoverBlock.innerHeight / 2;
+				hoverBlock.addContent(loadingWheel);
+			}
+			midground.addChild(hoverBlock);
 			if (stage) {
-				alertBubble.x = stage.stageWidth / 2 - alertBubble.width / 2;
-				alertBubble.y = stage.stageHeight/ 2 - alertBubble.height / 2;
+				hoverBlock.x = stage.stageWidth / 2 - hoverBlock.width / 2;
+				hoverBlock.y = stage.stageHeight/ 2 - hoverBlock.height / 2;
 			}
 		}
 		
-		public function hideAlert():void {
-			if (contains(alertBubble)) removeChild(alertBubble);
+		public function hideHover(event:Event = null):void {
+			if (midground.contains(hoverBlock)) midground.removeChild(hoverBlock);
 		}
 		
 		private function addPreviewButtons():void {

@@ -1,8 +1,8 @@
 package org.stereofyter {
 
 	import com.chrislovejoy.WebAppController;
-	import com.chrislovejoy.util.ContextMenuUtil;
-	import com.chrislovejoy.util.Debug;
+	import com.chrislovejoy.utils.ContextMenuUtil;
+	import com.chrislovejoy.utils.Debug;
 	
 	import flash.display.DisplayObject;
 	import flash.display.Graphics;
@@ -59,7 +59,7 @@ package org.stereofyter {
 					}
 				}
 			]);
-			site.alert("loading mixer engine...");
+			site.hover("loading mixer engine", {progress: true});
 			attachSiteListeners();
 			engine.check(); //if Java loaded first, this was already called when creating engine. Find a way to do this without redundancy
 		}
@@ -136,13 +136,33 @@ package org.stereofyter {
 			mixer.addEventListener(Bin.PREVIEW_TOGGLE, function(event:Event) {
 				engine.call("previewToggle", event.target.selectedSample.src);
 			});
+			mixer.addEventListener(Mixer.SAVE_BEGIN, function(event:Event) {
+				site.hover("saving", {progress: true, timeout: 0, close: "none"});
+			});
+			mixer.addEventListener(Mixer.SAVE_COMPLETE, function(event:Event) {
+				site.hover("save complete (mix #"+mixer.mixId+")", {timeout: 1000, close: "none"});
+			});
+			mixer.addEventListener(Mixer.SAVE_ERROR, function(event:Event) {
+				Debug.log("save error, about to reference mixer.error");
+				site.hover("save error: "+mixer.error, {timeout: 0, close: "top right"});
+			});
+			mixer.addEventListener(Mixer.LOAD_BEGIN, function(event:Event) {
+				site.hover("loading", {progress: true, timeout: 0, close: "none"});
+			});
+			mixer.addEventListener(Mixer.PARSE_COMPLETE, function(event:Event) {
+				site.hover("load complete", {timeout: 1000, close: "none"});
+			});
+			mixer.addEventListener(Mixer.LOAD_ERROR, function(event:Event) {
+				Debug.log("load error, about to reference mixer.error");
+				site.hover("load error: "+mixer.error, {timeout: 0, close: "top right"});
+			});
 			engine.addEventListener("playbackStart", function(event:Event) {
 				trace("playbackStart");
 				mixer.setPlaying(true);
 				updatePlayhead(event);
 			});
 			engine.addEventListener("ready", function(event:Event) {
-				site.hideAlert();
+				site.hideHover();
 				mixer.introDJ();
 			});
 			engine.addEventListener("playbackStop", function(event:Event) {

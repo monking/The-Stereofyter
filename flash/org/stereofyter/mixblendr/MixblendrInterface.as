@@ -2,7 +2,7 @@ package org.stereofyter.mixblendr {
   
   import flash.events.*;
   import flash.external.ExternalInterface;
-  import com.chrislovejoy.util.Debug;
+  import com.chrislovejoy.utils.Debug;
   
   public class MixblendrInterface extends EventDispatcher {
     

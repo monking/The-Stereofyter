@@ -2,7 +2,7 @@ package org.stereofyter.gui {
 	
 	import com.adobe.serialization.json.JSON;
 	import com.chrislovejoy.WebAppController;
-	import com.chrislovejoy.util.Debug;
+	import com.chrislovejoy.utils.Debug;
 	
 	import fl.controls.ComboBox;
 	import fl.data.DataProvider;

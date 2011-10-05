@@ -21,7 +21,7 @@ else
 		"SELECT id, modified, created FROM sf_mixes WHERE id='$saved'",
 		array('whitespace' => 'none', 'structure' => 'flat')
 		);
-	echo '{"mix":'.$mix.'}';
+	echo $mix;
 	}
 
 ?>

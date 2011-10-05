@@ -6,7 +6,7 @@
 	import com.chrislovejoy.display.FrameSkipper;
 	import com.chrislovejoy.gui.DragAndDrop;
 	import com.chrislovejoy.motion.Move;
-	import com.chrislovejoy.util.Debug;
+	import com.chrislovejoy.utils.Debug;
 	
 	import fl.transitions.TweenEvent;
 	
@@ -41,8 +41,16 @@
 			STOP:String = "mixer_stop",
 			REWIND:String = "mixer_rewind",
 			SAMPLE_LIST_LOADED:String = "mixer_sample_list_loaded",
+			SAVE_BEGIN:String = "mixer_save_begin",
+			SAVE_COMPLETE:String = "mixer_save_complete",
+			SAVE_ERROR:String = "mixer_save_error",
+			LOAD_BEGIN:String = "mixer_load_begin",
+			LOAD_COMPLETE:String = "mixer_load_complete",
+			LOAD_ERROR:String = "mixer_load_error",
 			PARSE_BEGIN:String = "mixer_parse_begin",
-			PARSE_END:String = "mixer_parse_end",
+			PARSE_COMPLETE:String = "mixer_parse_complete",
+			CLEAR_BEGIN:String = "mixer_clear_begin",
+			CLEAR_COMPLETE:String = "mixer_clear_complete",
 			MAX_BEATS:int = 240,
 			MAX_TRACKS:int = 8;
 		
@@ -57,41 +65,45 @@
 			PARSE_REGION_INTERVAL:int = 0;
 		
 		private var
-			seekbarBounds:Rectangle,
+			mixData:Object = {},
+			PlaybackPosition:Number = 0,
 			tracks:Array = [],
 			Regions:Array = [],
 			bins:Array = [],
-			gridlines:Array = [],
 			samples:Array = [],
 			sampleData:Array = [],
 			sampleRoot:String,
-			snapGrid:Point,
-			trackField:Sprite,
-			trackFieldMask:Sprite,
-			playhead:MovieClip,
-			PlaybackPosition:Number = 0,
-			playing:Boolean = false,
-			Width:Number,
-			Height:Number,
 			trackWidth:Number,
 			trackHeight:Number,
-			ui:MixerUI,
-			bottom:MixerBottom,
-			dj:MovieClip,
-			djSide:String,
-			tooltip:MixerTooltip,
+			playhead:MovieClip,
+			playing:Boolean = false,
 			LiftedRegionData:Object,
 			PlacedRegionData:Object,
 			RemovedRegionData:Object,
-			Tempo:Number = 90,
+			Tempo:Number = 120,
 			beatsPerRegion:int = 8,
 			trackFieldPushed:Boolean = false,
 			recordThrowMove:Move,
 			newTrackDelay:Timer,
 			saveLoader:URLLoader,
 			loadLoader:URLLoader,
-			mixData:Object = {},
-			Volume:Number = 1;
+			Volume:Number = 1,
+			_error:String = "",
+			Width:Number,
+			Height:Number,
+			gridlines:Array = [],
+			seekbarBounds:Rectangle,
+			snapGrid:Point,
+			trackField:Sprite,
+			trackFieldMask:Sprite,
+			ui:MixerUI,
+			tooltip:MixerTooltip,
+			bottom:MixerBottom,
+			dj:MovieClip,
+			djSide:String,
+			saving:Boolean = false,
+			loading:Boolean = false,
+			parsing:Boolean = false;
 		
 		public function Mixer(width:Number = 500, height:Number = 240, trackCount:Number = 8):void {
 			saveLoader = new URLLoader();
@@ -188,22 +200,30 @@
 			}
 		}
 		
-		public function get regions():Array {
-			return Regions;
-		}
-		
 		public function addSample(sample:Sample) {
 			samples.push(sample);
 			for (var i:int = 0; i < bins.length; i++) {
 				if (bins[i].addSample(sample)) break;
 			}
 		}
-
-		public function introDJ():void {
-			bottom.gotoAndPlay("introDJ");
+		
+		public function clearMix():void {
+			dispatchEvent(new Event(Mixer.CLEAR_BEGIN, true));
+			var clearTimer:Timer = new Timer(PARSE_REGION_INTERVAL, 1);
+			clearTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function(event:TimerEvent) {
+				if (!regions.length) {
+					dispatchEvent(new Event(Mixer.CLEAR_COMPLETE, true));
+					return;
+				}
+				regions[0].dispatchEvent(new Event(Region.DELETE, true));
+				clearTimer.start();
+			});
+			clearTimer.start();
 		}
 
 		public function saveMix():void {
+			saving = true;
+			dispatchEvent(new Event(Mixer.SAVE_BEGIN, true));
 			//volume range is converted from 0-1 to 0-100
 			var encodedMix:Object = {
 				properties:{
@@ -252,6 +272,8 @@
 		}
 		
 		public function loadMix(id:int):void {
+			loading = false;
+			dispatchEvent(new Event(Mixer.LOAD_BEGIN, true));
 			var loadReq:URLRequest = new URLRequest(WebAppController.flashVars.loadUrl);
 			loadReq.data = "id="+id;
 			loadLoader.load(loadReq);
@@ -367,6 +389,25 @@
 			stage.removeEventListener(MouseEvent.MOUSE_MOVE, placeTooltip);
 		}
 		
+		public function introDJ():void {
+			bottom.gotoAndPlay("introDJ");
+		}
+		
+		public function get mixId():String {
+			if (mixData && mixData.hasOwnProperty("id"))
+				return mixData.id
+			else
+				return "";
+		}
+		
+		public function get error():String {
+			return _error;
+		}
+		
+		public function get regions():Array {
+			return Regions;
+		}
+		
 		public function get isPlaying():Boolean {
 			return playing;
 		}
@@ -403,6 +444,7 @@
 		override public function set height(newHeight:Number):void {}
 		
 		private function parseMix():void {
+			parsing = true;
 			dispatchEvent(new Event(Mixer.PARSE_BEGIN, true));
 			//make successive actions asynchonous, to avoid unresponsiveness
 			var parseTrackPointer:int = 0;
@@ -425,7 +467,8 @@
 					parseTrackPointer--;
 					//TODO: set the defined soloRegion to solo
 					//if (soloRegion) soloRegion.setSolo(Region.SOLO_THIS);
-					dispatchEvent(new Event(Mixer.PARSE_END, true));
+					parsing = false;
+					dispatchEvent(new Event(Mixer.PARSE_COMPLETE, true));
 					return;
 				}
 				var regionData = mixData.data.tracks[parseTrackPointer][parseRegionPointer];
@@ -538,6 +581,7 @@
 					debug += " (from index " + debugOldRegionIndex + " to " + region.regionIndex + ")";
 				}
 			}
+import flash.events.Event;
 			
 			if (trackFieldPushed) {
 				dispatchEvent(new Event(Mixer.SEEK_FINISH));
@@ -933,15 +977,44 @@
 		}
 		
 		private function saveCompleteListener(event:Event):void {
-			Debug.log(saveLoader.data, "saveCompleteListener");
+			saving = false;
+			var data:Object = JSON.decode(saveLoader.data);
+			if (data) {
+				if (data.hasOwnProperty("error")) {
+					_error = data.error;
+					dispatchEvent(new Event(Mixer.SAVE_ERROR, true));
+					return;
+				}
+				if (!mixData) {
+					mixData = data;
+				} else {
+					for (var key:String in data) {
+						mixData[key] = data[key];
+					}
+				}
+			}
+			dispatchEvent(new Event(Mixer.SAVE_COMPLETE, true));
 		}
 		
 		private function loadCompleteListener(event:Event):void {
+			loading = false;
+			dispatchEvent(new Event(Mixer.LOAD_COMPLETE, true));
 			var data:Object = JSON.decode(loadLoader.data);
 			if (data) {
+				if (data.hasOwnProperty("error")) {
+					_error = data.error;
+					dispatchEvent(new Event(Mixer.LOAD_ERROR, true));
+					return;
+				}
 				mixData = data;
-				parseMix();
+				addEventListener(Mixer.CLEAR_COMPLETE, parseOnClear);
+				clearMix();
 			}
+		}
+		
+		private function parseOnClear(event:Event):void {
+			removeEventListener(Mixer.CLEAR_COMPLETE, parseOnClear);
+			parseMix();
 		}
 		
 	}
