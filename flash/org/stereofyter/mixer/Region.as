@@ -96,6 +96,7 @@ package org.stereofyter.mixer {
     public function setMuted(muted:Boolean):void {
       Muted = muted;
       updateStyle();
+	  dispatchEvent(new Event(MUTE, true));
     }
 
     public function toggleMuted():Boolean {
@@ -216,7 +217,6 @@ package org.stereofyter.mixer {
           stage.removeEventListener(MouseEvent.MOUSE_MOVE, lift);
           event.target.removeEventListener(MouseEvent.MOUSE_UP, click);
           toggleMuted();
-          dispatchEvent(new Event(MUTE, true));
         }
         function lift(event:MouseEvent) {
           stage.removeEventListener(MouseEvent.MOUSE_MOVE, lift);
