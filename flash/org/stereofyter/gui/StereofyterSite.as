@@ -122,8 +122,8 @@ package org.stereofyter.gui {
 			if (options && options.hasOwnProperty("progress")) {
 				loadingWheel.width = 30;
 				loadingWheel.height = 30;
-				loadingWheel.x = hoverBlock.innerWidth + 25;
-				loadingWheel.y = hoverBlock.innerHeight / 2;
+				loadingWheel.x = hoverBlock.innerWidth  / 2;
+				loadingWheel.y = hoverBlock.innerHeight + 25;
 				hoverBlock.addContent(loadingWheel);
 			}
 			midground.addChild(hoverBlock);

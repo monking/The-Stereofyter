@@ -459,9 +459,11 @@
 			var soloRegion:Region = null;
 			var parseTimer:Timer = new Timer(PARSE_REGION_INTERVAL, 1);
 			parseTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function(event:TimerEvent) {
-				if (mixData.data.tracks[parseTrackPointer] && !mixData.data.tracks[parseTrackPointer][parseRegionPointer]) {
+				if (parseTrackPointer < mixData.data.tracks.length && (!mixData.data.tracks[parseTrackPointer] || !mixData.data.tracks[parseTrackPointer][parseRegionPointer])) {
 					parseRegionPointer = 0;
 					parseTrackPointer++;
+					parseTimer.start();
+					return;
 				}
 				if (parseTrackPointer >= mixData.data.tracks.length) {
 					parseTrackPointer--;
