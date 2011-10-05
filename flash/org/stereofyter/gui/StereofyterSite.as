@@ -120,7 +120,7 @@ package org.stereofyter.gui {
 		}
 		
 		public function hideAlert():void {
-			removeChild(alertBubble);
+			if (contains(alertBubble)) removeChild(alertBubble);
 		}
 		
 		private function addPreviewButtons():void {
