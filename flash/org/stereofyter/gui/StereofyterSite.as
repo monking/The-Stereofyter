@@ -13,6 +13,7 @@ package org.stereofyter.gui {
 	import flash.display.Stage;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.text.Font;
 	
 	public class StereofyterSite extends Sprite {
 		
@@ -57,12 +58,13 @@ package org.stereofyter.gui {
 			logo = new StereofyterLogo();
 			background.addChild(logo);
 			loadingWheel = new SFLoadingWheel();
+			var lightFont:Font = new Helvetica_Light();
 			hoverBlock = new Block({
 				padding: 20,
 				borderRadius: 10,
 				textAlign: "center",
-				fontSize: 16,
-				fontFamily: "Helvetica_Medium",
+				fontSize: 14,
+				fontFamily: lightFont.fontName,
 				backgroundColor: 0xEEEEEE,
 				close: "bottom right"
 			});

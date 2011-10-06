@@ -460,9 +460,10 @@
 			var parseTrackPointer:int = 0;
 			var parseRegionPointer:int = 0;
 			var indexedSamples:Array = [];
+			var sample:Sample;
 			for (var i:int = 0; i < mixData.data.samples.length; i++) {
 				var sampleFound:Boolean = false;
-				for each (var sample:Sample in samples) {
+				for each (sample in samples) {
 					if (sample.src == mixData.data.samples[i]) {
 						indexedSamples[i] = sample;
 						sampleFound = true;
@@ -470,7 +471,7 @@
 				}
 				if (!sampleFound) {
 					//not found, try for partial matches
-					for each (var sample:Sample in samples) {
+					for each (sample in samples) {
 						if (mixData.data.samples[i].indexOf(sample.src) > -1) {
 							indexedSamples[i] = sample;
 							sampleFound = true;

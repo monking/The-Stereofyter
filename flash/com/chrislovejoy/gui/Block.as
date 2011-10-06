@@ -29,8 +29,8 @@ package com.chrislovejoy.gui {
 			close:CornerCloseButton,
 			timeoutTimer:Timer;
 		
-		public function Block(options:Object, content:* = null):void {
-			this.options = {
+		public function Block(newOptions:Object, content:* = null):void {
+			options = {
 				padding: 15,
 				borderRadius: 7,
 				width: "auto",
@@ -50,15 +50,24 @@ package com.chrislovejoy.gui {
 			};
 			holder = new Sprite();
 			addChild(holder);
-			options && setOptions(options, false);
+			newOptions&& setOptions(newOptions, false);
 			content !== null && setContent(content);
 		}
 		
-		public function setOptions(options:Object, redraw:Boolean = true):void {
-			for (var key:String in options) {
-				this.options[key] = options[key];
+		public function setOptions(newOptions:Object, redraw:Boolean = true):void {
+			for (var key:String in newOptions) {
+				options[key] = newOptions[key];
 			}
-			format = new TextFormat(options.fontFamily, options.fontSize, options.color, (options.fontWeight == 'bold'), (options.fontStyle == "italic"), (options.textDecoration == "underline"), options.url, options.target, options.textAlign);
+			if (!format) format = new TextFormat();
+			format.font = options.fontFamily;
+			format.size = options.fontSize;
+			format.color = options.color;
+			format.bold = (options.fontWeight == 'bold');
+			format.italic = (options.fontStyle == "italic");
+			format.underline = (options.textDecoration == "underline")
+			format.align = options.textAlign;
+			if (options.url) format.url = options.url;
+			if (options.target) format.target = options.target;
 			redraw && draw();
 		}
 		
@@ -67,8 +76,10 @@ package com.chrislovejoy.gui {
 			if (content is DisplayObject) {
 				holder.addChild(content);
 			} else {
-				if (!label)
+				if (!label) {
 					label = new TextField();
+					label.defaultTextFormat = format;
+				}
 				if (!holder.contains(label)) {
 					holder.addChild(label);
 				}
@@ -103,6 +114,7 @@ package com.chrislovejoy.gui {
 			if (label && holder.contains(label)) {
 				label.multiline = options.multiline;
 				label.setTextFormat(format);
+				label.embedFonts = format.font && !/_sans|_serif/.test(format.font);
 				if (isNaN(options.width)) {
 					label.autoSize = TextFieldAutoSize.LEFT;
 				} else {
