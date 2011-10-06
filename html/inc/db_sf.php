@@ -3,7 +3,7 @@
 require_from_inc_dir('array');
 
 // TODO: log in user, so that this value is already set
-$_SESSION['user_id'] = '16';
+$_SESSION['user_id'] = '22';
 
 /** filter_sf_mysql_assoc
   * filter function for array_conform

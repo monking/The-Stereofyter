@@ -49,6 +49,7 @@
 			LOAD_ERROR:String = "mixer_load_error",
 			PARSE_BEGIN:String = "mixer_parse_begin",
 			PARSE_COMPLETE:String = "mixer_parse_complete",
+			PARSE_ERROR:String = "mixer_parse_error",
 			CLEAR_BEGIN:String = "mixer_clear_begin",
 			CLEAR_COMPLETE:String = "mixer_clear_complete",
 			MAX_BEATS:int = 240,
@@ -72,7 +73,7 @@
 			bins:Array = [],
 			samples:Array = [],
 			sampleData:Array = [],
-			sampleRoot:String,
+			SampleRoot:String,
 			trackWidth:Number,
 			trackHeight:Number,
 			playhead:MovieClip,
@@ -361,7 +362,7 @@
 			loader.addEventListener(Event.COMPLETE, function(event:Event) {
 				try {
 					var json:Object = JSON.decode(loader.data);
-					sampleRoot = json.sampleRoot;
+					SampleRoot = json.sampleRoot;
 					sampleData = ArrayUtil.createUniqueCopy(sampleData.concat(json.samples));
 					dispatchEvent(new Event(SAMPLE_LIST_LOADED, true));
 				} catch (error:Error) {
@@ -402,6 +403,10 @@
 		
 		public function get error():String {
 			return _error;
+		}
+		
+		public function get sampleRoot():String {
+			return SampleRoot;
 		}
 		
 		public function get regions():Array {
@@ -446,14 +451,36 @@
 		private function parseMix():void {
 			parsing = true;
 			dispatchEvent(new Event(Mixer.PARSE_BEGIN, true));
+			if (!mixData.data || !mixData.data.tracks || !mixData.data.samples) {
+				_error = "the loaded mix is incompatible";
+				dispatchEvent(new Event(Mixer.PARSE_ERROR, true));
+				return;
+			}
 			//make successive actions asynchonous, to avoid unresponsiveness
 			var parseTrackPointer:int = 0;
 			var parseRegionPointer:int = 0;
 			var indexedSamples:Array = [];
 			for (var i:int = 0; i < mixData.data.samples.length; i++) {
+				var sampleFound:Boolean = false;
 				for each (var sample:Sample in samples) {
-					if (sample.src == mixData.data.samples[i])
+					if (sample.src == mixData.data.samples[i]) {
 						indexedSamples[i] = sample;
+						sampleFound = true;
+					}
+				}
+				if (!sampleFound) {
+					//not found, try for partial matches
+					for each (var sample:Sample in samples) {
+						if (mixData.data.samples[i].indexOf(sample.src) > -1) {
+							indexedSamples[i] = sample;
+							sampleFound = true;
+						}
+					}
+					if (!sampleFound) {
+						_error = "loop '"+mixData.data.samples[i]+"' not found";
+						dispatchEvent(new Event(Mixer.PARSE_ERROR, true));
+						return;
+					}
 				}
 			}
 			var soloRegion:Region = null;
@@ -474,6 +501,12 @@
 					return;
 				}
 				var regionData = mixData.data.tracks[parseTrackPointer][parseRegionPointer];
+				dispatchEvent(new Event(Mixer.PARSE_BEGIN, true));
+				if (typeof regionData[ENCODED_KEY_SAMPLE] == undefined || typeof regionData[ENCODED_KEY_BEAT] == undefined) {
+					_error = "the loaded mix is incompatible";
+					dispatchEvent(new Event(Mixer.PARSE_ERROR, true));
+					return;
+				}
 				var region = addRegion(indexedSamples[regionData[ENCODED_KEY_SAMPLE]]);
 				tracks[parseTrackPointer].addRegion(region, regionData[ENCODED_KEY_BEAT]);
 				region.status = Region.STATUS_LIVE;
@@ -913,7 +946,7 @@ import flash.events.Event;
 			bins[1].clearSamples();
 			for (var i:int = 0; i < sampleData.length; i++) {
 				addSample(new Sample({
-					src:sampleRoot+sampleData[i].src,
+					src:sampleData[i].src,
 					name:sampleData[i].name,
 					family:sampleData[i].family,
 					country:sampleData[i].country,

@@ -85,7 +85,7 @@ package org.stereofyter {
 				var region:Region = event.target as Region;
 				var track:Track = region.parent as Track;
 				var sample:Sample = region.sample;
-				engine.call("addRegion", track.index, sample.src, mixer.getRegionPosition(region));
+				engine.call("addRegion", track.index, mixer.sampleRoot+sample.src, mixer.getRegionPosition(region));
 			});
 			mixer.addEventListener(Mixer.REGION_MOVED, function(event:Event) {
 				var region:Region = event.target as Region;
@@ -152,8 +152,10 @@ package org.stereofyter {
 			mixer.addEventListener(Mixer.PARSE_COMPLETE, function(event:Event) {
 				site.hover("load complete", {timeout: 1000, close: "none"});
 			});
+			mixer.addEventListener(Mixer.PARSE_ERROR, function(event:Event) {
+				site.hover("load error: "+mixer.error, {timeout: 0, close: "top right"});
+			});
 			mixer.addEventListener(Mixer.LOAD_ERROR, function(event:Event) {
-				Debug.log("load error, about to reference mixer.error");
 				site.hover("load error: "+mixer.error, {timeout: 0, close: "top right"});
 			});
 			engine.addEventListener("playbackStart", function(event:Event) {

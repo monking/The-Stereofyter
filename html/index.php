@@ -4,6 +4,31 @@ $css = array('home');
 $js = array('swfobject', 'javaobject', 'mixblendr', 'home');
 require('inc/header.php');
 ?>
+		<script type="text/javascript">
+			var flashvars = {
+				webRoot:"http://<?=$_SERVER['SERVER_NAME'];?>",
+				sampleListUrl:"scripts/samples.json.php",
+				countryListUrl:"js/country_codes.json",
+				saveUrl:"scripts/save_mix.php",
+				loadUrl:"scripts/load_mix.php",
+				registerUrl:"scripts/register.php",
+				demoMixUrl:"audio/mixes/demo_mix_01.mp3"
+			};
+			swfobject.embedSWF(
+				"swf/main.swf",
+				"sfapp",
+				"100%",
+				"100%",
+				"9.0.0",
+				"swf/expressInstall.swf",
+				flashvars,
+				null,
+				null,
+				function(e){
+					e.success && mbinterface.addEventListenerObject(e.ref);
+				}
+			);
+		</script>
 		<div id="app_container">
 			<div id="sfapp">
 				<h1>Stereofyter requires Adobe Flash.</h1>
