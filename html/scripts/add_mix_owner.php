@@ -1,7 +1,7 @@
 <?php
 
-$includes = array('db', 'db_sf');
 require_once('../inc/includes.php');
+require_from_inc_dir('db_sf');
 // TODO: uncomment JSON header when finished debugging
 //header('Content-type: application/json');
 

@@ -1,4 +1,7 @@
 <?php
+
+require_from_inc_dir('../../_config');
+
 $DB_CONN = mysql_connect(DB_HOST, DB_USER, DB_PASS);
 $DB_SELECT = mysql_select_db(DB_NAME);
 /** assoc_to_mysql
