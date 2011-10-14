@@ -220,7 +220,7 @@ function add_mix_owner($mix_id, $user_id) {
 	if (!check_user_exists(array('id' => $user_id))) 
 		return log_error('user does not exist', FALSE);
 	if (check_mix_owner($mix_id, $user_id)) return TRUE;
-	$query = "INSERT INTO sf_mixowners SET mix_id='$mix_id', owner_id='$user_id'";
+	$query = "INSERT INTO sf_mix_owners SET mix_id='$mix_id', owner_id='$user_id'";
 	if (!mysql_query($query)) 
 		return log_error(mysql_error());
 	return TRUE;
@@ -232,7 +232,7 @@ function add_mix_owner($mix_id, $user_id) {
 function remove_mix_owner($mix_id, $owner_id) {
 	$mix_id = mysql_real_escape_string($mix_id);
 	$owner_id = mysql_real_escape_string($owner_id);
-	$query = "DELETE sf_mixowners WHERE mix_id='$mix_id' AND owner_id='$owner_id'";
+	$query = "DELETE sf_mix_owners WHERE mix_id='$mix_id' AND owner_id='$owner_id'";
 	if (!mysql_query($query)) 
 		return log_error(mysql_error(), FALSE);
 	return TRUE;
@@ -245,7 +245,7 @@ function remove_mix_owner($mix_id, $owner_id) {
 function check_mix_owner($mix_id, $owner_id) {
 	$mix_id = mysql_real_escape_string($mix_id);
 	$owner_id = mysql_real_escape_string($owner_id);
-	$query = "SELECT * FROM sf_mixowners WHERE mix_id='$mix_id' AND owner_id='$owner_id'";
+	$query = "SELECT * FROM sf_mix_owners WHERE mix_id='$mix_id' AND owner_id='$owner_id'";
 	$result = mysql_query($query);
 	if (!$result) 
 		return log_error(mysql_error(), FALSE);
@@ -273,7 +273,7 @@ function check_user_exists($criteria) {
   */
 function get_mix_owners($mix_id) {
 	$owners = array();
-	$result = mysql_query("SELECT owner_id FROM sf_mixowners WHERE mix_id='$mix_id'");
+	$result = mysql_query("SELECT owner_id FROM sf_mix_owners WHERE mix_id='$mix_id'");
 	if (!$result) 
 		return log_error(mysql_error());
 	while ($owner = mysql_fetch_array($result))
