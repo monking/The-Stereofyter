@@ -7,7 +7,7 @@ $view = 'default';
 if (isset($_GET['error'])) log_error($_GET['error']);
 
 if(isset($_POST['username'])) {
-	echo send_reset_password_hash($_POST['username']);
+	send_reset_password_hash($_POST['username']);
 	$view = 'reset_confirmation_sent';
 } else if (isset($_GET['hash'])) {
 	$user_id = check_reset_password_hash($_GET['hash']);

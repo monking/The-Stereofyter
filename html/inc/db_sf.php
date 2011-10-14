@@ -65,15 +65,18 @@ function send_reset_password_hash($email) {
 		return TRUE; // don't report incorrect email, for phishing
 	$row = mysql_fetch_array($result);
 	$id = $row[0];
-	$hash = hash('sha1', rand());
+	$hash = sha1(rand());
 	delete_reset_password_hash(NULL, $id);
 	$result = mysql_query("INSERT INTO sf_reset_hashes SET user_id='$id', hash='$hash', created=NOW()");
 	if (!$result)
 		return log_error(mysql_error());
-	$mail_body = 'http://'.$_SERVER['SERVER_NAME'].'/reset.php?hash='.$hash;
-	if (!@mail($email, 'The Stereofyter - Password Reset', $mail_body))
+	$mail_body = 'You are receiving this because a request was made to reset your password. If you wish to reset your password, please click the following link.'."\n\r";
+	$mail_body .= 'http://'.$_SERVER['SERVER_NAME'].'/reset_password.php?hash='.$hash."\n\r\n\r";
+	$mail_body .= 'This link will expire in 24 hours.'."\n\r\n\r";
+	$mail_body .= "Regards,\n\r";
+	$mail_body .= 'The Stereofyter Team';
+	if (!@mail($email, 'The Stereofyter - Password Reset', $mail_body, 'From:"The Stereofyter" <noreply@stereofyter.org>'))
 		return log_error('mail error', $hash);
-	return $hash; // TODO: test on a server where mail() works
 }
 /** check_reset_password_hash
   * verify that a hash exists and is not expired
@@ -144,8 +147,8 @@ function check_user_pass($identifier, $password) {
   * make a salted hash of the password
   */
 function make_pass_hash($password) {
-	$salt = substr(hash('sha1', rand()), 0, 24);
-	$hash = hash('sha1', $salt.$password);
+	$salt = substr(sha1(rand()), 0, 24);
+	$hash = sha1($salt.$password);
 	return $salt.$hash;
 }
 /** check_pass_hash
@@ -153,7 +156,7 @@ function make_pass_hash($password) {
   */
 function check_pass_hash($password, $hash) {
 	$salt = substr($hash, 0, 24);
-	if ($hash != $salt.hash('sha1', $salt.$password))
+	if ($hash != $salt.sha1($salt.$password))
 		return FALSE;
 	return TRUE;
 }
