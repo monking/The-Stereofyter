@@ -12,7 +12,10 @@ require('inc/header.php');
 				saveUrl:"scripts/save_mix.php",
 				loadUrl:"scripts/load_mix.php",
 				registerUrl:"scripts/register.php",
-				demoMixUrl:"audio/mixes/demo_mix_01.mp3"
+				demoMixUrl:"audio/mixes/demo_mix_01.mp3"<?
+if (isset($_GET['mix'])):?>,
+				loadMix:"<?=$_GET['mix']?>"<?
+endif;?>
 			};
 			var flashparams = {
 				wmode:"<?=/*TODO: remove this*/(isset($_GET['wmode'])? $_GET['wmode']: 'opaque')?>"

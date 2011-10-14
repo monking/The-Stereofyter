@@ -5,6 +5,8 @@ package org.stereofyter.gui {
 	import com.chrislovejoy.gui.Block;
 	import com.chrislovejoy.utils.Debug;
 	
+	import org.stereofyter.mixer.Mixer;
+	
 	import flash.display.DisplayObject;
 	import flash.display.Graphics;
 	import flash.display.LoaderInfo;
@@ -158,7 +160,7 @@ package org.stereofyter.gui {
 				"Save":{
 					"label":"SAVE",
 					"action":function(event:MouseEvent) {
-						dispatchEvent(new Event(StereofyterSite.SAVE_MIX, true));
+						dispatchEvent(new Event(Mixer.REQUEST_SAVE_MIX, true));
 					}
 				},
 				"Login":null,

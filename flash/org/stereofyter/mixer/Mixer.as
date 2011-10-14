@@ -8,6 +8,8 @@
 	import com.chrislovejoy.motion.Move;
 	import com.chrislovejoy.utils.Debug;
 	
+	import org.stereofyter.StereofyterAppController
+	
 	import fl.transitions.TweenEvent;
 	
 	import flash.display.DisplayObject;
@@ -41,6 +43,8 @@
 			STOP:String = "mixer_stop",
 			REWIND:String = "mixer_rewind",
 			SAMPLE_LIST_LOADED:String = "mixer_sample_list_loaded",
+			REQUEST_LOAD_MIX:String = 'request_load_mix',
+			REQUEST_SAVE_MIX:String = 'request_save_mix',
 			SAVE_BEGIN:String = "mixer_save_begin",
 			SAVE_COMPLETE:String = "mixer_save_complete",
 			SAVE_ERROR:String = "mixer_save_error",
@@ -272,11 +276,12 @@
 			saveLoader.load(saveReq);
 		}
 		
-		public function loadMix(id:int):void {
+		public function loadMix(id:int = -1):void {
 			loading = false;
 			dispatchEvent(new Event(Mixer.LOAD_BEGIN, true));
 			var loadReq:URLRequest = new URLRequest(WebAppController.flashVars.loadUrl);
-			loadReq.data = "id="+id;
+			if (id != -1)
+				loadReq.data = "id="+id;
 			loadLoader.load(loadReq);
 		}
 		
@@ -898,8 +903,7 @@ import flash.events.Event;
 			saveLoader.addEventListener(Event.COMPLETE, saveCompleteListener);
 			loadLoader.addEventListener(Event.COMPLETE, loadCompleteListener);
 			ui.buttonLoadMix.addEventListener(MouseEvent.CLICK, function(event:MouseEvent) {
-				var id = ExternalInterface.call('prompt', 'Enter the ID of a mix to load', mixData.hasOwnProperty('id')? mixData.id: '');
-				loadMix(id);
+				dispatchEvent(new Event(Mixer.REQUEST_LOAD_MIX));
 			});
 			ui.buttonLoadMix.buttonMode = true;
 			

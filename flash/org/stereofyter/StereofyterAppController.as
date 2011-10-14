@@ -21,14 +21,15 @@ package org.stereofyter {
 
 	public class StereofyterAppController extends WebAppController {
 
-		public static const
+		public static var
 			WEBROOT:String = '.';
 
 		private var
 			mixer:Mixer,
 			engine:MixblendrInterface,
 			site:StereofyterSite,
-			feedbackDelay:Timer;
+			feedbackDelay:Timer,
+			userData:Object = null;
 
 		public function StereofyterAppController(root:DisplayObject, debug:Boolean = false):void {
 			super(root, debug);
@@ -61,7 +62,12 @@ package org.stereofyter {
 			]);
 			site.hover("loading mixer engine", {progress: true});
 			attachSiteListeners();
+			registerExternalMethods();
 			engine.check(); //if Java loaded first, this was already called when creating engine. Find a way to do this without redundancy
+		}
+		
+		public function setUserSessionData(data:Object):void {
+			userData = data;
 		}
 		
 		private function attachSiteListeners():void {
@@ -73,9 +79,17 @@ package org.stereofyter {
 				site.toggleNewsletterSignup();
 				site.hideSiteInfoPane();
 			});
-			site.addEventListener(StereofyterSite.SAVE_MIX, function() {
-				mixer.saveMix();
+			site.addEventListener(Mixer.REQUEST_SAVE_MIX, function(event:Event) {
+				if (userData)
+					mixer.saveMix();
+				else
+					ExternalInterface.call('login');
 			});
+		}
+		
+		
+		private function registerExternalMethods():void {
+			ExternalInterface.addCallback("setUserSessionData", setUserSessionData);
 		}
 
 		private function addMixer():void {
@@ -158,6 +172,12 @@ package org.stereofyter {
 			mixer.addEventListener(Mixer.LOAD_ERROR, function(event:Event) {
 				site.hover("load error: "+mixer.error, {timeout: 0, close: "top right"});
 			});
+			mixer.addEventListener(Mixer.REQUEST_LOAD_MIX, function(event:Event) {
+				if (userData)
+					mixer.loadMix();
+				else
+					ExternalInterface.call('login');
+			});
 			engine.addEventListener("playbackStart", function(event:Event) {
 				trace("playbackStart");
 				mixer.setPlaying(true);
@@ -187,6 +207,7 @@ package org.stereofyter {
 			});
 			
 			FlashVars.sampleListUrl && mixer.loadSampleList(FlashVars.sampleListUrl);
+			FlashVars.loadMix && mixer.loadMix(FlashVars.loadMix);
 		}
 		
 		private function delayStartUpdatePlayhead(event:Event):void {

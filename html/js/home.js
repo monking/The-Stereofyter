@@ -63,8 +63,7 @@ function login() {
 				if (data.error) {
 					alert(data.error);
 				} else {
-					console.log(data);
-					//dispatch event for Flash to grab login data
+					$("#sfapp")[0].setUserSessionData(data);
 					closePop(dialog);
 				}
 			}
@@ -78,6 +77,8 @@ function logout() {
 		success: function(data) {
 			if (data != '') {
 				alert(data);
+			} else {
+				$("#sfapp")[0].setUserSessionData(null);
 			}
 		}
 	});
