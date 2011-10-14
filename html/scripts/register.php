@@ -7,11 +7,11 @@ header('Cache-Control: no-cache, must-revalidate');
 //header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 header('Content-type: application/json');
 
-if (!isset($_REQUEST['email'])) {
+if (!isset($_POST['email'])) {
 	die('{"error":"no email"}');
 }
 
-$email = mysql_real_escape_string($_REQUEST['email']);
+$email = mysql_real_escape_string($_POST['email']);
 if (!check_email_address($email)) die('{"error":"invalid email"}');
 $updates = 'yes';
 
@@ -31,8 +31,8 @@ $query = array(
 	'email' => $email,
 	'subscribe_updates' => $updates
 );
-if (isset($_REQUEST['country'])) $query['country'] = $_REQUEST['country'];
-if (isset($_REQUEST['musician'])) $query['musician'] = $_REQUEST['musician'];
+if (isset($_POST['country'])) $query['country'] = $_POST['country'];
+if (isset($_POST['musician'])) $query['musician'] = $_POST['musician'];
 if ($method == 'UPDATE')
 	$query['WHERE'] = array('email' => $email);
 else

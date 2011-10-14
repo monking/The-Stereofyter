@@ -72,6 +72,17 @@ function login() {
 	});
 }
 
+function logout() {
+	$.ajax({
+		url: '/scripts/logout.php',
+		success: function(data) {
+			if (data != '') {
+				alert(data);
+			}
+		}
+	});
+}
+
 $(window).resize(function(event) {
 	$('.pop').each(function() {
 		positionPop(this);

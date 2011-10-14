@@ -6,7 +6,7 @@ require_once('inc/header.php');
 <h1>The Stereofyter Newsletter</h1>
 <?php
 
-if (!isset($_REQUEST['email'])):
+if (!isset($_POST['email'])):
 ?>
 <form method="POST">
 	<p>Enter your email address below to unsubscribe from The Stereofyter newsletter.</p>
@@ -20,7 +20,7 @@ else:
 <div class="response">
 <?php
 
-	$email = mysql_real_escape_string($_REQUEST['email']);
+	$email = mysql_real_escape_string($_POST['email']);
 
 	$result = mysql_query("SELECT COUNT(*) AS existing FROM users WHERE email='$email';");
 	if (!$result)

@@ -178,14 +178,17 @@ function filter_sf_mysql_assoc($key, &$value) {
   * RETURNS (number) id of saved mix, or -1 on error
   */
 function save_mix($mix_data) {
-	$saved_mix_id = -1;
 	if (!isset($_SESSION)) session_start();
 
 	if (!isset($_SESSION['user']['id']))
-		return log_error('not logged in', $saved_mix_id);
+		return log_error('not logged in', FALSE);
 	if (!isset($mix_data['data']))
-		return log_error('no mix data received for saving', $saved_mix_id);
+		return log_error('no mix data received for saving', FALSE);
 
+	if (isset($mix_data['id'])) {
+		if (!check_mix_owner($mix_data['id'], $_SESSION['user']['id']))
+			unset($mix_data['id']);
+	}
 	$mix = array_conform(
 		$mix_data,
 		array(
@@ -195,17 +198,15 @@ function save_mix($mix_data) {
 		'filter_sf_mysql_assoc'
 	);
 	if (isset($mix_data['id'])) {
-		if (!check_mix_owner($mix_data['id'], $_SESSION['user']['id']))
-			return log_error('user does not own this mix', $saved_mix_id);
 		$mix['modified'] = array('function' => 'NOW()');
 		$mix['WHERE'] = array('id' => $mix_data['id']);
 		if (!assoc_to_mysql(array($mix), 'UPDATE', 'sf_mixes'))
-			return log_error(mysql_error(), $saved_mix_id);
-		$saved_mix_id = $mix['id'];
+			return log_error(mysql_error(), FALSE);
+		$saved_mix_id = $mix_data['id'];
 	} else {
 		$mix['created'] = array('function' => 'NOW()');
 		if (!assoc_to_mysql(array($mix), 'INSERT', 'sf_mixes'))
-			return log_error(mysql_error(), $saved_mix_id);
+			return log_error(mysql_error(), FALSE);
 		$saved_mix_id = mysql_insert_id();
 		add_mix_owner($saved_mix_id, $_SESSION['user']['id']);
 	}

@@ -13,15 +13,14 @@ if (isset($_POST['comment']))
 	$mix_data['comment'] = $_POST['comment'];
 		
 $saved = save_mix($mix_data);
-if (!is_numeric($saved))
-	die('{"error":"'.$saved'"}');
-else
-	{
+if ($saved === FALSE)
+	die('{"error":"'.implode('; ', $ERROR).'"}');
+else {
 	$mix = mysql_to_json(
 		"SELECT id, modified, created FROM sf_mixes WHERE id='$saved'",
 		array('whitespace' => 'none', 'structure' => 'flat')
 		);
 	echo $mix;
-	}
+}
 
 ?>
