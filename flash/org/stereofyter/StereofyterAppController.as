@@ -148,7 +148,7 @@ package org.stereofyter {
 				}
 			});
 			mixer.addEventListener(Bin.PREVIEW_TOGGLE, function(event:Event) {
-				engine.call("previewToggle", event.target.selectedSample.src);
+				engine.call("previewToggle", mixer.sampleRoot+event.target.selectedSample.src);
 			});
 			mixer.addEventListener(Mixer.SAVE_BEGIN, function(event:Event) {
 				site.hover("saving", {progress: true, timeout: 0, close: "none"});
@@ -186,6 +186,7 @@ package org.stereofyter {
 			engine.addEventListener("ready", function(event:Event) {
 				site.hideHover();
 				mixer.introDJ();
+				FlashVars.loadMix && mixer.loadMix(FlashVars.loadMix);
 			});
 			engine.addEventListener("playbackStop", function(event:Event) {
 				trace("playbackStop");
@@ -207,7 +208,6 @@ package org.stereofyter {
 			});
 			
 			FlashVars.sampleListUrl && mixer.loadSampleList(FlashVars.sampleListUrl);
-			FlashVars.loadMix && mixer.loadMix(FlashVars.loadMix);
 		}
 		
 		private function delayStartUpdatePlayhead(event:Event):void {
