@@ -1,8 +1,9 @@
 package org.stereofyter.mixblendr {
   
+  import com.chrislovejoy.utils.Debug;
+  
   import flash.events.*;
   import flash.external.ExternalInterface;
-  import com.chrislovejoy.utils.Debug;
   
   public class MixblendrInterface extends EventDispatcher {
     
@@ -44,7 +45,11 @@ package org.stereofyter.mixblendr {
     }
 	
 	public function check():void {
-		ExternalInterface.call("checkMixblendr");
+		!ready && ExternalInterface.call("checkMixblendr");
+	}
+	
+	public function get ready():Boolean {
+		return !!jsBridgeName;
 	}
 
     protected function dispatchMBEvent(type, data):void {
