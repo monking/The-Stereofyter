@@ -1,5 +1,5 @@
 <?php
-$includes = array('layout');
+$INCLUDES = array('layout');
 $CSS = array('home', 'pop');
 $js = array('jquery', 'swfobject', 'javaobject', 'mixblendr', 'home');
 require('inc/header.php');
@@ -15,13 +15,14 @@ require('inc/header.php');
 				demoMixUrl:"audio/mixes/demo_mix_01.mp3"<?
 if (isset($_GET['mix'])):?>,
 				loadMix:"<?=$_GET['mix']?>"<?
-endif;?>
+endif; ?>
+
 			};
 			var flashparams = {
 				wmode:"<?=/*TODO: remove this*/(isset($_GET['wmode'])? $_GET['wmode']: 'opaque')?>"
 			};
 			swfobject.embedSWF(
-				"swf/main.swf",
+				"swf/main.swf?v<?=MIXER_APP_VERSION?>",
 				"sfapp",
 				"100%",
 				"100%",
@@ -50,7 +51,7 @@ endif;?>
 			OtMR is fiscally sponsored by Artspire, a project of the New York Foundation for the Arts (NYFA). Visit <a href="http://www.onthemaprecords.org" target="_blank">www.onthemaprecords.org</a> for more information. 
 		</div>
 		<div id="mbapp">
-			<applet CODE="com/mixblendr/gui/main/Applet" ARCHIVE="mixblendr/mixblendr.jar?TIMESTAMP=<?=time();?>" WIDTH="1" HEIGHT="1" ALT="Your browser is not configured to view the applet. Please install Jave Runtime JRE 1.5 or higher. www.java.com/getjava" id="mixblendr"><PARAM name="url" value="competition/getfile"><PARAM name="REDIRECT_URL" value="competition/competition-entries/"><PARAM name="DEFAULT_TEMPO" value="120.0"></applet>
+			<applet CODE="com/mixblendr/gui/main/Applet" ARCHIVE="mixblendr/mixblendr.jar?v<?=MIXER_ENGINE_VERSION?>" WIDTH="1" HEIGHT="1" ALT="Your browser is not configured to view the applet. Please install Jave Runtime JRE 1.5 or higher. www.java.com/getjava" id="mixblendr"><PARAM name="url" value="competition/getfile"><PARAM name="REDIRECT_URL" value="competition/competition-entries/"><PARAM name="DEFAULT_TEMPO" value="120.0"></applet>
 		</div>
 		<form id="pop_login" style="display: none;">
 			<h2>Log In</h2>

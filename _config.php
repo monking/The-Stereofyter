@@ -1,4 +1,6 @@
 <?php
+define('MIXER_APP_VERSION', '0600');
+define('MIXER_ENGINE_VERSION', '0102');
 if ($_SERVER['SERVER_NAME'] == 'local.stereofyter.org') {
   define('DB_HOST', '127.0.0.1');
   define('DB_USER', 'forum');

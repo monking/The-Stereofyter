@@ -17,10 +17,9 @@ function require_from_inc_dir()
 		}
 	}
 
-if(isset($INCLUDES)) {
-	array_unshift($INCLUDES, '../../_config');
-	$INCLUDES = array_unique($INCLUDES);
-	call_user_func_array('require_from_inc_dir', $INCLUDES);
-}
+if(!isset($INCLUDES)) $INCLUDES = array();
+array_unshift($INCLUDES, '../../_config');
+$INCLUDES = array_unique($INCLUDES);
+call_user_func_array('require_from_inc_dir', $INCLUDES);
 
 ?>
