@@ -1,6 +1,6 @@
 <?php
 $includes = array('layout');
-$css = array('test_home');
+$CSS = array('test_home');
 $js = array('swfobject', 'javaobject', 'mixblendr', 'test_home');
 require('inc/header.php');
 ?>

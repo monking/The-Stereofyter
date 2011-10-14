@@ -6,12 +6,12 @@
 		<title><? isset($page_title) || ( $page_title = 'The Stereofyter' ); print $page_title ?></title>
 <?php
 
-if(!isset($css)) {
-	$css = array();
+if(!isset($CSS)) {
+	$CSS = array();
 }
-array_unshift($css, 'reset');
-$css = array_unique($css);
-foreach($css as $stylesheet):
+array_unshift($CSS, 'reset');
+$CSS = array_unique($CSS);
+foreach($CSS as $stylesheet):
 ?>
 		<link type="text/css" rel="stylesheet" media="screen" href="css/<?=$stylesheet?>.css"/>
 <?php

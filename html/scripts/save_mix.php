@@ -13,8 +13,8 @@ if (isset($_POST['comment']))
 	$mix_data['comment'] = $_POST['comment'];
 		
 $saved = save_mix($mix_data);
-if ($saved === false)
-	die('{"error":"'.implode('; ', $ERROR).'"}');
+if (!is_numeric($saved))
+	die('{"error":"'.$saved'"}');
 else
 	{
 	$mix = mysql_to_json(

@@ -2,28 +2,54 @@
 
 require_once('../inc/includes.php');
 require_from_inc_dir('db_sf');
+require_from_inc_dir('url');
 
-//header('Content-type: application/json; charset=utf-8');
+if ($_POST['hash']) {
+	$hash = $_POST['hash'];
+	$user_id = NULL;
+} else {
+	if (!isset($_POST['id'])) return 'no user id given';
+	session_start();
+	if (!isset($_SESSION['user'])
+	|| !isset($_SESSION['user']['id'])
+	|| $_POST['id'] != $_SESSION['user']['id'])
+		return 'log in as this user before updating';
 
-if (!isset($_REQUEST['id'])) die('{"error":"no user id given"}');
-session_start();
-if (!isset($_SESSION['user'])
-|| !isset($_SESSION['user']['id'])
-|| $_REQUEST['id'] != $_SESSION['user']['id'])
-	die('{"error":"log in as this user before updating"}');
-
-$update_data = array();
-if (isset($_REQUEST['password']) && isset($_REQUEST['password2']) && isset($_REQUEST['old_password'])) {
-	if ($_REQUEST['password'] != $_REQUEST['password2'])
-		die('{"error":"new passwords don\'t match"}');
-	$update_data['password'] = $_REQUEST['password'];
-	$update_data['old_password'] = $_REQUEST['old_password'];
+	$hash = NULL;
+	$user_id = $_SESSION['id'];
 }
-$saved = update_user($_SESSION['id'], $update_data);
-if (!$saved)
-	die('{"error":"'.implode('; ', $ERROR).'"}');
-else
-	{
+$update_data = array();
+if (isset($_POST['password'])) {
+	if (isset($_POST['password2']) && $_POST['password'] != $_POST['password2'])
+		return 'new passwords don\'t match';
+	if (!$hash) {
+		if (!isset($_POST['old_password']))
+			return 'please provide the old password';
+		if (!check_user_pass($user_id, $old_password))
+			return 'incorrect existing password';
+	}
+	$update_data['password'] = $_POST['password'];
+}
+if (isset($_POST['username'])) $update_data['username'] = $_POST['username'];
+if (isset($_POST['name'])) $update_data['name'] = $_POST['name'];
+if (isset($_POST['email'])) $update_data['email'] = $_POST['email'];
+if (isset($_POST['country'])) $update_data['country'] = $_POST['country'];
+if (isset($_POST['musician'])) $update_data['musician'] = $_POST['musician'];
+if (isset($_POST['subscribe_updates'])) $update_data['subscribe_updates'] = $_POST['subscribe_updates'];
+
+update_user($user_id, $update_data, $hash);
+
+if ($ERROR)
+	if(isset($_POST['fail'])) {
+		header('Location: '.url_append_get($_POST['fail'], 'error='.$ERROR));
+	} else {
+		header('Content-type: application/json; charset=utf-8');
+		printf('{"error":"'.implode('; ', $ERROR).'"}');
+	}
+else if(isset($_POST['success'])) {
+	header('Location: '.$_POST['success']);
+} else {
+	header('Content-type: application/json; charset=utf-8');
 	printf('{"user":{');
 	printf('"id":"'.$_SESSION['user']['id'].'"');
 	printf('"username":"'.$_SESSION['user']['username'].'"');
@@ -34,6 +60,6 @@ else
 	printf('"subscribe_updates":"'.$_SESSION['user']['subscribe_updates'].'"');
 	printf('"created":"'.$_SESSION['user']['created'].'"');
 	printf('}');
-	}
+}
 
 ?>

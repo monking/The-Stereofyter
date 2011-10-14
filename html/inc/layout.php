@@ -1,8 +1,8 @@
 <?php
-if(!isset($css)) {
-  $css = array();
+if(!isset($CSS)) {
+  $CSS = array();
 }
-//array_push($css, 'mystyles');
+//array_push($CSS, 'mystyles');
 if(!isset($js)) {
   $js = array();
 }

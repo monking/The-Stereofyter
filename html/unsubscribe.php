@@ -1,6 +1,6 @@
 <?php
 $includes = array('db', 'validation');
-$css = array('unsubscribe');
+$CSS = array('unsubscribe');
 require_once('inc/header.php');
 ?>
 <h1>The Stereofyter Newsletter</h1>

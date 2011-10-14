@@ -1,121 +1,125 @@
 <?php
 
-require_from_inc_dir('array');
-require_from_inc_dir('db');
-
-// TODO: log in user, so that this value is already set
-$_SESSION['user_id'] = '22';
+require_from_inc_dir('array', 'error', 'db');
 
 /** login_user
   * login a user by username or email address, and password
   */
-function login_user($username, $password)
-	{
-	if (!check_user_pass($username, $password))
-		return false;
+function login_user($username, $password) {
+	$user_id = check_user_pass($username, $password);
+	if ($user_id === FALSE)
+		return FALSE;
 	$username = mysql_real_escape_string($username);
-	$result = mysql_query("SELECT id, name, email, country, musician, subscribe_updates, created FROM sf_users WHERE username='$username'");
+	$result = mysql_query("SELECT id, name, email, country, musician, subscribe_updates, created FROM sf_users WHERE id='$user_id'");
 	if (!$result)
-		{
-		$ERROR[] = 'database error';
-		return false;
-		}
-	if (!mysql_num_rows($result)) return false;
+		return log_error('database error', FALSE);
 	$row = mysql_fetch_assoc($result);
 	session_start();
 	$_SESSION['user'] = $row;
-	return true;
-	}
-/** reset_password_with_hash
-  * login a user by a temporary hash code
-  */
-function reset_password_with_hash($password, $hash)
-	{
-	$hash = mysql_real_escape_string($hash);
-	$result = mysql_query("SELECT id, user_id, created FROM sf_reset_hashes WHERE hash='$hash'");
-	if (!$result)
-		{
-		$ERROR[] = 'database error';
-		return false;
-		}
-	if (!mysql_num_rows($result)) return false;
-	$row = mysql_fetch_assoc($result);
-	$result = mysql_query("DELETE FROM sf_reset_hashes WHERE user_id='".$row['user_id']."'");
-	if (!$result)
-		{
-		$ERROR[] = 'database error';
-		return false;
-		}
-	$password_hash = make_pass_hash($password);
-	$result = mysql_query("UPDATE sf_users SET password='$password_hash'");
-	if (!result) return false;
-	return true;
-	}
-/** refresh_user_session
+	return TRUE;
+}
+/** refresh_session_data
   * refresh the data in the logged-in user's session
   */
-function refresh_user_session($id = NULL)
-	{
-	if (!isset($_SESSION)) return false;
-	$id = mysql_real_escape_string($_SESSION['id']);
+function refresh_session_data() {
+	if (!isset($_SESSION)) return;
+	$id = mysql_real_escape_string($_SESSION['user']['id']);
 	$result = mysql_query("SELECT id, username, name, email, country, musician, subscribe_updates, created FROM sf_users WHERE id='$id'");
-	if (!$result) return false;
+	if (!$result || !mysql_num_rows($result)) return;
 	$row = mysql_fetch_assoc($result);
 	$_SESSION['user'] = $row;
-	return true;
-	}
+}
 /** update_user
   * set the password on a user
   */
-function update_user($id, $data)
-	{
-	if (array_key_exists($data, 'password')) {
-		if (array_key_exists($data, 'old_password')) {
-			if (!check_user_pass($username, $data['old_password'])) return false;
-		} else if (
-		$data['password'] = make_pass_hash($password);
+function update_user($id, $data, $hash = NULL) {
+	if ($hash != NULL) {
+		$hash_user_id = check_reset_password_hash($hash, FALSE, $id);
+		if (!is_numeric($hash_user_id))
+			return $hash_user_id;
+		$id = $hash_user_id;
+	}
+	if (array_key_exists('password', $data)) {
+		if (array_key_exists('old_password', $data)) {
+			if (!check_user_pass($username, $data['old_password'])) return log_error('wrong old password');
+		} else if (!$hash)
+			return log_error('need old password');
+		$data['password'] = make_pass_hash($data['password']);
 	}
 	$data['WHERE'] = array('id' => $id);
-	if (!assoc_to_mysql($data, 'UPDATE', 'sf_users'))
-		return false;
-	refresh_user_session();
-	return true;
+	if (!assoc_to_mysql(array($data), 'UPDATE', 'sf_users'))
+		return log_error('database error');
+	if ($hash) {
+		delete_reset_password_hash($hash);
 	}
+}
 /** send_reset_password_hash
   * email the hash to reset the password
   */
-function send_reset_password_hash($email)
-	{
+function send_reset_password_hash($email) {
 	$email = mysql_real_escape_string($email);
 	$result = mysql_query("SELECT id FROM sf_users WHERE email='$email'");
-	if (!$result || !mysql_num_rows($result)) return false;
-	$row = mysql_fetch_array();
+	if (!$result)
+		return log_error('database error');
+	if (!mysql_num_rows($result))
+		return TRUE; // don't report incorrect email, for phishing
+	$row = mysql_fetch_array($result);
 	$id = $row[0];
 	$hash = hash('sha1', rand());
+	delete_reset_password_hash(NULL, $id);
 	$result = mysql_query("INSERT INTO sf_reset_hashes SET user_id='$id', hash='$hash', created=NOW()");
-	$mail_body = 'http://'.$_SERVER['host_name'].'/reset.php?hash='.$hash;
-	mail($email, 'The Stereofyter - Password Reset', $mail_body);
-	/*debug*/ return $hash; /*debug*/
-	return true;
-	}
-/** set_user_password
-  * set the password on a user
+	if (!$result)
+		return log_error(mysql_error());
+	$mail_body = 'http://'.$_SERVER['SERVER_NAME'].'/reset.php?hash='.$hash;
+	if (!@mail($email, 'The Stereofyter - Password Reset', $mail_body))
+		return log_error('mail error', $hash);
+	return $hash; // TODO: test on a server where mail() works
+}
+/** check_reset_password_hash
+  * verify that a hash exists and is not expired
+  * if it's expired, remove it
+  * RETURNS numeric ID, or String error
   */
-function set_user_password($id, $password, $old_password)
-	{
-	if (!check_user_pass($id, $old_password)) return false;
-	$hash = make_pass_hash($password);
-	$query .= "UPDATE sf_users SET password='$hash' WHERE id='$id'";
-	$result = mysql_query($query);
-	if (!result) return false;
-	return true;
+function check_reset_password_hash($hash, $delete = FALSE, $match_id = NULL) {
+	$HASH_LIFE = 86400; // 24 hours in seconds
+	$hash = mysql_real_escape_string($hash);
+	$expired = FALSE;
+	$result = mysql_query("SELECT * FROM sf_reset_hashes WHERE hash='$hash'");
+	if (!$result)
+		return log_error('database error');
+	if (!mysql_num_rows($result))
+		return log_error('hash not on file');
+	$row = mysql_fetch_assoc($result);
+	if ($match_id != NULL) {
+		if ($row['user_id'] != $match_id)
+			return log_error('user id mismatch');
 	}
+	if (time() - strtotime($row['created']) > $HASH_LIFE) {
+		$expired = TRUE;
+		$delete = TRUE;
+	}
+	if ($delete)
+		delete_reset_password_hash($hash);
+	if ($expired)
+		return log_error('hash expired');
+	return $row['user_id'];
+}
+/** delete_reset_password_hash
+  * delete a hash from the table by hash or by user_id
+  */
+function delete_reset_password_hash($hash, $user_id = NULL) {
+	if ($user_id !== NULL)
+		$where = "user_id='".mysql_real_escape_string($user_id)."'";
+	else
+		$where = "hash='".mysql_real_escape_string($hash)."'";
+	mysql_query("DELETE FROM sf_reset_hashes WHERE $where");
+}
 /** check_user_pass
   * check for a password match on a user
   * using numeric id, alphanumeric username, or email address
+  * RETURNS user ID or FALSE
   */
-function check_user_pass($identifier, $password)
-	{
+function check_user_pass($identifier, $password) {
 	$identifier = mysql_real_escape_string($identifier);
 	if (is_numeric($identifier))
 		$user_where = "id='$identifier'";
@@ -125,191 +129,157 @@ function check_user_pass($identifier, $password)
 		$user_where = "username='$identifier'";
 	$query = "SELECT id, password FROM sf_users WHERE $user_where";
 	$result = mysql_query($query);
-	if (!$result) return false;
+	if (!$result)
+		return log_error('database error', FALSE);
+	if (!mysql_num_rows($result))
+		return log_error('email and password don\'t match', FALSE);
 	$row = mysql_fetch_assoc($result);
+	if (!$row['password'])
+		return log_error('password not set', FALSE);
 	if (!check_pass_hash($password, $row['password']))
-		return false;
+		return log_error('email and password don\'t match', FALSE);
 	return $row['id'];
-	}
+}
 /** make_pass_hash
   * make a salted hash of the password
   */
-function make_pass_hash($password)
-	{
+function make_pass_hash($password) {
 	$salt = substr(hash('sha1', rand()), 0, 24);
 	$hash = hash('sha1', $salt.$password);
-	return $salt.hash;
-	}
+	return $salt.$hash;
+}
 /** check_pass_hash
   * check a password against a salted hash
   */
-function check_pass_hash($password, $hash)
-	{
+function check_pass_hash($password, $hash) {
 	$salt = substr($hash, 0, 24);
 	if ($hash != $salt.hash('sha1', $salt.$password))
-		return false;
-	return true;
-	}
+		return FALSE;
+	return TRUE;
+}
 /** filter_sf_mysql_assoc
   * filter function for array_conform
   * removes elements with the value -1 and escapes values for MySQL input
   */
-function filter_sf_mysql_assoc($key, &$value)
-	{
-	if ($value == -1) return false;
+function filter_sf_mysql_assoc($key, &$value) {
+	if ($value == -1) return FALSE;
 	if (!count($value))
 		$value = mysql_real_escape_string($value);
-	return true;
-	}
+	return TRUE;
+}
 /** save_mix
   * $mix_data (array)
 		['data'] (string) JSON-encoded mix data to be saved
 		['id'] (number) OPTIONAL id of the mix. If omitted, a new mix is saved
 		['comment'] (string) OPTIONAL message to save with this revision
-  * RETURNS (number) id of saved mix
+  * RETURNS (number) id of saved mix, or -1 on error
   */
-function save_mix($mix_data)
-	{
-	global $ERROR;
+function save_mix($mix_data) {
+	$saved_mix_id = -1;
 	if (!isset($_SESSION)) session_start();
 
-	if (!isset($_SESSION['user_id']))
-		{
-		$ERROR[] = 'not logged in';
-		return false;
-		}
+	if (!isset($_SESSION['user']['id']))
+		return log_error('not logged in', $saved_mix_id);
 	if (!isset($mix_data['data']))
-		{
-		$ERROR[] = 'no mix data received for saving';
-		return false;
-		}
+		return log_error('no mix data received for saving', $saved_mix_id);
 
 	$mix = array_conform(
 		$mix_data,
 		array(
 			'data' => '',
-			'modified_by' => $_SESSION['user_id']
-			),
+			'modified_by' => $_SESSION['user']['id']
+		),
 		'filter_sf_mysql_assoc'
-		);
-	if (isset($mix_data['id']))
-		{
-		if (!check_mix_owner($mix_data['id'], $_SESSION['user_id']))
-			{
-			$ERROR[] = 'user does not own this mix';
-			return false;
-			}
+	);
+	if (isset($mix_data['id'])) {
+		if (!check_mix_owner($mix_data['id'], $_SESSION['user']['id']))
+			return log_error('user does not own this mix', $saved_mix_id);
 		$mix['modified'] = array('function' => 'NOW()');
 		$mix['WHERE'] = array('id' => $mix_data['id']);
 		if (!assoc_to_mysql(array($mix), 'UPDATE', 'sf_mixes'))
-			{
-			$ERROR[] = mysql_error();
-			return false;
-			}
-		}
-	else
-		{
+			return log_error(mysql_error(), $saved_mix_id);
+		$saved_mix_id = $mix['id'];
+	} else {
 		$mix['created'] = array('function' => 'NOW()');
 		if (!assoc_to_mysql(array($mix), 'INSERT', 'sf_mixes'))
-			{
-			$ERROR[] = mysql_error();
-			return false;
-			}
-		$mix_data['id'] = mysql_insert_id();
-		add_mix_owner($mix_data['id'], $_SESSION['user_id']);
-		}
-	return $mix_data['id'];
+			return log_error(mysql_error(), $saved_mix_id);
+		$saved_mix_id = mysql_insert_id();
+		add_mix_owner($saved_mix_id, $_SESSION['user']['id']);
 	}
+	return $saved_mix_id;
+}
 /** add_mix_owner
   * $mix_id (number) id of the mix
   * $user_id (number) id of user being added as owner of the mix
+  * RETURNS Boolean success
   */
-function add_mix_owner($mix_id, $user_id)
-	{
+function add_mix_owner($mix_id, $user_id) {
 	global $ERROR;
 	$mix_id = mysql_real_escape_string($mix_id);
 	$user_id = mysql_real_escape_string($user_id);
-	if (!check_user_exists(array('id' => $user_id)))
-		{
-		$ERROR[] = 'user does not exist';
-		return false;
-		}
-	if (check_mix_owner($mix_id, $user_id)) return true;
+	if (!check_user_exists(array('id' => $user_id))) 
+		return log_error('user does not exist', FALSE);
+	if (check_mix_owner($mix_id, $user_id)) return TRUE;
 	$query = "INSERT INTO sf_mixowners SET mix_id='$mix_id', owner_id='$user_id'";
-	if (!mysql_query($query))
-		{
-		$ERROR[] = mysql_error();
-		return false;
-		}
-	return true;
-	}
+	if (!mysql_query($query)) 
+		return log_error(mysql_error());
+	return TRUE;
+}
 /** remove_mix_owner
   * $mix_id (number) id of the mix
   * $owner_id (number) id of user being removed as owner of the mix
   */
-function remove_mix_owner($mix_id, $owner_id)
-	{
+function remove_mix_owner($mix_id, $owner_id) {
 	$mix_id = mysql_real_escape_string($mix_id);
 	$owner_id = mysql_real_escape_string($owner_id);
 	$query = "DELETE sf_mixowners WHERE mix_id='$mix_id' AND owner_id='$owner_id'";
-	if (!mysql_query($query))
-		{
-		$ERROR[] = mysql_error();
-		return false;
-		}
-	return true;
-	}
+	if (!mysql_query($query)) 
+		return log_error(mysql_error(), FALSE);
+	return TRUE;
+}
 /** check_mix_owner
   * $mix_id (number) id of the mix
   * $owner_id (number) id of user being checked as owner of the mix
-  * RETURNS true if the user is an owner, false if now
+  * RETURNS TRUE if the user is an owner, FALSE if now
   */
-function check_mix_owner($mix_id, $owner_id)
-	{
+function check_mix_owner($mix_id, $owner_id) {
 	$mix_id = mysql_real_escape_string($mix_id);
 	$owner_id = mysql_real_escape_string($owner_id);
 	$query = "SELECT * FROM sf_mixowners WHERE mix_id='$mix_id' AND owner_id='$owner_id'";
 	$result = mysql_query($query);
-	if (!$result || !mysql_num_rows($result))
-		{
-		$ERROR[] = mysql_error();
-		return false;
-		}
-	return true;
-	}
+	if (!$result) 
+		return log_error(mysql_error(), FALSE);
+	if (!mysql_num_rows($result)) 
+		return FALSE;
+	return TRUE;
+}
 /** check_user_exists
   * $criteria (array) associative array of fields to reference
-  * RETURNS true or false
+  * RETURNS TRUE or FALSE
   */
-function check_user_exists($criteria)
-	{
+function check_user_exists($criteria) {
 	$where = assoc_to_mysql_where($criteria);
 	$query = "SELECT * FROM sf_users$where";
 	$result = mysql_query($query);
-	if (!$result || !mysql_num_rows($result))
-		{
-		$ERROR[] = mysql_error();
-		return false;
-		}
-	return true;
-	}
+	if (!$result) 
+		return log_error(mysql_error(), FALSE);
+	if (!mysql_num_rows($result)) 
+		return FALSE;
+	return TRUE;
+}
 /** check_mix_owner
   * $mix_id (number) id of the mix
   * RETURNS array of mix owners
   */
-function get_mix_owners($mix_id)
-	{
+function get_mix_owners($mix_id) {
 	$owners = array();
 	$result = mysql_query("SELECT owner_id FROM sf_mixowners WHERE mix_id='$mix_id'");
-	if (!$result)
-		{
-		$ERROR[] = mysql_error();
-		return false;
-		}
+	if (!$result) 
+		return log_error(mysql_error());
 	while ($owner = mysql_fetch_array($result))
 		$owners[] = $owner[0];
 	return $owners;
-	}
+}
 /** save_message
   * $mix_data (array)
 		['message'] (string) message to be posted
@@ -317,25 +287,22 @@ function get_mix_owners($mix_id)
 		['response_to_msg'] (number) OPTIONAL id of message being responded to
 		['user_id'] (number) OPTIONAL id of sending user (default is logged-in user)
   */
-function save_message($mix_data)
-	{
+function save_message($mix_data) {
 	if (!isset($_SESSION)) session_start();
 	if (!assoc_to_mysql(
 		array(array_conform(
 			$mix_data,
 			array(
 				'mix_id' => -1,
-				'user_id' => $_SESSION['user_id'],
+				'user_id' => $_SESSION['user']['id'],
 				'response_to_msg' => -1,
 				'message' => ''
 				),
 			'')),
 		isset($mix_data['WHERE'])? 'UPDATE': 'INSERT',
 		'sf_messages'
-		))
-		{
-		$ERROR[] = mysql_error();
-		return false;
-		}
+	)) {
+		return log_error(mysql_error());
 	}
+}
 ?>

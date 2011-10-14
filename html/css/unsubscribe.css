@@ -3,4 +3,3 @@ html, body { width: auto; height: auto; }
 body { padding: 1em; }
 h1 { margin-bottom: 0.5em; }
 form, .response { border: 1px solid #ccc; padding: 1em; line-height: 150%; }
-
