@@ -183,11 +183,7 @@ package org.stereofyter {
 				mixer.setPlaying(true);
 				updatePlayhead(event);
 			});
-			engine.addEventListener("ready", function(event:Event) {
-				site.hideHover();
-				mixer.introDJ();
-				FlashVars.loadMix && mixer.loadMix(FlashVars.loadMix);
-			});
+			engine.addEventListener("ready", onMixblendrReady);
 			engine.addEventListener("playbackStop", function(event:Event) {
 				trace("playbackStop");
 				mixer.setPlaying(false);
@@ -225,6 +221,13 @@ package org.stereofyter {
 		
 		private function updatePlayhead(event:Event):void {
 			mixer.playbackPosition = engine.call("getPlaybackPosition");
+		}
+		
+		private function onMixblendrReady(event:Event) {
+			engine.removeEventListener("ready", onMixblendrReady);
+			site.hideHover();
+			mixer.introDJ();
+			FlashVars.loadMix && mixer.loadMix(FlashVars.loadMix);
 		}
 
 	}
