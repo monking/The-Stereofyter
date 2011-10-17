@@ -1,7 +1,7 @@
 package org.stereofyter.gui {
 
 	import com.chrislovejoy.WebAppController;
-	import com.chrislovejoy.audio.MP3Stream;
+	import com.chrislovejoy.media.MP3Stream;
 	import com.chrislovejoy.gui.Block;
 	import com.chrislovejoy.utils.Debug;
 	
