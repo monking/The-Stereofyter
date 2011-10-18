@@ -1,5 +1,5 @@
 package com.chrislovejoy.gui {
-	
+
 	import flash.display.DisplayObject;
 	import flash.display.Graphics;
 	import flash.display.Sprite;
@@ -13,14 +13,14 @@ package com.chrislovejoy.gui {
 	import flash.text.TextFormat;
 	import flash.text.TextFormatAlign;
 	import flash.utils.Timer;
-	
+
 	import com.chrislovejoy.utils.Debug;
 
 	public class Block extends Sprite {
-		
+
 		public static const
 			CLOSE:String = "shadowblock_close";
-		
+
 		private var
 			options:Object,
 			label:TextField,
@@ -28,7 +28,7 @@ package com.chrislovejoy.gui {
 			holder:Sprite,
 			close:CornerCloseButton,
 			timeoutTimer:Timer;
-		
+
 		public function Block(newOptions:Object, content:* = null):void {
 			options = {
 				padding: 15,
@@ -53,7 +53,7 @@ package com.chrislovejoy.gui {
 			newOptions&& setOptions(newOptions, false);
 			content !== null && setContent(content);
 		}
-		
+
 		public function setOptions(newOptions:Object, redraw:Boolean = true):void {
 			for (var key:String in newOptions) {
 				options[key] = newOptions[key];
@@ -70,7 +70,7 @@ package com.chrislovejoy.gui {
 			if (options.target) format.target = options.target;
 			redraw && draw();
 		}
-		
+
 		public function setContent(content:*, append:Boolean = false):void {
 			if (!append) clearHolder();
 			if (content is DisplayObject) {
@@ -87,29 +87,29 @@ package com.chrislovejoy.gui {
 			}
 			draw();
 		}
-		
+
 		public function addContent(content:*):void {
 			setContent(content, true);
 		}
-		
+
 		public function get content():DisplayObject{
 			return (!label || !holder.contains(label)) && holder.numChildren?
 				holder.getChildAt(0):
 				null;
 		}
-		
+
 		public function get text():String {
 			return label && holder.contains(label)? label.text: "";
 		}
-		
+
 		public function get innerWidth():Number {
 			return holder.width;
 		}
-		
+
 		public function get innerHeight():Number {
 			return holder.height;
 		}
-		
+
 		private function draw():void {
 			if (label && holder.contains(label)) {
 				label.multiline = options.multiline;
@@ -145,15 +145,15 @@ package com.chrislovejoy.gui {
 				this.filters = [new DropShadowFilter(4, 90, 0, 0.5, 20, 20)];
 			}
 			if (options.timeout > 0) {
-				if (timeoutTimer) timeoutTimer.stop(); 
+				if (timeoutTimer) timeoutTimer.stop();
 				timeoutTimer = new Timer(options.timeout, 1);
 				timeoutTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function(event:TimerEvent) {
 					dispatchEvent(new Event(Block.CLOSE, true));
 				});
 				timeoutTimer.start();
-			} else if (timeoutTimer) timeoutTimer.stop(); 
+			} else if (timeoutTimer) timeoutTimer.stop();
 		}
-		
+
 		private function clearHolder():void {
 			while (holder.numChildren) holder.removeChildAt(0);
 		}
