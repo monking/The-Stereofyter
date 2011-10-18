@@ -23,8 +23,10 @@ if(!isset($js)) {
 }
 $js = array_unique($js);
 foreach($js as $script):
+	if (strpos($script, 'http') !== 0)
+		$script = "js/$script.js";
 ?>
-		<script type="text/javascript" src="js/<?=$script?>.js"></script>
+		<script type="text/javascript" src="<?=$script?>"></script>
 <?php
 endforeach;
 if(function_exists('headerContent')) headerContent();
