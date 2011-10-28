@@ -1,5 +1,7 @@
 package org.stereofyter {
 
+	import com.adobe.serialization.json.JSON;
+
 	import com.chrislovejoy.WebAppController;
 	import com.chrislovejoy.utils.ContextMenuUtil;
 	import com.chrislovejoy.utils.Debug;
@@ -13,6 +15,9 @@ package org.stereofyter {
 	import flash.display.StageScaleMode;
 	import flash.events.*;
 	import flash.external.ExternalInterface;
+	import flash.net.URLLoader;
+	import flash.net.URLRequest;
+	import flash.net.URLRequestMethod;
 	import flash.utils.Timer;
 	
 	import org.stereofyter.gui.*;
@@ -28,7 +33,7 @@ package org.stereofyter {
 			engine:MixblendrInterface,
 			site:StereofyterSite,
 			feedbackDelay:Timer,
-			userData:Object = null,
+			session:Object = {},
 			saveLoader:URLLoader,
 			loadLoader:URLLoader;
 
@@ -38,6 +43,10 @@ package org.stereofyter {
 			_root.stage.align = StageAlign.TOP_LEFT;
 			_root.stage.quality = StageQuality.HIGH;
 			_root.stage.scaleMode = StageScaleMode.NO_SCALE;
+			if (flashVars.session)
+				session = JSON.decode(flashVars.session);
+			else//DEBUG
+				session = {user:{id:16}};
 			engine = new MixblendrInterface();
 			site = new StereofyterSite();
 			_root.stage.addChild(site);
@@ -69,7 +78,7 @@ package org.stereofyter {
 		}
 		
 		public function setUserSessionData(data:Object):void {
-			userData = data;
+			session = data;
 		}
 		
 		private function prepareSaveLoad():void {
@@ -89,7 +98,7 @@ package org.stereofyter {
 				site.hideSiteInfoPane();
 			});
 			site.addEventListener(Mixer.REQUEST_SAVE_MIX, function(event:Event) {
-				if (userData)
+				if (session.hasOwnProperty('user'))
 					site.showSaveDialog();
 				else
 					ExternalInterface.call('login');
@@ -101,6 +110,10 @@ package org.stereofyter {
 					title:dialog.mixTitle
 				});
 				saveMix();
+			});
+			site.addEventListener(LoadDialog.SUBMIT_LOAD_MIX, function(event:Event) {
+				var dialog:LoadDialog = event.target as LoadDialog;
+				loadMix(dialog.mixId);
 			});
 		}
 		
@@ -167,31 +180,13 @@ package org.stereofyter {
 			mixer.addEventListener(Bin.PREVIEW_TOGGLE, function(event:Event) {
 				engine.call("previewToggle", mixer.sampleRoot+event.target.selectedSample.src);
 			});
-			mixer.addEventListener(SAVE_BEGIN, function(event:Event) {
-				site.hover("saving", {progress: true, timeout: 0, close: "none"});
-			});
-			mixer.addEventListener(SAVE_COMPLETE, function(event:Event) {
-				site.hover("save complete", {timeout: 1000, close: "none"});
-			});
-			mixer.addEventListener(SAVE_ERROR, function(event:Event) {
-				Debug.log("save error, about to reference mixer.error");
-				site.hover("save error: "+mixer.error, {timeout: 0, close: "top right"});
-			});
-			mixer.addEventListener(LOAD_BEGIN, function(event:Event) {
-				site.hover("loading", {progress: true, timeout: 0, close: "none"});
-			});
-			mixer.addEventListener(Mixer.PARSE_COMPLETE, function(event:Event) {
-				site.hover("load complete", {timeout: 1000, close: "none"});
-			});
 			mixer.addEventListener(Mixer.PARSE_ERROR, function(event:Event) {
 				site.hover("load error: "+mixer.error, {timeout: 0, close: "top right"});
 			});
-			mixer.addEventListener(LOAD_ERROR, function(event:Event) {
-				site.hover("load error: "+mixer.error, {timeout: 0, close: "top right"});
-			});
 			mixer.addEventListener(Mixer.REQUEST_LOAD_MIX, function(event:Event) {
-				if (userData)
-					loadMix();
+				Debug.log('REQUEST_LOAD_MIX');
+				if (session.hasOwnProperty('user'))
+					site.showLoadDialog();
 				else
 					ExternalInterface.call('login');
 			});
@@ -245,7 +240,7 @@ package org.stereofyter {
 		}
 
 		private function loadMix(id:int = -1):void {
-			dispatchEvent(new Event(LOAD_BEGIN, true));
+			site.hover("loading", {progress: true, timeout: 0, close: "none"});
 			var loadReq:URLRequest = new URLRequest(WebAppController.flashVars.loadUrl);
 			if (id != -1)
 				loadReq.data = "id="+id;
@@ -253,12 +248,12 @@ package org.stereofyter {
 		}
 
 		private function saveMix():void {
-			dispatchEvent(new Event(SAVE_BEGIN, true));
+			site.hover("saving", {progress: true, timeout: 0, close: "none"});
 			
 			mixer.encodeMix();
 			
 			var saveReq:URLRequest = new URLRequest(WebAppController.flashVars.saveUrl);
-			saveReq.data = "mix="+encodeURIComponent(JSON.encode(encodedMix));
+			saveReq.data = "mix="+encodeURIComponent(JSON.encode(mixer.mixData.mix));
 			if (mixer.mixData.hasOwnProperty("id"))
 				saveReq.data += "&id="+mixer.mixData.id;
 			if (mixer.mixData.hasOwnProperty("title"))
@@ -275,26 +270,24 @@ package org.stereofyter {
 			var data:Object = JSON.decode(saveLoader.data);
 			if (data) {
 				if (data.hasOwnProperty("error")) {
-					_error = data.error;
-					dispatchEvent(new Event(SAVE_ERROR, true));
+					site.hover("save error: "+data.error, {timeout: 0, close: "top right"});
 					return;
 				}
 				mixer.updateMixData(data);
 			}
-			dispatchEvent(new Event(SAVE_COMPLETE, true));
+			site.hover("save complete", {timeout: 1000, close: "none"});
 		}
 		
 		private function loadCompleteListener(event:Event):void {
-			dispatchEvent(new Event(LOAD_COMPLETE, true));
 			var data:Object = JSON.decode(loadLoader.data);
 			if (data) {
 				if (data.hasOwnProperty("error")) {
-					_error = data.error;
-					dispatchEvent(new Event(LOAD_ERROR, true));
+					site.hover("load error: "+data.error, {timeout: 0, close: "top right"});
 					return;
 				}
 				mixer.setMixData(data);
 			}
+			site.hover("load complete", {timeout: 1000, close: "none"});
 		}
 
 	}

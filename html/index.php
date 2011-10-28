@@ -1,13 +1,16 @@
 <?php
-$INCLUDES = array('layout');
+$INCLUDES = array('layout', 'user');
 $CSS = array('home', 'pop');
 $js = array('jquery', 'swfobject', 'javaobject', 'mixblendr', 'pop', 'home');
 require('inc/header.php');
+session_start();
 ?>
 		<script type="text/javascript">
 			var flashvars = {
+				session:"<?=str_replace('"', '\"', get_session_data_json());?>",
 				webRoot:"http://<?=$_SERVER['SERVER_NAME'];?>",
 				sampleListUrl:"scripts/samples.json.php",
+				mixListUrl:"scripts/my_mixes.json.php",
 				countryListUrl:"js/country_codes.json",
 				saveUrl:"scripts/save_mix.php",
 				loadUrl:"scripts/load_mix.php",
@@ -44,9 +47,6 @@ endif; ?>
 			</div>
 		</div>
 		<div class="footer">
-			<div class="temp">
-				<a href="#" onclick="pop('HEY THERE');return false;">test pop</a>
-			</div>
 			The Stereofyter is a project of On the Map Records (OtMR), a non-profit organization that uses music to fight stereotypes.<br />
 			OtMR is fiscally sponsored by Artspire, a project of the New York Foundation for the Arts (NYFA). Visit <a href="http://www.onthemaprecords.org" target="_blank">www.onthemaprecords.org</a> for more information. 
 		</div>

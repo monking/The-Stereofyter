@@ -1,69 +1,84 @@
 package org.stereofyter.gui
 {
 	import com.adobe.serialization.json.JSON;
+	import com.chrislovejoy.utils.Debug;
 	
 	import fl.controls.Button;
 	import fl.controls.SelectableList;
 	import fl.controls.TextInput;
+	import fl.data.DataProvider;
 	
 	import flash.display.MovieClip;
-	import flash.display.TextField;
 	import flash.events.Event;
+	import flash.events.MouseEvent;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
-
-	public class SaveDialog extends MovieClip
+	import flash.text.TextField;
+	
+	public class LoadDialog extends MovieClip
 	{
 		public static const
-			LOAD_ERROR:String = 'save_form_load_error';
+			SUBMIT_LOAD_MIX:String = 'submit load mix',
+			LOAD_ERROR:String = 'load_formElement_load_error';
 		protected var
-			mixList:Object,
+			loadURL:String,
+			mixListURL:String,
+			mixListData:Object,
+			formElement:MovieClip,
 			mixListLoader:URLLoader,
-			mixSelectablelist:SelectableList,
-			titleField:TextInput,
-			saveButton:Button,
 			_error:String;
-		public function SaveDialog():void
+		public function LoadDialog(loadURL:String, mixListURL:String):void
 		{
+			this.loadURL = loadURL || 'http://local.stereofyter.org/scripts/load_mix.php';//DEBUG
+			this.mixListURL = mixListURL || 'http://local.stereofyter.org/scripts/my_mixes.json.php';//DEBUG
+			formElement = form;
 			mixListLoader = new URLLoader();
 			mixListLoader.addEventListener(Event.COMPLETE, onMixListLoadComplete);
+			formElement.submit.addEventListener(MouseEvent.CLICK, onMixLoadSubmit);
+			formElement.mixList.addEventListener(Event.CHANGE, function(event:Event){Debug.deepLog(event.target.selectedItem);});
+			formElement.closeButton.addEventListener(MouseEvent.CLICK, function(event:MouseEvent){hide();});
 		}
 		public function show():void
 		{
-			drawForm();
-			_visible = true;
+			gotoAndPlay('show');
+			mixListLoader.load(new URLRequest(mixListURL));
 		}
-		protected function drawForm():void
+		public function hide():void
 		{
-			list = new SelectableList();
-			list.width = 280;
-			list.height = 200;
-			addChild(list);
-			list.addEventListener(Event.CHANGE, onMixSelected);
-			saveButton = new Button();
+			gotoAndPlay('hide');
+		}
+		public function get mixId():Number {
+			return Number(formElement.mixList.selectedItem.data);
+		}
+		public function get mixTitle():String {
+			return formElement.title.text;
 		}
 		protected function onMixListLoadComplete(event:Event) {
 			var data:Object = JSON.decode(mixListLoader.data);
 			if (data) {
 				if (data.hasOwnProperty("error")) {
 					_error = data.error;
-					dispatchEvent(new Event(SaveDialog.LOAD_ERROR, true));
+					dispatchEvent(new Event(LoadDialog.LOAD_ERROR, true));
 					return;
 				}
-				mixList = data;
-				mixSelectableList.removeAll();
+				mixListData = data;
+				formElement.mixList.removeAll();
+				var dp:DataProvider = new DataProvider();
 				for (var id:String in data) {
-					mixSelectableList.addItem({
-						label:data[id].title
-						data:id,
+					dp.addItem({
+						label: data[id].title + ' ('+data[id].duration+'s)',
+						data:id
 					});
 				}
+				dp.addItem({label:'test', data:'value'});
+				formElement.mixList.dataProvider = dp;
+				Debug.deepLog(formElement.mixList.dataProvider, "formElement.mixList.dataProvider");
 			}
 		}
-		protected function onMixSelected(event:Event):void
+		protected function onMixLoadSubmit(event:Event):void
 		{
-			//don't really need to do anything, do we?
+			dispatchEvent(new Event(SUBMIT_LOAD_MIX));
 		}
 	}
 }

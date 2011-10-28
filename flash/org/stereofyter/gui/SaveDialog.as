@@ -7,8 +7,9 @@ package org.stereofyter.gui
 	import fl.controls.TextInput;
 	
 	import flash.display.MovieClip;
-	import flash.display.TextField;
+	import flash.text.TextField;
 	import flash.events.Event;
+	import flash.events.MouseEvent;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
@@ -19,34 +20,35 @@ package org.stereofyter.gui
 			SUBMIT_SAVE_MIX:String = 'submit save mix',
 			LOAD_ERROR:String = 'save_form_load_error';
 		protected var
-			saveUrl:String,
+			saveURL:String,
 			mixListURL:String,
 			mixListData:Object,
 			mixListLoader:URLLoader,
 			_error:String;
-		public function SaveDialog(saveUrl:String, mixListUrl:String):void
+		public function SaveDialog(saveURL:String, mixListURL:String):void
 		{
-			this.saveUrl = saveUrl;
-			this.mixListUrl = mixListUrl;
+			this.saveURL = saveURL;
+			this.mixListURL = mixListURL;
 			mixListLoader = new URLLoader();
 			mixListLoader.addEventListener(Event.COMPLETE, onMixListLoadComplete);
-			mixList.addEventListener(Event.CHANGE, onMixSelected);
-			submit.addEventListener(MouseEvent.CLICK, onMixSaveSubmit);
+			form.mixList.addEventListener(Event.CHANGE, onMixSelect);
+			form.submit.addEventListener(MouseEvent.CLICK, onMixSaveSubmit);
+			form.closeButton.addEventListener(MouseEvent.CLICK, function(event:MouseEvent){hide();});
 		}
 		public function show():void
 		{
 			gotoAndPlay('show');
-			mixListLoader.load(new URLRequest(mixListUrl));
+			mixListLoader.load(new URLRequest(mixListURL));
 		}
 		public function hide():void
 		{
 			gotoAndPlay('hide');
 		}
 		public function get mixId():Number {
-			return Number(mixList.selectedItem.data);
+			return Number(form.mixList.selectedItem.data);
 		}
 		public function get mixTitle():String {
-			return title.text;
+			return form.title.text;
 		}
 		protected function onMixListLoadComplete(event:Event) {
 			var data:Object = JSON.decode(mixListLoader.data);
@@ -57,22 +59,29 @@ package org.stereofyter.gui
 					return;
 				}
 				mixListData = data;
-				mixSelectableList.removeAll();
+				form.mixList.removeAll();
 				for (var id:String in data) {
-					mixSelectableList.addItem({
-						label:data[id].title
-						data:id,
+					form.mixList.addItem({
+						label:data[id].title,
+						data:id
 					});
 				}
-				mixSelectableList.addItem({
-					label:'(Save a New Mix)'
-					data:'new',
+				form.mixList.addItem({
+					label:'(Save a New Mix)',
+					data:'new'
 				});
 			}
 		}
 		protected function onMixSaveSubmit(event:Event):void
 		{
 			dispatchEvent(new Event(SUBMIT_SAVE_MIX));
+		}
+		protected function onMixSelect(event:Event):void
+		{
+			if (isNaN(mixId))// new mix
+				form.title.text = 'Title';
+			else// renaming mix
+				form.title.text = 'Title (Rename)';
 		}
 	}
 }

@@ -29,6 +29,19 @@ function refresh_session_data() {
 	$row = mysql_fetch_assoc($result);
 	$_SESSION['user'] = $row;
 }
+/** get_session_data_json
+  * format relevant session data into a JSON object
+  */
+function get_session_data_json() {
+	if (!isset($_SESSION)) return '{}';
+	$json = '{"user":{';
+	$json .= '"id":"'.$_SESSION['user']['id'].'"';
+	$json .= ', "name":"'.$_SESSION['user']['name'].'"';
+	$json .= ', "country":"'.$_SESSION['user']['country'].'"';
+	$json .= ', "created":"'.$_SESSION['user']['created'].'"';
+	$json .= '}}';
+	return $json;
+}
 /** update_user
   * set the password on a user
   */

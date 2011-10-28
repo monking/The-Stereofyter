@@ -1,4 +1,4 @@
-package com.chrislovejoy.audio
+package com.chrislovejoy.media
 {
 	import flash.events.Event;
 	import flash.events.EventDispatcher;

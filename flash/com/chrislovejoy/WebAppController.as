@@ -13,6 +13,8 @@ package com.chrislovejoy {
 			_root:DisplayObject;
 
 		public function WebAppController(root:DisplayObject, debug:Boolean = false) {
+			trace('WebAppController constructor');
+			trace('root.stage: '+root.stage);
 			_root = root;
 			Debug.on = debug;
 			if(_root.stage.hasOwnProperty('loaderInfo')) {

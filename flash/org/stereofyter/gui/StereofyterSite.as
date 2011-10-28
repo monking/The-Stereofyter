@@ -1,5 +1,5 @@
 package org.stereofyter.gui {
-
+	
 	import com.chrislovejoy.WebAppController;
 	import com.chrislovejoy.media.MP3Stream;
 	import com.chrislovejoy.gui.Block;
@@ -54,9 +54,9 @@ package org.stereofyter.gui {
 			background.addChild(backdrop);
 			newsletterSignup = new NewsletterSignup();
 			foreground.addChild(newsletterSignup);
-			loadDialog = new LoadDialog();
+			loadDialog = new LoadDialog(WebAppController.flashVars.saveUrl, WebAppController.flashVars.mixListUrl);
 			foreground.addChild(loadDialog);
-			saveDialog = new SaveDialog();
+			saveDialog = new SaveDialog(WebAppController.flashVars.saveUrl, WebAppController.flashVars.mixListUrl);
 			foreground.addChild(saveDialog);
 			addSiteInfoPane();
 			nav = new SFNavBar();
@@ -94,6 +94,8 @@ package org.stereofyter.gui {
 			previewButtons.y = 40;
 			info.x = stage.stageWidth / 2 - info.width / 2;
 			newsletterSignup.x = stage.stageWidth / 2 - newsletterSignup.width / 2;
+			saveDialog.x = stage.stageWidth / 2 - saveDialog.width / 2;
+			loadDialog.x = stage.stageWidth / 2 - loadDialog.width / 2;
 			hoverBlock.x = stage.stageWidth / 2 - hoverBlock.width / 2;
 			hoverBlock.y = stage.stageHeight/ 2 - hoverBlock.height / 2;
 		}
@@ -104,6 +106,15 @@ package org.stereofyter.gui {
 		
 		public function hideSaveDialog():void {
 			saveDialog.hide();
+			stage.focus = stage;
+		}
+		
+		public function showLoadDialog():void {
+			loadDialog.show();
+		}
+		
+		public function hideLoadDialog():void {
+			loadDialog.hide();
 			stage.focus = stage;
 		}
 		
@@ -175,7 +186,7 @@ package org.stereofyter.gui {
 				"Save":{
 					"label":"SAVE",
 					"action":function(event:MouseEvent) {
-						dispatchEvent(new Event(Mixer.REQUEST_REQUEST_SAVE_MIX, true));
+						dispatchEvent(new Event(Mixer.REQUEST_SAVE_MIX, true));
 					}
 				},
 				"Login":null,

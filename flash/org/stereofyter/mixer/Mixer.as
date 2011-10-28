@@ -23,7 +23,6 @@
 	import flash.geom.Rectangle;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
-	import flash.net.URLRequestMethod;
 	import flash.sampler.Sample;
 	import flash.ui.Keyboard;
 	import flash.utils.Timer;
@@ -48,6 +47,7 @@
 			REGION_MOVED:String = "mixer_region_moved",
 			REGION_REMOVED:String = "mixer_region_removed",
 			REQUEST_LOAD_MIX:String = 'request_load_mix',
+			REQUEST_SAVE_MIX:String = 'request_save_mix',
 			REWIND:String = "mixer_rewind",
 			SAMPLE_LIST_LOADED:String = "mixer_sample_list_loaded",
 			SEEK:String = "mixer_seek",
