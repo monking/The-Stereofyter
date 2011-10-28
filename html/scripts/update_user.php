@@ -1,7 +1,7 @@
 <?php
 
 require_once('../inc/includes.php');
-require_from_inc_dir('db_sf');
+require_from_inc_dir('user');
 require_from_inc_dir('url');
 
 if ($_POST['hash']) {

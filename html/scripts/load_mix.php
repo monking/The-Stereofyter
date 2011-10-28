@@ -3,12 +3,13 @@
 header('Content-type: application/json; charset=utf-8');
 
 require_once('../inc/includes.php');
-require_from_inc_dir('db_sf');
+require_from_inc_dir('user');
 
 $mix_id = FALSE;
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 	$mix_id = mysql_real_escape_string($_GET['id']);
 } else {
+  // no mix ID given: get user's last edited mix
 	session_start();
 	if (isset($_SESSION['user'])) {
 		$result = mysql_query("SELECT id FROM sf_mixes WHERE modified_by='".$_SESSION['user']['id']."' ORDER BY modified DESC LIMIT 1");

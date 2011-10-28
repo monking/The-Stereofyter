@@ -1,7 +1,7 @@
 <?php
 
 require_once('../inc/includes.php');
-require_from_inc_dir('db_sf', 'validation');
+require_from_inc_dir('user', 'validation');
 
 header('Cache-Control: no-cache, must-revalidate');
 //header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');

@@ -1,16 +1,16 @@
 <?php
 
 require_once('../inc/includes.php');
-require_from_inc_dir('db_sf');
+require_from_inc_dir('mix');
 
 header('Content-type: application/json; charset=utf-8');
 
-if (!isset($_POST['data'])) die('{"error":"no data to save"}');
-$mix_data['data'] = $_POST['data'];
-if (isset($_POST['id']))
-	$mix_data['id'] = $_POST['id'];
-if (isset($_POST['comment']))
-	$mix_data['comment'] = $_POST['comment'];
+if (!isset($_REQUEST['data'])) die('{"error":"no data to save"}');
+$mix_data['data'] = $_REQUEST['data'];
+if (isset($_REQUEST['id']))
+	$mix_data['id'] = $_REQUEST['id'];
+if (isset($_REQUEST['comment']))
+	$mix_data['comment'] = $_REQUEST['comment'];
 		
 $saved = save_mix($mix_data);
 if ($saved === FALSE)

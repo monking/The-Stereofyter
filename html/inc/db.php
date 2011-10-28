@@ -1,11 +1,20 @@
 <?php
 
-require_from_inc_dir('../../_config');
+require_from_inc_dir('../../_config', 'array');
 
 $DB_CONN = mysql_connect(DB_HOST, DB_USER, DB_PASS);
 $DB_SELECT = mysql_select_db(DB_NAME);
 /** assoc_to_mysql
-  */
+	* build and submit a MySQL query from an associative array
+	* @assoc (Array) keys for column names.
+	*		A key of 'WHERE' should have another associative array as a value, and will be
+	*		turned into a MySQL 'WHERE' statement.
+	* @method (String) 'INSERT' or 'UPDATE'
+	* @table_name (String)
+	* @db_name (OPTIONAL String)
+	*
+	* NOTE: you must escape special characters in your values before calling assoc_to_mysql
+	*/
 function assoc_to_mysql($assoc, $method, $table_name, $db_name = null) {
 	// Takes a 2-dimensional associative array and turns it into a SQL query.
 	// VERY INCOMPLETE! 2011-04-29
@@ -26,24 +35,22 @@ function assoc_to_mysql($assoc, $method, $table_name, $db_name = null) {
 					$query .= $value['function'];
 				else 
 					$query .= "'$value'";
-				}
+			}
 			if (array_key_exists('WHERE', $row)) {
 				$query .= assoc_to_mysql_where($row['WHERE']);
-				}
-			$query .= ';';
 			}
+			$query .= ';';
 		}
-	else 
-		{
+	} else {
 		return false;
-		}
+	}
 	//echo $query; return true;
 	if (!mysql_query($query)) return false;
 	//echo $query;
 	return true;
 }
 /** assoc_to_mysql_where
-  */
+	*/
 function assoc_to_mysql_where($assoc) {
 	// how can an associated array represent an AND/OR string, and should it?
 	// or should I just expect the string?
@@ -56,86 +63,23 @@ function assoc_to_mysql_where($assoc) {
 		$value = mysql_real_escape_string($value);
 		$where_delim = $cond_num > 1? 'AND': '';
 		$query .= "$where_delim $field='$value'";
-		}
-	return $query;
 	}
+	return $query;
+}
 /** mysql_to_json
-  * $query (string) MySQL QUERY whose result will be shown
-  * $options (array)
-		['whitespace'] (string) 'none' or 'newline' (default 'none')
-		['structure'] (string) 'object', 'array', 'column' or 'flat' (default 'object')
-			'object': an object containing rows as objects, indexed by the first column selected
-			'array': an array containing rows as elements counting from 0
-			'column': an array of the values in the first column
-			'flat': an object of only the first row
-		['indent'] (string) whitespace to prepend to each line (overridden by ['whitespace'] => 'none')
-		['objects'] (array) array of column names whose data are already JSON-compatible objects.
-  */
-function mysql_to_json($query, $options = array())
-	{
-	$json = '';
-	foreach (
-		array(
-			'whitespace' => 'none',
-			'structure' => 'object',
-			'indent' => '',
-			'objects' => array()
-			)
-		as $key => $value)
-		{
-		if (!array_key_exists($key, $options))
-			$options[$key] = $value;
-		}
+	* $query (string) MySQL QUERY whose result will be shown
+	* $options (array) see assoc_to_json documentation
+	*/
+function mysql_to_json($query, $options = array()) {
 	if (!($result = mysql_query($query)))
 		die(mysql_error());
-	if ($options['structure'] != 'flat')
-		$json .= $options['structure'] == 'object'? '{': '[';
-	$row_count = 0;
+	$result_array = array();
 	while($row = mysql_fetch_assoc($result))
-		{
-		$row_count++;
-		$field_count = 0;
-		$first_field = true;
-		foreach($row as $field => $value)
-			{
-			if ($first_field)
-				{
-				if ($options['whitespace'] == 'newline')
-					$json .= "\n".$options['indent']."	";
-				if ($options['structure'] == 'object')
-					$json .= "\"$value\":";
-				if ($options['structure'] != 'column')
-					$json .= "{";
-				$first_field = false;
-				}
-			if ($options['structure'] != 'column')
-				{
-				$field_count++;
-				if ($options['whitespace'] == 'newline')
-					$json .= "\n".$options['indent']."		";
-				$json .= "\"$field\":";
-				if (array_search($field, $options['objects']) !== false)
-					$json .= "$value";
-				else
-					$json .= "\"$value\"";
-				$field_count < count($row) && $json .= ",";
-				}
-			}
-		if ($options['whitespace'] == 'newline')
-			$json .= "\n".$options['indent']."	";
-		$json .= "}";		
-		if ($options['structure'] == 'flat')
-			break;
-		$row_count < mysql_num_rows($result) && $json .= ",";
-		}
-	if ($options['whitespace'] == 'newline')
-		$json .= "\n".$options['indent'];
-	if ($options['structure'] != 'flat')
-		$json .= $options['structure'] == 'object'? '}': ']';
-	return $json;
-	}
+	  $result_array[] = $row;
+	return assoc_to_json($result_array, $options);
+}
 /** mysql_to_table
-  */
+	*/
 function mysql_to_table($query) {
 	$result = mysql_query($query);
 	if (!$result) {
@@ -150,7 +94,7 @@ function mysql_to_table($query) {
 		$output .= '</table>'."\r\n";
 		echo $output;
 		return false;
-		}
+	}
 	if (!mysql_num_rows($result)) {
 		$output .= "\r\n";
 		$output .= '<table>'."\r\n";
@@ -162,7 +106,7 @@ function mysql_to_table($query) {
 		$output .= '</table>'."\r\n";
 		echo $output;
 		return false;
-		}
+	}
 	$output = "\r\n";
 	$output .= '<table>'."\r\n";
 	$output .= '	<thead>'."\r\n";
@@ -172,7 +116,7 @@ function mysql_to_table($query) {
 		$col = mysql_fetch_field($result, $i);
 		$output .= '			<td>'."$col->name".'</td>'."\r\n";
 		$i++;
-		}
+	}
 	$output .= '		</tr>'."\r\n";
 	$output .= '	</thead>'."\r\n";
 	$output .= '	<tbody>'."\r\n";
@@ -182,9 +126,9 @@ function mysql_to_table($query) {
 			$output .= '			<td>'.$value.'</td>'."\r\n";
 		}
 		$output .= '		</tr>'."\r\n";
-		}
+	}
 	$output .= '	</tbody>'."\r\n";
 	$output .= '</table>'."\r\n";
 	echo $output;
-	}
+}
 ?>

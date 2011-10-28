@@ -1,7 +1,7 @@
 <?php
 $CSS = array('unsubscribe');
 require_once('inc/header.php');
-require_from_inc_dir('db_sf');
+require_from_inc_dir('user');
 
 $view = 'default';
 if (isset($_GET['error'])) log_error($_GET['error']);
@@ -19,7 +19,7 @@ if(isset($_POST['username'])) {
 ?>
 	<h1>The Stereofyter - Reset Password</h1>
 <?php
-if ($ERROR):
+if ($ERROR)://TODO: don't show the "confirmation sent" message if there's an error
 ?>
 	<p class="error"><?=implode('; ',$ERROR)?></p>
 <?php
