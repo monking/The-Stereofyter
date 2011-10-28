@@ -44,9 +44,7 @@ function assoc_to_mysql($assoc, $method, $table_name, $db_name = null) {
 	} else {
 		return false;
 	}
-	//echo $query; return true;
 	if (!mysql_query($query)) return false;
-	//echo $query;
 	return true;
 }
 /** assoc_to_mysql_where

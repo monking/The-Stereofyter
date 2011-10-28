@@ -85,7 +85,7 @@ function assoc_to_json($assoc, $options = array()) {
 			if ($options['structure'] != 'column') {
 				$field_count++;
 				if ($options['whitespace'] == 'newline')
-					$json .= "\n".$options['indent']."		";
+					$json .= "\n".$options['indent'].'		';
 				$json .= "\"$field\":";
 				if (is_numeric($value) || array_search($field, $options['objects']) !== false)
 					$json .= $value;
