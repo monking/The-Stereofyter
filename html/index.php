@@ -1,7 +1,7 @@
 <?php
 $INCLUDES = array('layout');
 $CSS = array('home', 'pop');
-$js = array('jquery', 'swfobject', 'javaobject', 'mixblendr', 'home');
+$js = array('jquery', 'swfobject', 'javaobject', 'mixblendr', 'pop', 'home');
 require('inc/header.php');
 ?>
 		<script type="text/javascript">

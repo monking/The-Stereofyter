@@ -21,7 +21,7 @@ package com.chrislovejoy.gui {
 		public static const
 			CLOSE:String = "shadowblock_close";
 
-		private var
+		protected var
 			options:Object,
 			label:TextField,
 			format:TextFormat,
@@ -110,7 +110,7 @@ package com.chrislovejoy.gui {
 			return holder.height;
 		}
 
-		private function draw():void {
+		protected function draw():void {
 			if (label && holder.contains(label)) {
 				label.multiline = options.multiline;
 				label.setTextFormat(format);
@@ -154,7 +154,7 @@ package com.chrislovejoy.gui {
 			} else if (timeoutTimer) timeoutTimer.stop();
 		}
 
-		private function clearHolder():void {
+		protected function clearHolder():void {
 			while (holder.numChildren) holder.removeChildAt(0);
 		}
 

@@ -14,9 +14,11 @@ function filter_sf_mysql_assoc($key, &$value) {
 }
 /** save_mix
   * $mix_data (array)
-		['data'] (string) JSON-encoded mix data to be saved
+		['mix'] (string) JSON-encoded mix data to be saved
+		['title'] (string) OPTIONAL title of the mix; needed for a new mix
+		['tempo'] (string) OPTIONAL the mix's BPM
+		['chromatic_key'] (string) OPTIONAL the key of the music in shorthand (e.g. C, F#m)
 		['id'] (number) OPTIONAL id of the mix. If omitted, a new mix is saved
-		['comment'] (string) OPTIONAL message to save with this revision
   * RETURNS (number) id of saved mix, or -1 on error
   */
 function save_mix($mix_data) {
@@ -24,7 +26,7 @@ function save_mix($mix_data) {
 
 	if (!isset($_SESSION['user']['id']))
 		return log_error('not logged in', FALSE);
-	if (!isset($mix_data['data']))
+	if (!isset($mix_data['mix']))
 		return log_error('no mix data received for saving', FALSE);
 
 	if (isset($mix_data['id'])) {
@@ -34,7 +36,7 @@ function save_mix($mix_data) {
 	$mix = array_conform(
 		$mix_data,
 		array(
-			'data' => '',
+			'mix' => '',
 			'title' => 'Untitled',
 			'tempo' => '',
 			'chromatic_key' => '',

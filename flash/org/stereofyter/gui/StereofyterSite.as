@@ -22,7 +22,7 @@ package org.stereofyter.gui {
 		public static const
 			SHOW_NEWSLETTER:String = "show_newsletter",
 			SHOW_ABOUT:String = "show_about",
-			SAVE_MIX:String = "save_mix";
+			REQUEST_SAVE_MIX:String = "save_mix";
 
 		public var
 			foreground:Sprite,
@@ -30,6 +30,8 @@ package org.stereofyter.gui {
 			background:Sprite,
 			backdrop:SFBackground,
 			nav:SFNavBar,
+			loadDialog:LoadDialog,
+			saveDialog:SaveDialog,
 			info:SiteInfoPane,
 			newsletterSignup:NewsletterSignup,
 			logo:StereofyterLogo,
@@ -52,6 +54,10 @@ package org.stereofyter.gui {
 			background.addChild(backdrop);
 			newsletterSignup = new NewsletterSignup();
 			foreground.addChild(newsletterSignup);
+			loadDialog = new LoadDialog();
+			foreground.addChild(loadDialog);
+			saveDialog = new SaveDialog();
+			foreground.addChild(saveDialog);
 			addSiteInfoPane();
 			nav = new SFNavBar();
 			foreground.addChild(nav);
@@ -90,6 +96,15 @@ package org.stereofyter.gui {
 			newsletterSignup.x = stage.stageWidth / 2 - newsletterSignup.width / 2;
 			hoverBlock.x = stage.stageWidth / 2 - hoverBlock.width / 2;
 			hoverBlock.y = stage.stageHeight/ 2 - hoverBlock.height / 2;
+		}
+		
+		public function showSaveDialog():void {
+			saveDialog.show();
+		}
+		
+		public function hideSaveDialog():void {
+			saveDialog.hide();
+			stage.focus = stage;
 		}
 		
 		public function showSiteInfoPane():void {
@@ -160,7 +175,7 @@ package org.stereofyter.gui {
 				"Save":{
 					"label":"SAVE",
 					"action":function(event:MouseEvent) {
-						dispatchEvent(new Event(Mixer.REQUEST_SAVE_MIX, true));
+						dispatchEvent(new Event(Mixer.REQUEST_REQUEST_SAVE_MIX, true));
 					}
 				},
 				"Login":null,

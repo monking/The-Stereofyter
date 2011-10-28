@@ -8,8 +8,6 @@
 	import com.chrislovejoy.motion.Move;
 	import com.chrislovejoy.utils.Debug;
 	
-	import org.stereofyter.StereofyterAppController
-	
 	import fl.transitions.TweenEvent;
 	
 	import flash.display.DisplayObject;
@@ -30,14 +28,16 @@
 	import flash.ui.Keyboard;
 	import flash.utils.Timer;
 	
+	import org.stereofyter.StereofyterAppController;
+	
 	public class Mixer extends Sprite {
 		public static const
 			BEAT_WIDTH:Number = 11,
 			CLEAR_BEGIN:String = "mixer_clear_begin",
 			CLEAR_COMPLETE:String = "mixer_clear_complete",
-			LOAD_BEGIN:String = "mixer_load_begin",
-			LOAD_COMPLETE:String = "mixer_load_complete",
-			LOAD_ERROR:String = "mixer_load_error",
+			ENCODE_BEGIN:String = "mixer_encode_begin",
+			ENCODE_COMPLETE:String = "mixer_encode_complete",
+			ENCODE_ERROR:String = "mixer_encode_error",
 			MAX_BEATS:int = 240,
 			MAX_TRACKS:int = 8,
 			PARSE_BEGIN:String = "mixer_parse_begin",
@@ -48,12 +48,8 @@
 			REGION_MOVED:String = "mixer_region_moved",
 			REGION_REMOVED:String = "mixer_region_removed",
 			REQUEST_LOAD_MIX:String = 'request_load_mix',
-			REQUEST_SAVE_MIX:String = 'request_save_mix',
 			REWIND:String = "mixer_rewind",
 			SAMPLE_LIST_LOADED:String = "mixer_sample_list_loaded",
-			SAVE_BEGIN:String = "mixer_save_begin",
-			SAVE_COMPLETE:String = "mixer_save_complete",
-			SAVE_ERROR:String = "mixer_save_error",
 			SEEK:String = "mixer_seek",
 			SEEK_FINISH:String = "mixer_seek_finish",
 			SEEK_START:String = "mixer_seek_start",
@@ -70,7 +66,7 @@
 			PARSE_REGION_INTERVAL:int = 0;
 		
 		private var
-			mixData:Object = {},
+			MixData:Object = {},
 			PlaybackPosition:Number = 0,
 			tracks:Array = [],
 			Regions:Array = [],
@@ -90,8 +86,6 @@
 			trackFieldPushed:Boolean = false,
 			recordThrowMove:Move,
 			newTrackDelay:Timer,
-			saveLoader:URLLoader,
-			loadLoader:URLLoader,
 			Volume:Number = 1,
 			_error:String = "",
 			Width:Number,
@@ -106,14 +100,10 @@
 			bottom:MixerBottom,
 			dj:MovieClip,
 			djSide:String,
-			saving:Boolean = false,
 			loading:Boolean = false,
 			parsing:Boolean = false;
 		
 		public function Mixer(width:Number = 500, height:Number = 240, trackCount:Number = 8):void {
-			saveLoader = new URLLoader();
-			loadLoader = new URLLoader();
-			
 			Width = width;
 			Height = height;
 			ui = new MixerUI();
@@ -224,65 +214,6 @@
 				clearTimer.start();
 			});
 			clearTimer.start();
-		}
-
-		public function saveMix():void {
-			saving = true;
-			dispatchEvent(new Event(Mixer.SAVE_BEGIN, true));
-			//volume range is converted from 0-1 to 0-100
-			var encodedMix:Object = {
-				properties:{
-					name:mixData.name,
-					tempo:Tempo,
-					key:mixData.key,
-					volume:Math.round(Volume * 100)
-				},
-				samples:[],
-				tracks:[]
-			};
-			for (var trackIndex:int = 0; trackIndex < tracks.length; trackIndex++) {
-				var track:Track = tracks[trackIndex];
-				if (!track.numRegions) continue;
-				var encodedTrack:Array = [];
-				for (var beat:String in track.beats) {
-					var region:Region = track.beats[beat];
-					if (!region) continue;
-					var encodedSampleIndex:int = -1;
-					for (var i:int = 0; i < encodedMix.samples.length; i++) {
-						//get index if sample is already recorded
-						if (encodedMix.samples[i] == region.sample.src) encodedSampleIndex = i;
-					}
-					if (encodedSampleIndex == -1) {
-						//record sample
-						encodedMix.samples.push(region.sample.src);
-						encodedSampleIndex = encodedMix.samples.length - 1;
-					}
-					var encodedRegion:Object = {};
-					encodedRegion[ENCODED_KEY_SAMPLE] = encodedSampleIndex;
-					encodedRegion[ENCODED_KEY_BEAT] = new int(beat);
-					encodedRegion[ENCODED_KEY_VOLUME] = new int(region.volume * 100);
-					encodedRegion[ENCODED_KEY_MUTE] = region.isMuted? 1: 0;
-					encodedRegion[ENCODED_KEY_SOLO] = region.solo == Region.SOLO_THIS? 1: 0;
-					encodedTrack.push(encodedRegion);
-				}
-				encodedMix.tracks[trackIndex] = encodedTrack;
-			}
-			
-			var saveReq:URLRequest = new URLRequest(WebAppController.flashVars.saveUrl);
-			saveReq.data = "data="+encodeURIComponent(JSON.encode(encodedMix));
-			if (mixData.hasOwnProperty("id"))
-				saveReq.data += "&id="+mixData.id;
-			saveReq.method = URLRequestMethod.POST;
-			saveLoader.load(saveReq);
-		}
-		
-		public function loadMix(id:int = -1):void {
-			loading = false;
-			dispatchEvent(new Event(Mixer.LOAD_BEGIN, true));
-			var loadReq:URLRequest = new URLRequest(WebAppController.flashVars.loadUrl);
-			if (id != -1)
-				loadReq.data = "id="+id;
-			loadLoader.load(loadReq);
 		}
 		
 		public function togglePause():Boolean {
@@ -399,11 +330,69 @@
 			bottom.gotoAndPlay("introDJ");
 		}
 		
-		public function get mixId():String {
-			if (mixData && mixData.hasOwnProperty("id"))
-				return mixData.id
-			else
-				return "";
+		public function setMixData(data:Object):void {
+			MixData = null;
+			updateMixData(data);
+		}
+		
+		public function updateMixData(data:Object):void {
+			if (!MixData) {
+				MixData = data;
+			} else {
+				for (var key:String in data) {
+					MixData[key] = data[key];
+				}
+			}
+			if (data.hasOwnProperty('mix')) {
+				addEventListener(Mixer.CLEAR_COMPLETE, parseOnClear);
+				clearMix();
+			}
+		}
+		
+		public function encodeMix():void {
+			//volume range is converted from 0-1 to 0-100
+			var encodedMix:Object = {
+				properties:{
+					name:MixData.name,
+						tempo:Tempo,
+						key:MixData.key,
+						volume:Math.round(Volume * 100)
+				},
+				samples:[],
+				tracks:[]
+			};
+			for (var trackIndex:int = 0; trackIndex < tracks.length; trackIndex++) {
+				var track:Track = tracks[trackIndex];
+				if (!track.numRegions) continue;
+				var encodedTrack:Array = [];
+				for (var beat:String in track.beats) {
+					var region:Region = track.beats[beat];
+					if (!region) continue;
+					var encodedSampleIndex:int = -1;
+					for (var i:int = 0; i < encodedMix.samples.length; i++) {
+						//get index if sample is already recorded
+						if (encodedMix.samples[i] == region.sample.src) encodedSampleIndex = i;
+					}
+					if (encodedSampleIndex == -1) {
+						//record sample
+						encodedMix.samples.push(region.sample.src);
+						encodedSampleIndex = encodedMix.samples.length - 1;
+					}
+					var encodedRegion:Object = {};
+					encodedRegion[ENCODED_KEY_SAMPLE] = encodedSampleIndex;
+					encodedRegion[ENCODED_KEY_BEAT] = new int(beat);
+					encodedRegion[ENCODED_KEY_VOLUME] = new int(region.volume * 100);
+					encodedRegion[ENCODED_KEY_MUTE] = region.isMuted? 1: 0;
+					encodedRegion[ENCODED_KEY_SOLO] = region.solo == Region.SOLO_THIS? 1: 0;
+					encodedTrack.push(encodedRegion);
+				}
+				encodedMix.tracks[trackIndex] = encodedTrack;
+			}
+			MixData.mix = encodedMix;
+		}
+		
+		public function get mixData():Object {
+			return MixData || {};
 		}
 		
 		public function get error():String {
@@ -456,7 +445,7 @@
 		private function parseMix():void {
 			parsing = true;
 			dispatchEvent(new Event(Mixer.PARSE_BEGIN, true));
-			if (!mixData.data || !mixData.data.tracks || !mixData.data.samples) {
+			if (!MixData.mix || !MixData.mix.tracks || !MixData.mix.samples) {
 				_error = "the loaded mix is incompatible";
 				dispatchEvent(new Event(Mixer.PARSE_ERROR, true));
 				return;
@@ -466,10 +455,10 @@
 			var parseRegionPointer:int = 0;
 			var indexedSamples:Array = [];
 			var sample:Sample;
-			for (var i:int = 0; i < mixData.data.samples.length; i++) {
+			for (var i:int = 0; i < MixData.mix.samples.length; i++) {
 				var sampleFound:Boolean = false;
 				for each (sample in samples) {
-					if (sample.src == mixData.data.samples[i]) {
+					if (sample.src == MixData.mix.samples[i]) {
 						indexedSamples[i] = sample;
 						sampleFound = true;
 					}
@@ -477,13 +466,13 @@
 				if (!sampleFound) {
 					//not found, try for partial matches
 					for each (sample in samples) {
-						if (mixData.data.samples[i].indexOf(sample.src) > -1) {
+						if (MixData.mix.samples[i].indexOf(sample.src) > -1) {
 							indexedSamples[i] = sample;
 							sampleFound = true;
 						}
 					}
 					if (!sampleFound) {
-						_error = "loop '"+mixData.data.samples[i]+"' not found";
+						_error = "loop '"+MixData.mix.samples[i]+"' not found";
 						dispatchEvent(new Event(Mixer.PARSE_ERROR, true));
 						return;
 					}
@@ -492,13 +481,13 @@
 			var soloRegion:Region = null;
 			var parseTimer:Timer = new Timer(PARSE_REGION_INTERVAL, 1);
 			parseTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function(event:TimerEvent) {
-				if (parseTrackPointer < mixData.data.tracks.length && (!mixData.data.tracks[parseTrackPointer] || !mixData.data.tracks[parseTrackPointer][parseRegionPointer])) {
+				if (parseTrackPointer < MixData.mix.tracks.length && (!MixData.mix.tracks[parseTrackPointer] || !MixData.mix.tracks[parseTrackPointer][parseRegionPointer])) {
 					parseRegionPointer = 0;
 					parseTrackPointer++;
 					parseTimer.start();
 					return;
 				}
-				if (parseTrackPointer >= mixData.data.tracks.length) {
+				if (parseTrackPointer >= MixData.mix.tracks.length) {
 					parseTrackPointer--;
 					//TODO: set the defined soloRegion to solo
 					//if (soloRegion) soloRegion.setSolo(Region.SOLO_THIS);
@@ -506,7 +495,7 @@
 					dispatchEvent(new Event(Mixer.PARSE_COMPLETE, true));
 					return;
 				}
-				var regionData = mixData.data.tracks[parseTrackPointer][parseRegionPointer];
+				var regionData = MixData.mix.tracks[parseTrackPointer][parseRegionPointer];
 				dispatchEvent(new Event(Mixer.PARSE_BEGIN, true));
 				if (typeof regionData[ENCODED_KEY_SAMPLE] == undefined || typeof regionData[ENCODED_KEY_BEAT] == undefined) {
 					_error = "the loaded mix is incompatible";
@@ -900,8 +889,6 @@ import flash.events.Event;
 			});
 			/* Data Events */
 			addEventListener(SAMPLE_LIST_LOADED, onSampleListLoad);
-			saveLoader.addEventListener(Event.COMPLETE, saveCompleteListener);
-			loadLoader.addEventListener(Event.COMPLETE, loadCompleteListener);
 			ui.buttonLoadMix.addEventListener(MouseEvent.CLICK, function(event:MouseEvent) {
 				dispatchEvent(new Event(Mixer.REQUEST_LOAD_MIX));
 			});
@@ -1014,42 +1001,6 @@ import flash.events.Event;
 			bins[0].y = 20;
 			bins[1].x = 160;
 			bins[1].y = bins[0].y;
-		}
-		
-		private function saveCompleteListener(event:Event):void {
-			saving = false;
-			var data:Object = JSON.decode(saveLoader.data);
-			if (data) {
-				if (data.hasOwnProperty("error")) {
-					_error = data.error;
-					dispatchEvent(new Event(Mixer.SAVE_ERROR, true));
-					return;
-				}
-				if (!mixData) {
-					mixData = data;
-				} else {
-					for (var key:String in data) {
-						mixData[key] = data[key];
-					}
-				}
-			}
-			dispatchEvent(new Event(Mixer.SAVE_COMPLETE, true));
-		}
-		
-		private function loadCompleteListener(event:Event):void {
-			loading = false;
-			dispatchEvent(new Event(Mixer.LOAD_COMPLETE, true));
-			var data:Object = JSON.decode(loadLoader.data);
-			if (data) {
-				if (data.hasOwnProperty("error")) {
-					_error = data.error;
-					dispatchEvent(new Event(Mixer.LOAD_ERROR, true));
-					return;
-				}
-				mixData = data;
-				addEventListener(Mixer.CLEAR_COMPLETE, parseOnClear);
-				clearMix();
-			}
 		}
 		
 		private function parseOnClear(event:Event):void {

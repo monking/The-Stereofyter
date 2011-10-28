@@ -7,8 +7,8 @@ header('Content-type: application/json; charset=utf-8');
 header('Cache-Control: no-cache, must-revalidate');
 //header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 
-if (!isset($_REQUEST['data'])) die('{"error":"no data to save"}');
-$mix_data['data'] = $_REQUEST['data'];
+if (!isset($_REQUEST['mix'])) die('{"error":"no data to save"}');
+$mix_data['mix'] = $_REQUEST['mix'];
 if (isset($_REQUEST['id']))
 	$mix_data['id'] = $_REQUEST['id'];
 if (isset($_REQUEST['title']))

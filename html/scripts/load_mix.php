@@ -27,7 +27,7 @@ $mix_data = mysql_to_json(
 	"SELECT * FROM sf_mixes WHERE id='$mix_id'",
 	array(
 		'structure' => 'flat',
-		'objects' => array('data')
+		'objects' => array('mix')
 		)
 	);
 if (!$mix_data)
