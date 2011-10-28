@@ -1,9 +1,9 @@
 <?php
+session_start();
 $INCLUDES = array('layout', 'user');
 $CSS = array('home', 'pop');
 $js = array('jquery', 'swfobject', 'javaobject', 'mixblendr', 'pop', 'home');
 require('inc/header.php');
-session_start();
 ?>
 		<script type="text/javascript">
 			var flashvars = {

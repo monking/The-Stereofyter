@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Oct 28, 2011 at 04:56 AM
+-- Generation Time: Oct 28, 2011 at 09:31 AM
 -- Server version: 5.1.53
 -- PHP Version: 5.3.4
 
@@ -269,7 +269,7 @@ REPLACE INTO `sf_countries` (`country_code`, `country_name`) VALUES
 -- Dumping data for table `sf_mixes`
 --
 
-REPLACE INTO `sf_mixes` (`id`, `title`, `data`, `modified_by`, `modified`, `created`, `duration`, `tempo`, `chromatic_key`) VALUES
+REPLACE INTO `sf_mixes` (`id`, `title`, `mix`, `modified_by`, `modified`, `created`, `duration`, `tempo`, `chromatic_key`) VALUES
 (12, '', '{"tracks":[[{"S":0,"v":100,"s":0,"b":0,"m":0}],[{"S":1,"v":100,"s":0,"b":8,"m":0}],[{"S":2,"v":100,"s":0,"b":16,"m":0}]],"samples":["http://local.stereofyter.org/audio/samples/Djembe.ogg","http://local.stereofyter.org/audio/samples/Electro_Transistor_Beat.ogg","http://local.stereofyter.org/audio/samples/Tremolo_Organ.ogg"],"properties":{"tempo":90,"key":null,"name":null,"volume":100}}', 22, '2011-10-05 02:29:27', '2011-10-05 02:29:27', 0, 0, ''),
 (1, '', '{"tracks":[]}', 16, '2011-10-03 20:07:26', '2011-10-03 20:06:37', 0, 0, ''),
 (2, '', '{"tracks":[]}', 22, '2011-10-03 21:03:32', '2011-10-03 20:13:19', 0, 0, ''),

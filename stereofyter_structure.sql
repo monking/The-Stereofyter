@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Oct 28, 2011 at 04:56 AM
+-- Generation Time: Oct 28, 2011 at 09:31 AM
 -- Server version: 5.1.53
 -- PHP Version: 5.3.4
 
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS `sf_countries` (
 CREATE TABLE IF NOT EXISTS `sf_mixes` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'automatically generated unique ID',
   `title` varchar(64) COLLATE utf8_bin NOT NULL,
-  `data` text COLLATE utf8_bin NOT NULL COMMENT 'mix data encoded in custom JSON format',
+  `mix` text COLLATE utf8_bin NOT NULL COMMENT 'mix data encoded in custom JSON format',
   `modified_by` int(11) NOT NULL,
   `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'date last saved',
   `created` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'date created',
