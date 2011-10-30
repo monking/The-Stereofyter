@@ -2,6 +2,7 @@ package org.stereofyter.mixer {
 
 	//import flash.display.Graphics;
 	import com.chrislovejoy.utils.Debug;
+	
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.geom.Point;
@@ -27,13 +28,15 @@ package org.stereofyter.mixer {
 			BeatWidth:Number,
 			Width:Number,
 			Height:Number,
+			Tempo:Number,
 			MaxBeats:int;
 
-		public function Track(beatWidth:Number, maxBeats:int):void {
+		public function Track(beatWidth:Number, tempo:Number, maxBeats:int):void {
 			/*
 			 * Track contains a graphic representation of a track, and can have Regions
 			 * added to it.
 			 */
+			Tempo = tempo;
 			BeatWidth = beatWidth;
 			// width: max + room to display the last cell
 			Width = beatWidth * (maxBeats+1);
@@ -129,6 +132,14 @@ package org.stereofyter.mixer {
 		
 		public function get beats():Array {
 			return Beats;
+		}
+		
+		public function get duration():Number {
+			var lastStartBeat:String;
+			for (var beat:String in Beats) {
+				lastStartBeat = beat;
+			}
+			return Number(lastStartBeat) * 60000 / Tempo + Beats[lastStartBeat].duration;
 		}
 
 		override public function get width():Number {

@@ -45,8 +45,6 @@ package org.stereofyter {
 			_root.stage.scaleMode = StageScaleMode.NO_SCALE;
 			if (flashVars.session)
 				session = JSON.decode(flashVars.session);
-			else//DEBUG
-				session = {user:{id:16}};
 			engine = new MixblendrInterface();
 			site = new StereofyterSite();
 			_root.stage.addChild(site);
@@ -105,14 +103,17 @@ package org.stereofyter {
 			});
 			site.addEventListener(SaveDialog.SUBMIT_SAVE_MIX, function(event:Event) {
 				var dialog:SaveDialog = event.target as SaveDialog;
+				dialog.hide();
 				mixer.updateMixData({
 					id:dialog.mixId,
 					title:dialog.mixTitle
 				});
+				Debug.deepLog(mixer.mixData, 'updated mixData');
 				saveMix();
 			});
 			site.addEventListener(LoadDialog.SUBMIT_LOAD_MIX, function(event:Event) {
 				var dialog:LoadDialog = event.target as LoadDialog;
+				dialog.hide();
 				loadMix(dialog.mixId);
 			});
 		}
@@ -184,7 +185,6 @@ package org.stereofyter {
 				site.hover("load error: "+mixer.error, {timeout: 0, close: "top right"});
 			});
 			mixer.addEventListener(Mixer.REQUEST_LOAD_MIX, function(event:Event) {
-				Debug.log('REQUEST_LOAD_MIX');
 				if (session.hasOwnProperty('user'))
 					site.showLoadDialog();
 				else
@@ -251,6 +251,7 @@ package org.stereofyter {
 			site.hover("saving", {progress: true, timeout: 0, close: "none"});
 			
 			mixer.encodeMix();
+			Debug.deepLog(mixer.mixData, 'encoded mix');
 			
 			var saveReq:URLRequest = new URLRequest(WebAppController.flashVars.saveUrl);
 			saveReq.data = "mix="+encodeURIComponent(JSON.encode(mixer.mixData.mix));
@@ -258,15 +259,17 @@ package org.stereofyter {
 				saveReq.data += "&id="+mixer.mixData.id;
 			if (mixer.mixData.hasOwnProperty("title"))
 				saveReq.data += "&title="+mixer.mixData.title;
-			if (mixer.mixData.hasOwnProperty("tempo"))
-				saveReq.data += "&tempo="+mixer.mixData.tempo;
 			if (mixer.mixData.hasOwnProperty("key"))
 				saveReq.data += "&key="+mixer.mixData.key;
+			saveReq.data += "&tempo="+mixer.tempo;
+			saveReq.data += "&duration="+mixer.duration;
 			saveReq.method = URLRequestMethod.POST;
 			saveLoader.load(saveReq);
+			Debug.log(null, 'saveLoader.load(saveReq);');
 		}
 		
 		private function saveCompleteListener(event:Event):void {
+			Debug.deepLog(data, "save complete");
 			var data:Object = JSON.decode(saveLoader.data);
 			if (data) {
 				if (data.hasOwnProperty("error")) {

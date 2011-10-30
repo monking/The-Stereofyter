@@ -349,14 +349,21 @@
 			}
 		}
 		
+		public function get duration():Number {
+			var duration:Number = 0;
+			for (var i:String in tracks)
+				duration = Math.max(tracks[i].duration, duration);
+			return duration;
+		}
+		
 		public function encodeMix():void {
 			//volume range is converted from 0-1 to 0-100
 			var encodedMix:Object = {
 				properties:{
 					name:MixData.name,
-						tempo:Tempo,
-						key:MixData.key,
-						volume:Math.round(Volume * 100)
+					tempo:Tempo,
+					key:MixData.key,
+					volume:Math.round(Volume * 100)
 				},
 				samples:[],
 				tracks:[]
@@ -428,6 +435,10 @@
 			if (beat > MAX_BEATS) beat = MAX_BEATS;
 			PlaybackPosition = beat;
 			updatePlayhead();
+		}
+		
+		public function get tempo():Number {
+			return Tempo;
 		}
 		
 		override public function get width():Number {
@@ -755,7 +766,7 @@ import flash.events.Event;
 		private function addTrack():Track {
 			if (tracks.length >= MAX_TRACKS) return null;
 			
-			var track:Track = new Track(BEAT_WIDTH, MAX_BEATS);
+			var track:Track = new Track(BEAT_WIDTH, Tempo, MAX_BEATS);
 			track.index = tracks.length;
 			tracks.push(track);
 			trackField.addChildAt(track, 0);

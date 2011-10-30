@@ -103,7 +103,7 @@ package org.stereofyter.gui {
 			}
 		}
 		
-		private function trapKeyboardEvent(event:KeyboardEvent):void {
+		protected function trapKeyboardEvent(event:KeyboardEvent):void {
 			switch (event.keyCode) {
 				case Keyboard.ESCAPE: hide(); break;
 			}

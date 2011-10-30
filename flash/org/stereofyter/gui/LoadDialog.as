@@ -10,11 +10,13 @@ package org.stereofyter.gui
 	
 	import flash.display.MovieClip;
 	import flash.events.Event;
+	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
 	import flash.text.TextField;
+	import flash.ui.Keyboard;
 	
 	public class LoadDialog extends MovieClip
 	{
@@ -30,14 +32,13 @@ package org.stereofyter.gui
 			_error:String;
 		public function LoadDialog(loadURL:String, mixListURL:String):void
 		{
-			this.loadURL = loadURL || 'http://local.stereofyter.org/scripts/load_mix.php';//DEBUG
-			this.mixListURL = mixListURL || 'http://local.stereofyter.org/scripts/my_mixes.json.php';//DEBUG
-			formElement = form;
+			this.loadURL = loadURL;
+			this.mixListURL = mixListURL;
 			mixListLoader = new URLLoader();
 			mixListLoader.addEventListener(Event.COMPLETE, onMixListLoadComplete);
-			formElement.submit.addEventListener(MouseEvent.CLICK, onMixLoadSubmit);
-			formElement.mixList.addEventListener(Event.CHANGE, function(event:Event){Debug.deepLog(event.target.selectedItem);});
-			formElement.closeButton.addEventListener(MouseEvent.CLICK, function(event:MouseEvent){hide();});
+			form.submit.addEventListener(MouseEvent.CLICK, onMixLoadSubmit);
+			form.closeButton.addEventListener(MouseEvent.CLICK, function(event:MouseEvent){hide();});
+			form.addEventListener(KeyboardEvent.KEY_UP, trapKeyboardEvent);
 		}
 		public function show():void
 		{
@@ -49,10 +50,10 @@ package org.stereofyter.gui
 			gotoAndPlay('hide');
 		}
 		public function get mixId():Number {
-			return Number(formElement.mixList.selectedItem.data);
+			return Number(form.mixList.selectedItem.data);
 		}
 		public function get mixTitle():String {
-			return formElement.title.text;
+			return form.title.text;
 		}
 		protected function onMixListLoadComplete(event:Event) {
 			var data:Object = JSON.decode(mixListLoader.data);
@@ -63,7 +64,7 @@ package org.stereofyter.gui
 					return;
 				}
 				mixListData = data;
-				formElement.mixList.removeAll();
+				form.mixList.removeAll();
 				var dp:DataProvider = new DataProvider();
 				for (var id:String in data) {
 					dp.addItem({
@@ -72,13 +73,19 @@ package org.stereofyter.gui
 					});
 				}
 				dp.addItem({label:'test', data:'value'});
-				formElement.mixList.dataProvider = dp;
-				Debug.deepLog(formElement.mixList.dataProvider, "formElement.mixList.dataProvider");
+				form.mixList.dataProvider = dp;
 			}
 		}
 		protected function onMixLoadSubmit(event:Event):void
 		{
-			dispatchEvent(new Event(SUBMIT_LOAD_MIX));
+			dispatchEvent(new Event(SUBMIT_LOAD_MIX, true));
+		}
+		
+		protected function trapKeyboardEvent(event:KeyboardEvent):void {
+			switch (event.keyCode) {
+				case Keyboard.ESCAPE: hide(); break;
+			}
+			event.stopPropagation();
 		}
 	}
 }

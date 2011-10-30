@@ -12,7 +12,10 @@ header('Content-type: application/json; charset=utf-8');
 			"name":"African Mist Voice 1",
 			"family":"vocal",
 			"country":"South Africa",
+			"artist":"",
+			"artistId":"",
 			"tempo":"120",
+			"duration":"4000",
 			"key":"*"
 		},
 		{
@@ -20,7 +23,10 @@ header('Content-type: application/json; charset=utf-8');
 			"name":"African Mist Voice 2",
 			"family":"vocal",
 			"country":"South Africa",
+			"artist":"",
+			"artistId":"",
 			"tempo":"120",
+			"duration":"4000",
 			"key":"*"
 		},
 		{
@@ -28,7 +34,10 @@ header('Content-type: application/json; charset=utf-8');
 			"name":"Backroads Banjo",
 			"family":"guitar",
 			"country":"U.S.A.",
+			"artist":"",
+			"artistId":"",
 			"tempo":"120",
+			"duration":"4000",
 			"key":"*"
 		},
 		{
@@ -36,7 +45,10 @@ header('Content-type: application/json; charset=utf-8');
 			"name":"Cuban Percussion",
 			"family":"drum",
 			"country":"Cuba",
+			"artist":"",
+			"artistId":"",
 			"tempo":"120",
+			"duration":"4000",
 			"key":"*"
 		},
 		{
@@ -44,7 +56,10 @@ header('Content-type: application/json; charset=utf-8');
 			"name":"Djembe",
 			"family":"drum",
 			"country":"Mali",
+			"artist":"",
+			"artistId":"",
 			"tempo":"120",
+			"duration":"4000",
 			"key":"*"
 		},
 		{
@@ -52,7 +67,10 @@ header('Content-type: application/json; charset=utf-8');
 			"name":"Electro Transistor Beat",
 			"family":"drum",
 			"country":"U.S.A.",
+			"artist":"",
+			"artistId":"",
 			"tempo":"120",
+			"duration":"4000",
 			"key":"*"
 		},
 		{
@@ -60,7 +78,10 @@ header('Content-type: application/json; charset=utf-8');
 			"name":"Hip Hop Wakka Guitar",
 			"family":"guitar",
 			"country":"U.S.A.",
+			"artist":"",
+			"artistId":"",
 			"tempo":"120",
+			"duration":"4000",
 			"key":"*"
 		},
 		{
@@ -68,7 +89,10 @@ header('Content-type: application/json; charset=utf-8');
 			"name":"House Lazy Beat",
 			"family":"drum",
 			"country":"U.S.A.",
+			"artist":"",
+			"artistId":"",
 			"tempo":"120",
+			"duration":"4000",
 			"key":"*"
 		},
 		{
@@ -76,7 +100,10 @@ header('Content-type: application/json; charset=utf-8');
 			"name":"Jazz Piano",
 			"family":"strings",
 			"country":"U.S.A.",
+			"artist":"",
+			"artistId":"",
 			"tempo":"120",
+			"duration":"4000",
 			"key":"*"
 		},
 		{
@@ -84,7 +111,10 @@ header('Content-type: application/json; charset=utf-8');
 			"name":"Cuban Voice",
 			"family":"vocal",
 			"country":"Cuba",
+			"artist":"",
+			"artistId":"",
 			"tempo":"120",
+			"duration":"4000",
 			"key":"*"
 		},
 		{
@@ -92,7 +122,10 @@ header('Content-type: application/json; charset=utf-8');
 			"name":"Eastern Gold Voice",
 			"family":"vocal",
 			"country":"Egypt",
+			"artist":"",
+			"artistId":"",
 			"tempo":"120",
+			"duration":"4000",
 			"key":"*"
 		},
 		{
@@ -100,7 +133,10 @@ header('Content-type: application/json; charset=utf-8');
 			"name":"Koto",
 			"family":"guitar",
 			"country":"Japan",
+			"artist":"",
+			"artistId":"",
 			"tempo":"120",
+			"duration":"4000",
 			"key":"*"
 		},
 		{
@@ -108,7 +144,10 @@ header('Content-type: application/json; charset=utf-8');
 			"name":"Sine Bass",
 			"family":"guitar",
 			"country":"U.S.A.",
+			"artist":"",
+			"artistId":"",
 			"tempo":"120",
+			"duration":"4000",
 			"key":"*"
 		},
 		{
@@ -116,7 +155,10 @@ header('Content-type: application/json; charset=utf-8');
 			"name":"Tremolo Organ",
 			"family":"strings",
 			"country":"U.S.A.",
+			"artist":"",
+			"artistId":"",
 			"tempo":"120",
+			"duration":"4000",
 			"key":"*"
 		}
 	]

@@ -9,10 +9,12 @@ package org.stereofyter.gui
 	import flash.display.MovieClip;
 	import flash.text.TextField;
 	import flash.events.Event;
+	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
+	import flash.ui.Keyboard;
 
 	public class SaveDialog extends MovieClip
 	{
@@ -34,6 +36,7 @@ package org.stereofyter.gui
 			form.mixList.addEventListener(Event.CHANGE, onMixSelect);
 			form.submit.addEventListener(MouseEvent.CLICK, onMixSaveSubmit);
 			form.closeButton.addEventListener(MouseEvent.CLICK, function(event:MouseEvent){hide();});
+			form.addEventListener(KeyboardEvent.KEY_UP, trapKeyboardEvent);
 		}
 		public function show():void
 		{
@@ -74,7 +77,7 @@ package org.stereofyter.gui
 		}
 		protected function onMixSaveSubmit(event:Event):void
 		{
-			dispatchEvent(new Event(SUBMIT_SAVE_MIX));
+			dispatchEvent(new Event(SUBMIT_SAVE_MIX, true));
 		}
 		protected function onMixSelect(event:Event):void
 		{
@@ -82,6 +85,13 @@ package org.stereofyter.gui
 				form.title.text = 'Title';
 			else// renaming mix
 				form.title.text = 'Title (Rename)';
+		}
+		
+		protected function trapKeyboardEvent(event:KeyboardEvent):void {
+			switch (event.keyCode) {
+				case Keyboard.ESCAPE: hide(); break;
+			}
+			event.stopPropagation();
 		}
 	}
 }

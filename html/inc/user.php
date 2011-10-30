@@ -33,7 +33,7 @@ function refresh_session_data() {
   * format relevant session data into a JSON object
   */
 function get_session_data_json() {
-	if (!isset($_SESSION)) return '{}';
+	if (!isset($_SESSION) || !isset($_SESSION['user'])) return '{}';
 	$json = '{"user":{';
 	$json .= '"id":"'.$_SESSION['user']['id'].'"';
 	$json .= ', "name":"'.$_SESSION['user']['name'].'"';

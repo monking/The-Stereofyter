@@ -22,9 +22,11 @@ package org.stereofyter.mixer {
         src:"",
         family:Sample.FAMILY_VOCAL,
         name:"<no name>",
-        key:"C+",
-        bpm:90,
-        duration:6000
+		artist:"Unknown",
+		country:"",
+        key:"C",
+        tempo:120,
+        duration:4000
       };
       for (var param in this.data) {
         if (data.hasOwnProperty(param))
@@ -61,25 +63,39 @@ package org.stereofyter.mixer {
     }
 
     /**
-     * get beats per minute
+     * get tempo
      */
-    public function get bpm():Number {
-      return data.bpm;
+    public function get tempo():Number {
+      return data.tempo;
     }
-
-    /**
-     * get name
-     */
-    public function get name():String {
-      return data.name;
-    }
-
-    /**
-     * get duration in seconds
-     */
-    public function get duration():Number {
-      return data.duration;
-    }
+	
+	/**
+	 * get name
+	 */
+	public function get name():String {
+		return data.name;
+	}
+	
+	/**
+	 * get name
+	 */
+	public function get artist():String {
+		return data.artist;
+	}
+	
+	/**
+	 * get name
+	 */
+	public function get country():String {
+		return data.country;
+	}
+	
+	/**
+	 * get duration in seconds
+	 */
+	public function get duration():Number {
+		return data.duration;
+	}
 
   }
 
