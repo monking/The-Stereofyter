@@ -72,7 +72,6 @@ package org.stereofyter.gui
 						data:id
 					});
 				}
-				dp.addItem({label:'test', data:'value'});
 				form.mixList.dataProvider = dp;
 			}
 		}

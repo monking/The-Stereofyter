@@ -187,6 +187,10 @@ package org.stereofyter.mixer {
     public function get solo():String {
       return Solo;
     }
+	
+	public function get duration():Number {
+		return _sample.duration;
+	}
 
     public function get sample():Sample {
       return _sample;

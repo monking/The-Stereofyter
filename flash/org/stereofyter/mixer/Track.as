@@ -134,12 +134,14 @@ package org.stereofyter.mixer {
 			return Beats;
 		}
 		
-		public function get duration():Number {
-			var lastStartBeat:String;
-			for (var beat:String in Beats) {
-				lastStartBeat = beat;
+		public function getDuration():Number {
+			var lastBeatIndex:String = null;
+			for (var beatIndex:String in Beats) {
+				lastBeatIndex = beatIndex;
 			}
-			return Number(lastStartBeat) * 60000 / Tempo + Beats[lastStartBeat].duration;
+			if (lastBeatIndex === null) return 0;
+			Debug.log(Beats[lastBeatIndex].duration, "Beats[lastBeatIndex].duration");
+			return Number(lastBeatIndex) * 60000 / Tempo + Beats[lastBeatIndex].duration;
 		}
 
 		override public function get width():Number {

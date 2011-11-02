@@ -91,7 +91,7 @@ package org.stereofyter.mixer {
 	}
 	
 	/**
-	 * get duration in seconds
+	 * get duration in milliseconds
 	 */
 	public function get duration():Number {
 		return data.duration;

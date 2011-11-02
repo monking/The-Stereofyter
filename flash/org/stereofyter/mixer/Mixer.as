@@ -330,6 +330,10 @@
 			bottom.gotoAndPlay("introDJ");
 		}
 		
+		public function getMixData():Object {
+			return MixData || {};
+		}
+		
 		public function setMixData(data:Object):void {
 			MixData = null;
 			updateMixData(data);
@@ -343,16 +347,19 @@
 					MixData[key] = data[key];
 				}
 			}
+			Debug.deepLog(data, "updateMixData [input]");
+			Debug.deepLog(MixData, "updateMixData [output]");
 			if (data.hasOwnProperty('mix')) {
 				addEventListener(Mixer.CLEAR_COMPLETE, parseOnClear);
 				clearMix();
 			}
 		}
 		
-		public function get duration():Number {
+		public function getDuration():Number {
+			Debug.log("attempting", "Mixer.getDuration()");
 			var duration:Number = 0;
 			for (var i:String in tracks)
-				duration = Math.max(tracks[i].duration, duration);
+				duration = Math.max(tracks[i].getDuration(), duration);
 			return duration;
 		}
 		
@@ -360,9 +367,6 @@
 			//volume range is converted from 0-1 to 0-100
 			var encodedMix:Object = {
 				properties:{
-					name:MixData.name,
-					tempo:Tempo,
-					key:MixData.key,
 					volume:Math.round(Volume * 100)
 				},
 				samples:[],
@@ -396,10 +400,7 @@
 				encodedMix.tracks[trackIndex] = encodedTrack;
 			}
 			MixData.mix = encodedMix;
-		}
-		
-		public function get mixData():Object {
-			return MixData || {};
+			MixData.tempo = Tempo;
 		}
 		
 		public function get error():String {
@@ -456,9 +457,12 @@
 		private function parseMix():void {
 			parsing = true;
 			dispatchEvent(new Event(Mixer.PARSE_BEGIN, true));
-			if (!MixData.mix || !MixData.mix.tracks || !MixData.mix.samples) {
+			if (!MixData.mix) {
 				_error = "the loaded mix is incompatible";
 				dispatchEvent(new Event(Mixer.PARSE_ERROR, true));
+				return;
+			} else if (!MixData.mix.tracks || !MixData.mix.samples) {
+				dispatchEvent(new Event(Mixer.PARSE_COMPLETE, true));
 				return;
 			}
 			//make successive actions asynchonous, to avoid unresponsiveness

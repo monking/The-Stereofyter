@@ -87,10 +87,16 @@ function assoc_to_json($assoc, $options = array()) {
 				if ($options['whitespace'] == 'newline')
 					$json .= "\n".$options['indent'].'		';
 				$json .= "\"$field\":";
-				if (is_numeric($value) || array_search($field, $options['objects']) !== false)
-					$json .= $value;
-				else
+				if (is_numeric($value)) {
+  				$json .= $value;
+  		  } else if(array_search($field, $options['objects']) !== false) {
+				  if (empty($value))
+  					$json .= 'null';
+  				else
+  					$json .= $value;
+				} else {
 					$json .= "\"$value\"";
+				}
 				$field_count < count($row) && $json .= ",";
 			}
 		}

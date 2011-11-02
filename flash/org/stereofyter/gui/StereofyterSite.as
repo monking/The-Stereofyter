@@ -1,11 +1,9 @@
 package org.stereofyter.gui {
 	
 	import com.chrislovejoy.WebAppController;
-	import com.chrislovejoy.media.MP3Stream;
 	import com.chrislovejoy.gui.Block;
+	import com.chrislovejoy.media.MP3Stream;
 	import com.chrislovejoy.utils.Debug;
-	
-	import org.stereofyter.mixer.Mixer;
 	
 	import flash.display.DisplayObject;
 	import flash.display.Graphics;
@@ -16,6 +14,8 @@ package org.stereofyter.gui {
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.text.Font;
+	
+	import org.stereofyter.mixer.Mixer;
 	
 	public class StereofyterSite extends Sprite {
 		
@@ -100,8 +100,10 @@ package org.stereofyter.gui {
 			hoverBlock.y = stage.stageHeight/ 2 - hoverBlock.height / 2;
 		}
 		
-		public function showSaveDialog():void {
+		public function showSaveDialog(mixId:Number = NaN):void {
 			saveDialog.show();
+			if (!isNaN(mixId))
+				saveDialog.selectMixId(mixId);
 		}
 		
 		public function hideSaveDialog():void {

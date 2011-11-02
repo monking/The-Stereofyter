@@ -38,8 +38,9 @@ function save_mix($mix_data) {
 		array(
 			'mix' => '',
 			'title' => 'Untitled',
-			'tempo' => '',
 			'chromatic_key' => '',
+			'tempo' => '',
+			'duration' => '',
 			'modified_by' => $_SESSION['user']['id']
 		),
 		'filter_sf_mysql_assoc'

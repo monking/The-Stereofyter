@@ -13,16 +13,19 @@ if (isset($_REQUEST['id']))
 	$mix_data['id'] = $_REQUEST['id'];
 if (isset($_REQUEST['title']))
 	$mix_data['title'] = $_REQUEST['title'];
-if (isset($_REQUEST['tempo']))
-	$mix_data['tempo'] = $_REQUEST['tempo'];
 if (isset($_REQUEST['key']))
 	$mix_data['chromatic_key'] = $_REQUEST['key'];
+if (isset($_REQUEST['tempo']))
+	$mix_data['tempo'] = $_REQUEST['tempo'];
+if (isset($_REQUEST['duration']))
+	$mix_data['duration'] = $_REQUEST['duration'];
 $saved = save_mix($mix_data);
 if ($saved === FALSE)
 	die('{"error":"'.implode('; ', $ERROR).'"}');
 else {
 	$mix = mysql_to_json(
-		"SELECT id, title, duration, tempo, chromatic_key, modified, created FROM sf_mixes WHERE id='$saved'",
+		//"SELECT id, title, duration, tempo, chromatic_key, modified, created FROM sf_mixes WHERE id='$saved'",
+  	"SELECT * FROM sf_mixes WHERE id='$saved'",
 		array('whitespace' => 'none', 'structure' => 'flat')
 		);
 	echo $mix;

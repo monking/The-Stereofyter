@@ -96,19 +96,20 @@ package org.stereofyter {
 				site.hideSiteInfoPane();
 			});
 			site.addEventListener(Mixer.REQUEST_SAVE_MIX, function(event:Event) {
-				if (session.hasOwnProperty('user'))
-					site.showSaveDialog();
-				else
+				if (session.hasOwnProperty('user')) {
+					var mixData = mixer.getMixData();
+					site.showSaveDialog(mixData.hasOwnProperty('id')? mixData.id: NaN);
+				} else {
 					ExternalInterface.call('login');
+				}
 			});
 			site.addEventListener(SaveDialog.SUBMIT_SAVE_MIX, function(event:Event) {
 				var dialog:SaveDialog = event.target as SaveDialog;
 				dialog.hide();
-				mixer.updateMixData({
-					id:dialog.mixId,
-					title:dialog.mixTitle
-				});
-				Debug.deepLog(mixer.mixData, 'updated mixData');
+				var dialogMixData = { title:dialog.mixTitle };
+				if (!isNaN(dialog.mixId))
+					dialogMixData.id = dialog.mixId;
+				mixer.updateMixData(dialogMixData);
 				saveMix();
 			});
 			site.addEventListener(LoadDialog.SUBMIT_LOAD_MIX, function(event:Event) {
@@ -251,21 +252,21 @@ package org.stereofyter {
 			site.hover("saving", {progress: true, timeout: 0, close: "none"});
 			
 			mixer.encodeMix();
-			Debug.deepLog(mixer.mixData, 'encoded mix');
+			var mixData = mixer.getMixData();
+			Debug.deepLog(mixData, "encoded mixData");
 			
 			var saveReq:URLRequest = new URLRequest(WebAppController.flashVars.saveUrl);
-			saveReq.data = "mix="+encodeURIComponent(JSON.encode(mixer.mixData.mix));
-			if (mixer.mixData.hasOwnProperty("id"))
-				saveReq.data += "&id="+mixer.mixData.id;
-			if (mixer.mixData.hasOwnProperty("title"))
-				saveReq.data += "&title="+mixer.mixData.title;
-			if (mixer.mixData.hasOwnProperty("key"))
-				saveReq.data += "&key="+mixer.mixData.key;
-			saveReq.data += "&tempo="+mixer.tempo;
-			saveReq.data += "&duration="+mixer.duration;
+			saveReq.data = "mix="+encodeURIComponent(JSON.encode(mixData.mix));
+			if (mixData.hasOwnProperty("id"))
+				saveReq.data += "&id="+mixData.id;
+			if (mixData.hasOwnProperty("title"))
+				saveReq.data += "&title="+mixData.title;
+			if (mixData.hasOwnProperty("key"))
+				saveReq.data += "&key="+mixData.key;
+			saveReq.data += "&tempo="+mixData.tempo;
+			saveReq.data += "&duration="+mixer.getDuration();
 			saveReq.method = URLRequestMethod.POST;
 			saveLoader.load(saveReq);
-			Debug.log(null, 'saveLoader.load(saveReq);');
 		}
 		
 		private function saveCompleteListener(event:Event):void {
