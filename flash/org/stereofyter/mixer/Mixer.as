@@ -462,6 +462,8 @@
 				dispatchEvent(new Event(Mixer.PARSE_COMPLETE, true));
 				return;
 			}
+			if (MixData.hasOwnProperty("tempo"))
+				Tempo = MixData.tempo;
 			//make successive actions asynchonous, to avoid unresponsiveness
 			var parseTrackPointer:int = 0;
 			var parseRegionPointer:int = 0;

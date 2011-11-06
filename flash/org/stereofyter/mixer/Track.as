@@ -137,7 +137,8 @@ package org.stereofyter.mixer {
 		public function getDuration():Number {
 			var lastBeatIndex:String = null;
 			for (var beatIndex:String in Beats) {
-				lastBeatIndex = beatIndex;
+				if (Beats[lastBeatIndex])
+					lastBeatIndex = beatIndex;
 			}
 			if (lastBeatIndex === null) return 0;
 			return Number(lastBeatIndex) * 60000 / Tempo + Beats[lastBeatIndex].duration;
