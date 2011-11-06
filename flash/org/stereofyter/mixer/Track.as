@@ -140,7 +140,6 @@ package org.stereofyter.mixer {
 				lastBeatIndex = beatIndex;
 			}
 			if (lastBeatIndex === null) return 0;
-			Debug.log(Beats[lastBeatIndex].duration, "Beats[lastBeatIndex].duration");
 			return Number(lastBeatIndex) * 60000 / Tempo + Beats[lastBeatIndex].duration;
 		}
 

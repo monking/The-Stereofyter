@@ -253,7 +253,7 @@ package org.stereofyter {
 			
 			mixer.encodeMix();
 			var mixData = mixer.getMixData();
-			Debug.deepLog(mixData, "encoded mixData");
+			Debug.deepLog(mixData, "mixData before save");
 			
 			var saveReq:URLRequest = new URLRequest(WebAppController.flashVars.saveUrl);
 			saveReq.data = "mix="+encodeURIComponent(JSON.encode(mixData.mix));
@@ -265,13 +265,21 @@ package org.stereofyter {
 				saveReq.data += "&key="+mixData.key;
 			saveReq.data += "&tempo="+mixData.tempo;
 			saveReq.data += "&duration="+mixer.getDuration();
+			Debug.log(saveReq.data, "saveReq.data");
 			saveReq.method = URLRequestMethod.POST;
 			saveLoader.load(saveReq);
 		}
 		
 		private function saveCompleteListener(event:Event):void {
+			try {
+				var data:Object = JSON.decode(saveLoader.data);
+			} catch (e:Error) {
+				Debug.log(e);
+				var msg = "Sorry, your mix could not be saved.\nIf the problem is persistent, please contact support.";
+				site.hover(msg, {timeout: 1000, close: "none"});
+				return;
+			}
 			Debug.deepLog(data, "save complete");
-			var data:Object = JSON.decode(saveLoader.data);
 			if (data) {
 				if (data.hasOwnProperty("error")) {
 					site.hover("save error: "+data.error, {timeout: 0, close: "top right"});
@@ -283,7 +291,14 @@ package org.stereofyter {
 		}
 		
 		private function loadCompleteListener(event:Event):void {
-			var data:Object = JSON.decode(loadLoader.data);
+			try {
+				var data:Object = JSON.decode(loadLoader.data);
+			} catch (e:Error) {
+				Debug.log(e);
+				var msg = "Sorry, the loaded mix data is corrupted.\nPlease try again later.";
+				site.hover(msg, {timeout: 1000, close: "none"});
+				return;
+			}
 			if (data) {
 				if (data.hasOwnProperty("error")) {
 					site.hover("load error: "+data.error, {timeout: 0, close: "top right"});

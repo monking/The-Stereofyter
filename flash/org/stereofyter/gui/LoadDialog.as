@@ -56,7 +56,11 @@ package org.stereofyter.gui
 			return form.title.text;
 		}
 		protected function onMixListLoadComplete(event:Event) {
-			var data:Object = JSON.decode(mixListLoader.data);
+			try {
+				var data:Object = JSON.decode(mixListLoader.data);
+			} catch (e:Error) {
+				Debug.deepLog(e);
+			}
 			if (data) {
 				if (data.hasOwnProperty("error")) {
 					_error = data.error;
@@ -65,14 +69,15 @@ package org.stereofyter.gui
 				}
 				mixListData = data;
 				form.mixList.removeAll();
-				var dp:DataProvider = new DataProvider();
 				for (var id:String in data) {
-					dp.addItem({
-						label: data[id].title + ' ('+data[id].duration+'s)',
+					var seconds:String = String(Math.round(data[id].duration / 1000 % 60));
+					if (seconds.length == 1) seconds = "0"+seconds;
+					var minutes:String = String(Math.floor(data[id].duration / 60000));
+					form.mixList.addItem({
+						label: data[id].title + ' ('+minutes+':'+seconds+'s)',
 						data:id
 					});
 				}
-				form.mixList.dataProvider = dp;
 			}
 		}
 		protected function onMixLoadSubmit(event:Event):void

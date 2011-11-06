@@ -347,8 +347,6 @@
 					MixData[key] = data[key];
 				}
 			}
-			Debug.deepLog(data, "updateMixData [input]");
-			Debug.deepLog(MixData, "updateMixData [output]");
 			if (data.hasOwnProperty('mix')) {
 				addEventListener(Mixer.CLEAR_COMPLETE, parseOnClear);
 				clearMix();
@@ -356,7 +354,6 @@
 		}
 		
 		public function getDuration():Number {
-			Debug.log("attempting", "Mixer.getDuration()");
 			var duration:Number = 0;
 			for (var i:String in tracks)
 				duration = Math.max(tracks[i].getDuration(), duration);

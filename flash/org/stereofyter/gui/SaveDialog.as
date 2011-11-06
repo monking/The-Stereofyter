@@ -1,6 +1,7 @@
 package org.stereofyter.gui
 {
 	import com.adobe.serialization.json.JSON;
+	import com.chrislovejoy.utils.Debug;
 	
 	import fl.controls.Button;
 	import fl.controls.SelectableList;
@@ -69,7 +70,11 @@ package org.stereofyter.gui
 			return form.title.text;
 		}
 		protected function onMixListLoadComplete(event:Event) {
-			var data:Object = JSON.decode(mixListLoader.data);
+			try {
+				var data:Object = JSON.decode(mixListLoader.data);
+			} catch (e:Error) {
+				Debug.deepLog(e);
+			}
 			if (data) {
 				if (data.hasOwnProperty("error")) {
 					_error = data.error;
@@ -84,8 +89,11 @@ package org.stereofyter.gui
 				});
 				form.mixList.selectedIndex = 0;
 				for (var id:String in data) {
+					var seconds:String = String(Math.round(data[id].duration / 1000 % 60));
+					if (seconds.length == 1) seconds = "0"+seconds;
+					var minutes:String = String(Math.floor(data[id].duration / 60000));
 					form.mixList.addItem({
-						label:data[id].title,
+						label: data[id].title + ' ('+minutes+':'+seconds+'s)',
 						data:id
 					});
 				}
@@ -103,7 +111,7 @@ package org.stereofyter.gui
 				form.title.text = 'Untitled';
 			} else {// renaming mix
 				form.titleLabel.text = 'Title (Rename)';
-				form.title.text = form.mixList.selectedItem.label;
+				form.title.text = mixListData[mixId].title;
 			}
 		}
 		

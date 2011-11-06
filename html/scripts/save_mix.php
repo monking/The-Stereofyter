@@ -24,9 +24,8 @@ if ($saved === FALSE)
 	die('{"error":"'.implode('; ', $ERROR).'"}');
 else {
 	$mix = mysql_to_json(
-		//"SELECT id, title, duration, tempo, chromatic_key, modified, created FROM sf_mixes WHERE id='$saved'",
-  	"SELECT * FROM sf_mixes WHERE id='$saved'",
-		array('whitespace' => 'none', 'structure' => 'flat')
+		"SELECT id, title, duration, tempo, chromatic_key, modified_by, modified, created FROM sf_mixes WHERE id='$saved'",
+		array('whitespace' => 'none', 'structure' => 'flat', 'objects' => array('mix'))
 		);
 	echo $mix;
 }
