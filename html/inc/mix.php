@@ -126,7 +126,7 @@ function get_mix_owners($mix_id) {
 function get_user_mixes($user_id) {
   if (!is_numeric($user_id)) return NULL;
   $result_array = array();
-  $result = mysql_query("SELECT sf_mixes.id, title, duration, tempo, chromatic_key FROM sf_mixes, sf_mix_owners WHERE owner_id=$user_id AND mix_id=sf_mixes.id");
+  $result = mysql_query("SELECT sf_mixes.id, title, duration, tempo, chromatic_key FROM sf_mixes, sf_mix_owners WHERE owner_id=$user_id AND mix_id=sf_mixes.id ORDER BY modified DESC");
   while ($row = mysql_fetch_assoc($result))
     $result_array[] = $row;
   return $result_array;

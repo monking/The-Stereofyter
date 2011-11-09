@@ -10,5 +10,5 @@ if (!isset($_SESSION))
 if (!isset($_SESSION['user']))
   die('{"error":"user not logged in"}');
 $mixes = get_user_mixes($_SESSION['user']['id']);
-echo assoc_to_json($mixes);
+echo assoc_to_json($mixes, array('structure' => 'array'));
 ?>

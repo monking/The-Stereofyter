@@ -107,8 +107,7 @@ package org.stereofyter {
 				var dialog:SaveDialog = event.target as SaveDialog;
 				dialog.hide();
 				var dialogMixData = { title:dialog.mixTitle };
-				if (!isNaN(dialog.mixId))
-					dialogMixData.id = dialog.mixId;
+				dialogMixData.id = dialog.mixId;
 				mixer.updateMixData(dialogMixData);
 				saveMix();
 			});
@@ -257,7 +256,7 @@ package org.stereofyter {
 			
 			var saveReq:URLRequest = new URLRequest(WebAppController.flashVars.saveUrl);
 			saveReq.data = "mix="+encodeURIComponent(JSON.encode(mixData.mix));
-			if (mixData.hasOwnProperty("id"))
+			if (mixData.hasOwnProperty("id") && !isNaN(mixData.id))
 				saveReq.data += "&id="+mixData.id;
 			if (mixData.hasOwnProperty("title"))
 				saveReq.data += "&title="+mixData.title;

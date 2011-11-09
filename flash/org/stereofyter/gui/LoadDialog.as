@@ -69,13 +69,13 @@ package org.stereofyter.gui
 				}
 				mixListData = data;
 				form.mixList.removeAll();
-				for (var id:String in data) {
-					var seconds:String = String(Math.round(data[id].duration / 1000 % 60));
+				for (var i:int = 0; i < data.length; i++) {
+					var seconds:String = String(Math.round(data[i].duration / 1000 % 60));
 					if (seconds.length == 1) seconds = "0"+seconds;
-					var minutes:String = String(Math.floor(data[id].duration / 60000));
+					var minutes:String = String(Math.floor(data[i].duration / 60000));
 					form.mixList.addItem({
-						label: data[id].title + ' ('+minutes+':'+seconds+'s)',
-						data:id
+						label: data[i].title + ' ('+minutes+':'+seconds+')',
+						data:data[i].id
 					});
 				}
 			}
