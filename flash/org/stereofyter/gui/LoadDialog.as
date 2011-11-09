@@ -27,6 +27,7 @@ package org.stereofyter.gui
 			loadURL:String,
 			mixListURL:String,
 			mixListData:Object,
+			mixListXData:Object,
 			formElement:MovieClip,
 			mixListLoader:URLLoader,
 			_error:String;
@@ -69,7 +70,9 @@ package org.stereofyter.gui
 				}
 				mixListData = data;
 				form.mixList.removeAll();
+				mixListXData = {};
 				for (var i:int = 0; i < data.length; i++) {
+					mixListXData[data[i].id] = data[i];
 					var seconds:String = String(Math.round(data[i].duration / 1000 % 60));
 					if (seconds.length == 1) seconds = "0"+seconds;
 					var minutes:String = String(Math.floor(data[i].duration / 60000));
