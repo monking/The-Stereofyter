@@ -1,7 +1,6 @@
 package org.stereofyter {
 
 	import com.adobe.serialization.json.JSON;
-
 	import com.chrislovejoy.WebAppController;
 	import com.chrislovejoy.utils.ContextMenuUtil;
 	import com.chrislovejoy.utils.Debug;
@@ -32,6 +31,7 @@ package org.stereofyter {
 			mixer:Mixer,
 			engine:MixblendrInterface,
 			site:StereofyterSite,
+			engineDelay:Timer,
 			feedbackDelay:Timer,
 			session:Object = {},
 			saveLoader:URLLoader,
@@ -49,7 +49,6 @@ package org.stereofyter {
 			site = new StereofyterSite();
 			_root.stage.addChild(site);
 			feedbackDelay = new Timer(34, 1);
-			addMixer();
 			ContextMenuUtil.setContextMenu(site, [
 				{
 					caption:"©2011 On The Map Records",
@@ -70,13 +69,22 @@ package org.stereofyter {
 			]);
 			site.hover("loading mixer engine", {progress: true});
 			prepareSaveLoad();
-			attachSiteListeners();
 			registerExternalMethods();
-			engine.check(); //if Java loaded first, this was already called when creating engine. Find a way to do this without redundancy
+			addMixer();
+			attachSiteListeners();
 		}
 		
 		public function setUserSessionData(data:Object):void {
 			session = data;
+		}
+		
+		private function onMixblendrReady(event:Event):void {
+			if (engineDelay.running) {
+				engineDelay.stop();
+			}
+			site.hideHover();
+			mixer.introDJ();
+			FlashVars.loadMix && loadMix(FlashVars.loadMix);
 		}
 		
 		private function prepareSaveLoad():void {
@@ -195,11 +203,7 @@ package org.stereofyter {
 				mixer.setPlaying(true);
 				updatePlayhead(event);
 			});
-			engine.addEventListener("ready", function(event:Event) {
-				site.hideHover();
-				mixer.introDJ();
-				FlashVars.loadMix && loadMix(FlashVars.loadMix);
-			});
+			engine.ready? onMixblendrReady: engine.addEventListener("ready", onMixblendrReady);
 			engine.addEventListener("playbackStop", function(event:Event) {
 				trace("playbackStop");
 				mixer.setPlaying(false);
@@ -218,6 +222,11 @@ package org.stereofyter {
 				trace("previewStop");
 				mixer.setPreviewPlaying(false, engine.data.url);
 			});
+			engineDelay = new Timer(500);
+			engineDelay.addEventListener(TimerEvent.TIMER, function(event:TimerEvent) {
+				engine.check();
+			});
+			engineDelay.start();
 			
 			FlashVars.sampleListUrl && mixer.loadSampleList(FlashVars.sampleListUrl);
 		}
