@@ -79,6 +79,7 @@ package org.stereofyter {
 		}
 		
 		private function onMixblendrReady(event:Event):void {
+			engine.removeEventListener("ready", onMixblendrReady);
 			if (engineDelay.running) {
 				engineDelay.stop();
 			}
