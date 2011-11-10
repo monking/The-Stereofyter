@@ -38,7 +38,7 @@ function setMBApplet() {
 
 function checkMixblendr() {
 	setMBApplet();
-	if (mbinterface.applet) dispatchMBEvent("ready");
+	if (mbinterface.applet && mbinterface.applet.hasOwnProperty("isPlaying")) dispatchMBEvent("ready");
 }
 
 /*
