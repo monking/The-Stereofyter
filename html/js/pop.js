@@ -19,7 +19,7 @@ function pop(content, options) {
 		closePop(dialog);
 	});
 	$('body').append(dialog);
-	sizePop(dialog, width, height);
+	positionPop(dialog);
 	container.hide().slideDown(300);
 	return dialog;
 }

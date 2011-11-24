@@ -9,6 +9,18 @@ function login() {
   if (loginPop) return;
 	var form =$('form#pop_login').first().clone();
 	loginPop = pop(form.show());
+  $(".toggle-register", form).click(function(event) {
+    event.preventDefault();
+    form = $(this).closest("form");
+    $("input[name=action]", form).val("register");
+    form.removeClass("login").addClass("register");
+  });
+  $(".toggle-login", form).click(function(event) {
+    event.preventDefault();
+    form = $(this).closest("form");
+    $("input[name=action]", form).val("login");
+    $(this).closest("form").removeClass("register").addClass("login");
+  });
 	form.submit(function(event) {
 		event.preventDefault();
 		$.ajax({
@@ -18,7 +30,6 @@ function login() {
 			dataType: 'json',
 			success: function(data) {
 				if (data.error) {
-					alert(data.error);
 				} else {
 					$("#sfapp")[0].setUserSessionData(data);
 					closePop(loginPop);
@@ -43,19 +54,6 @@ function logout() {
 }
 
 $(function() {
-  $("#toggle_register").click(function(event) {
-    alert('hey');
-    event.preventDefault();
-    form = $(this).closest("form");
-    $("input[name=action]", form).val("register");
-    form.removeClass("login").addClass("register");
-  });
-  $("#toggle_login").click(function(event) {
-    event.preventDefault();
-    form = $(this).closest("form");
-    $("input[name=action]", form).val("login");
-    $(this).closest("form").removeClass("register").addClass("login");
-  });
 	if (window.location.hash == '#login') {
 		login();
 		window.location.hash = '';

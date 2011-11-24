@@ -58,10 +58,10 @@ endif; ?>
 			<h2 class="login">Log In</h2>
 			<h2 class="register">Sign Up</h2>
 			<div class="login notice">
-			  New to Stereofyter? <a href="#" id="toggle_register">Sign Up</a>.
+			  New to Stereofyter? <a href="#" class="toggle-register">Sign Up</a>.
 		  </div>
 			<div class="register notice">
-			  Already registered? <a href="#" id="toggle_login">Log In</a>.
+			  Already registered? <a href="#" class="toggle-login">Log In</a>.
 		  </div>
 			<div class="line">
 				Username / Email Address<br />
@@ -76,7 +76,7 @@ endif; ?>
 			</div>
 			<div class="line register">
 				Retype Password<br />
-				<input type="password2" name="password" />
+				<input type="password" name="password2" />
 		  </div>
 			<div class="line">
 				<input type="submit" class="login" value="Log In" />
