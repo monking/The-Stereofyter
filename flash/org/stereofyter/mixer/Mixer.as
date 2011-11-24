@@ -48,6 +48,7 @@
 			REGION_REMOVED:String = "mixer_region_removed",
 			REQUEST_LOAD_MIX:String = 'request_load_mix',
 			REQUEST_SAVE_MIX:String = 'request_save_mix',
+			REQUEST_LOAD_DEMO:String = 'request_load_demo',
 			REWIND:String = "mixer_rewind",
 			SAMPLE_LIST_LOADED:String = "mixer_sample_list_loaded",
 			SEEK:String = "mixer_seek",

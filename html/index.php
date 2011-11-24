@@ -1,6 +1,6 @@
 <?php
 session_start();
-$INCLUDE = array('layout', 'sf/user');
+$INCLUDE = array('db', 'layout', 'sf/user');
 $CSS = array('home', 'pop');
 $JS = array('jquery', 'swfobject', 'javaobject', 'mixblendr', 'pop', 'home');
 require('inc/header.php');
@@ -14,8 +14,12 @@ require('inc/header.php');
 				countryListUrl:"js/country_codes.json",
 				saveUrl:"scripts/save_mix.php",
 				loadUrl:"scripts/load_mix.php",
-				registerUrl:"scripts/register.php",
-				demoMixUrl:"audio/mixes/demo_mix_01.mp3"<?
+				registerUrl:"scripts/register.php"<?
+$demoMixResult = mysql_query("SELECT id FROM sf_mixes WHERE title LIKE 'TheDemoMix' LIMIT 1");
+$demoMix = mysql_fetch_assoc($demoMixResult);
+if ($demoMix && is_numeric($demoMix['id'])):?>,
+				demoMixID:"<?=$demoMix['id']?>"<?
+endif;
 if (isset($_GET['mix'])):?>,
 				loadMix:"<?=$_GET['mix']?>"<?
 endif; ?>

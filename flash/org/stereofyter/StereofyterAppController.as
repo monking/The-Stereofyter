@@ -104,6 +104,13 @@ package org.stereofyter {
 				site.toggleNewsletterSignup();
 				site.hideSiteInfoPane();
 			});
+			site.addEventListener(Mixer.REQUEST_LOAD_DEMO, function(event:Event) {
+				if (typeof WebAppController.flashVars.demoMixID != "undefined") {
+					loadMix(WebAppController.flashVars.demoMixID);
+				} else {
+					site.hover('No demo is currently available');
+				}
+			});
 			site.addEventListener(Mixer.REQUEST_SAVE_MIX, function(event:Event) {
 				if (session.hasOwnProperty('user')) {
 					var mixData = mixer.getMixData();

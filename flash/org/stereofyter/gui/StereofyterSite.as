@@ -61,7 +61,7 @@ package org.stereofyter.gui {
 			addSiteInfoPane();
 			nav = new SFNavBar();
 			foreground.addChild(nav);
-			demoMix = new MP3Stream();
+			//demoMix = new MP3Stream();
 			addPreviewButtons();
 			logo = new StereofyterLogo();
 			background.addChild(logo);
@@ -195,6 +195,8 @@ package org.stereofyter.gui {
 				"Demo":{
 					"label":"DEMO",
 					"action":function(event:MouseEvent) {
+						dispatchEvent(new Event(Mixer.REQUEST_LOAD_DEMO, true));
+						/*
 						if (!demoMix.bytesTotal)
 							demoMix.load(WebAppController.flashVars.demoMixUrl);
 						if (demoMix.isPlaying) {
@@ -204,6 +206,7 @@ package org.stereofyter.gui {
 							demoMix.play();
 							previewButtons.buttonDemo.button.gotoAndStop("playing");
 						}
+						*/
 					}
 				}
 			};
@@ -237,10 +240,10 @@ package org.stereofyter.gui {
 			previewButtons.removeChild(demo);
 			demo.y = previewButtons.height + 20;
 			previewButtons.addChild(demo);
-			
+			/*
 			demoMix.addEventListener(Event.SOUND_COMPLETE, function(event:Event) {
 				previewButtons.buttonDemo.button.gotoAndStop("paused");
-			});
+			});*/
 		}
 		
 		private function addSiteInfoPane():void {
