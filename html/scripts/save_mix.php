@@ -1,7 +1,7 @@
 <?php
 
+$INCLUDE = array('sf/mix');
 require_once('../inc/includes.php');
-require_from_inc_dir('mix');
 
 header('Content-type: application/json; charset=utf-8');
 header('Cache-Control: no-cache, must-revalidate');

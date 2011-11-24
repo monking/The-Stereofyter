@@ -1,10 +1,10 @@
 <?php
 header('Cache-Control: no-cache, must-revalidate');
 //header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-header('Content-type: application/json');
+//header('Content-type: application/json');
 
+$INCLUDE = array('sf/user');
 require_once('../inc/includes.php');
-require_from_inc_dir('user');
 
 //header('Content-type: application/json; charset=utf-8');
 

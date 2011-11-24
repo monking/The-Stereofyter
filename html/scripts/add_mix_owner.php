@@ -1,6 +1,6 @@
 <?php
 
-$INCLUDE = array('db/mix');
+$INCLUDE = array('sf/mix');
 require_once('../inc/includes.php');
 // TODO: uncomment JSON header when finished debugging
 //header('Content-type: application/json');

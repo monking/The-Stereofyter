@@ -1,8 +1,7 @@
 <?php
 
+$INCLUDE = array('sf/user', 'url');
 require_once('../inc/includes.php');
-require_from_inc_dir('user');
-require_from_inc_dir('url');
 
 if ($_POST['hash']) {
 	$hash = $_POST['hash'];

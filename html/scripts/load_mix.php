@@ -2,8 +2,8 @@
 
 header('Content-type: application/json; charset=utf-8');
 
+$INCLUDE = array('sf/user');
 require_once('../inc/includes.php');
-require_from_inc_dir('user');
 
 $mix_id = FALSE;
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
