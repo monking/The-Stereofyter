@@ -1,7 +1,7 @@
 <?php
 
+$INCLUDE = array('db/mix');
 require_once('../inc/includes.php');
-require_from_inc_dir('mix');
 // TODO: uncomment JSON header when finished debugging
 //header('Content-type: application/json');
 

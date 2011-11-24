@@ -1,6 +1,13 @@
-function pop(content, width, height) {
+function pop(content, options) {
+  options = $.extend({
+    width: 'auto',
+    height: 'auto',
+    open: null,
+    close: null
+  }, options);
 	var id = 'pop'+$('.pop').length;
 	var dialog = $('<div class="pop" id="'+id+'"/>')
+	dialog.data('options', options);
 	var container = $('<div class="container"/>').appendTo(dialog);
 	var contentBox = $('<div class="content"/>').appendTo(container);
 	var contentObject = $(content);
@@ -19,10 +26,14 @@ function pop(content, width, height) {
 
 function sizePop(selector, width, height) {
 	var dialog = $(selector);
+	var options = dialog.data('options');
+	if (!isNaN(width)) options.width = width;
+	if (!isNaN(height)) options.height = height;
 	if (!dialog) return;
 	var css = {};
-	css.width = width? width+'px': 'auto';
-	css.height = height? height+'px': 'auto';
+	css.width = options.width + (!isNaN(options.width)? 'px': '');
+	css.height = options.height + (!isNaN(options.height)? 'px': '');
+	console.log(css);
 	$('.content', dialog).css(css);
 	positionPop(dialog);
 }

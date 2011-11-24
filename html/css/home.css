@@ -5,6 +5,8 @@ body  { height: 100%; margin: 0; padding: 0; /*overflow: hidden;*/ }
 #sfapp  { outline:none; position: relative; z-index: 1; min-height: 740px; min-width: 1000px; }
 #mbapp  { position: absolute; width: 1px; height: 1px; bottom: 0; left: 0; z-index: 0; }
 .footer { font-family: Helvetica, Arial, sans-serif; font-size: 11px; text-align: center; line-height: 140%; color: #666; width: 1000px; margin: 0.5em auto; }
+form.login .register { display: none; }
+form.register .login{ display: none; }
 form h2, form .line { margin-bottom: 0.5em; }
 form .hint { font-size: 60%; color: #666; }
 /* debug **

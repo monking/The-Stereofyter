@@ -1,8 +1,8 @@
 <?php
 session_start();
-$INCLUDES = array('layout', 'user');
+$INCLUDE = array('layout', 'sf/user');
 $CSS = array('home', 'pop');
-$js = array('jquery', 'swfobject', 'javaobject', 'mixblendr', 'pop', 'home');
+$JS = array('jquery', 'swfobject', 'javaobject', 'mixblendr', 'pop', 'home');
 require('inc/header.php');
 ?>
 		<script type="text/javascript">
@@ -53,8 +53,16 @@ endif; ?>
 		<div id="mbapp">
 			<applet CODE="com/mixblendr/gui/main/Applet" ARCHIVE="mixblendr/mixblendr.jar?v<?=MIXER_ENGINE_VERSION?>" WIDTH="1" HEIGHT="1" ALT="Your browser is not configured to view the applet. Please install Jave Runtime JRE 1.5 or higher. www.java.com/getjava" id="mixblendr"><PARAM name="url" value="competition/getfile"><PARAM name="REDIRECT_URL" value="competition/competition-entries/"><PARAM name="DEFAULT_TEMPO" value="120.0"></applet>
 		</div>
-		<form id="pop_login" style="display: none;">
-			<h2>Log In</h2>
+		<form id="pop_login" class="login" style="display: none;">
+		  <input type="hidden" name="action" value="login" />
+			<h2 class="login">Log In</h2>
+			<h2 class="register">Sign Up</h2>
+			<div class="login notice">
+			  New to Stereofyter? <a href="#" id="toggle_register">Sign Up</a>.
+		  </div>
+			<div class="register notice">
+			  Already registered? <a href="#" id="toggle_login">Log In</a>.
+		  </div>
 			<div class="line">
 				Username / Email Address<br />
 				<input type="text" name="username" />
@@ -62,12 +70,17 @@ endif; ?>
 			<div class="line">
 				Password<br />
 				<input type="password" name="password" />
-				<div class="hint">
+				<div class="hint login">
 					<a href="reset_password.php" target="_blanki">Forgot password?</a>
 				</div>
 			</div>
+			<div class="line register">
+				Retype Password<br />
+				<input type="password2" name="password" />
+		  </div>
 			<div class="line">
-				<input type="submit" value="Log In" />
+				<input type="submit" class="login" value="Log In" />
+				<input type="submit" class="register" value="Register" />
 			</div>
 		</form>
 <?php require('inc/footer.php'); ?>

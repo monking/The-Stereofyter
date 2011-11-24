@@ -4,9 +4,11 @@ function alertAsync(msg) {
 	},0);
 }
 
+var loginPop;
 function login() {
+  if (loginPop) return;
 	var form =$('form#pop_login').first().clone();
-	var dialog = pop(form.show());
+	loginPop = pop(form.show());
 	form.submit(function(event) {
 		event.preventDefault();
 		$.ajax({
@@ -19,7 +21,8 @@ function login() {
 					alert(data.error);
 				} else {
 					$("#sfapp")[0].setUserSessionData(data);
-					closePop(dialog);
+					closePop(loginPop);
+					loginPop = null;
 				}
 			}
 		});
@@ -40,6 +43,19 @@ function logout() {
 }
 
 $(function() {
+  $("#toggle_register").click(function(event) {
+    alert('hey');
+    event.preventDefault();
+    form = $(this).closest("form");
+    $("input[name=action]", form).val("register");
+    form.removeClass("login").addClass("register");
+  });
+  $("#toggle_login").click(function(event) {
+    event.preventDefault();
+    form = $(this).closest("form");
+    $("input[name=action]", form).val("login");
+    $(this).closest("form").removeClass("register").addClass("login");
+  });
 	if (window.location.hash == '#login') {
 		login();
 		window.location.hash = '';

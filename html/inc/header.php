@@ -18,11 +18,11 @@ foreach($CSS as $stylesheet):
 endforeach;
 ?>
 <?php
-if(!isset($js)) {
-	$js = array();
+if(!isset($JS)) {
+	$JS = array();
 }
-$js = array_unique($js);
-foreach($js as $script):
+$JS = array_unique($JS);
+foreach($JS as $script):
 	if (strpos($script, 'http') !== 0)
 		$script = "js/$script.js";
 ?>

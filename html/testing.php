@@ -1,7 +1,7 @@
 <?php
-$includes = array('layout');
+$INCLUDE = array('layout');
 $CSS = array('test_home');
-$js = array('swfobject', 'javaobject', 'mixblendr', 'test_home');
+$JS = array('swfobject', 'javaobject', 'mixblendr', 'test_home');
 require('inc/header.php');
 ?>
 		<div id="app_container">

@@ -1,6 +1,6 @@
 <?php
 
-require_from_inc_dir('array', 'error', 'db', 'user');
+require_from_inc_dir('array', 'error', 'db', 'sf/user');
 
 /** filter_mysql_assoc
   * filter function for array_conform

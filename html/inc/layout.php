@@ -3,10 +3,10 @@ if(!isset($CSS)) {
   $CSS = array();
 }
 //array_push($CSS, 'mystyles');
-if(!isset($js)) {
-  $js = array();
+if(!isset($JS)) {
+  $JS = array();
 }
-//array_unshift($js, 'jquery');
+//array_unshift($JS, 'jquery');
 //function top() {}
 //function bottom() {}
 ?>
