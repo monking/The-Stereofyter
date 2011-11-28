@@ -627,6 +627,8 @@
 				}
 			}
 import flash.events.Event;
+
+import org.stereofyter.mixer.Region;
 			
 			if (trackFieldPushed) {
 				dispatchEvent(new Event(Mixer.SEEK_FINISH));
@@ -836,8 +838,8 @@ import flash.events.Event;
 		}
 		
 		private function stopRegionAppear(event:Event):void {
-			var region:Region = PlacedRegionData.region;
 			var regionAnimation:RegionAppearAnimation = event.target as RegionAppearAnimation;
+			var region:Region = regionAnimation.holder.getChildAt(0) as Region;//PlacedRegionData.region;
 			regionAnimation.removeEventListener("REGION_ADDED_ANIM_FINISHED", stopRegionAppear);
 			region.x = regionAnimation.x;
 			region.y = regionAnimation.y;
