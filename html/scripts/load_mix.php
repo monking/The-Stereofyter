@@ -2,7 +2,7 @@
 
 //header('Content-type: application/json; charset=utf-8');
 
-$INCLUDE = array('sf/user');
+$INCLUDE = array('sf/mix');
 require_once('../inc/includes.php');
 
 $mix_id = FALSE;
