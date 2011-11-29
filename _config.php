@@ -1,4 +1,5 @@
 <?php
+ini_set('display_errors', 0);
 define('MIXER_APP_VERSION', '06003');
 define('MIXER_ENGINE_VERSION', '0102');
 if (strpos($_SERVER['SERVER_NAME'], 'local') !== FALSE) {
