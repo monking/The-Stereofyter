@@ -4,6 +4,7 @@ $INCLUDE = array('db', 'layout', 'sf/user');
 $CSS = array('home', 'pop');
 $JS = array('jquery', 'swfobject', 'javaobject', 'mixblendr', 'pop', 'home');
 require('inc/header.php');
+echo DB_HOST;
 ?>
 		<script type="text/javascript">
 			var flashvars = {
