@@ -26,7 +26,7 @@ endif; ?>
 
 			};
 			var flashparams = {
-				wmode:"<?=/*TODO: remove this*/(isset($_GET['wmode'])? $_GET['wmode']: 'opaque')?>"
+				wmode:"<?=/*TODO: remove this*/(isset($_GET['wmode'])? $_GET['wmode']: 'transparent')?>"
 			};
 			swfobject.embedSWF(
 				"swf/main.swf?v<?=MIXER_APP_VERSION?>",
