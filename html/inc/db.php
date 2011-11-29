@@ -64,17 +64,28 @@ function assoc_to_mysql_where($assoc) {
 	}
 	return $query;
 }
+
+/** mysql_to_assoc
+	* $query (string) MySQL QUERY whose result will be shown
+	* $options (array) see assoc_to_json documentation
+	*/
+function mysql_to_assoc($query, $options = array()) {
+  global $ERROR;
+	if (!($result = mysql_query($query))) {
+		$ERROR[] = mysql_error();
+		return FALSE;
+	}
+	$result_array = array();
+	while($row = mysql_fetch_assoc($result))
+	  $result_array[] = $row;
+	return $result_array;
+}
 /** mysql_to_json
 	* $query (string) MySQL QUERY whose result will be shown
 	* $options (array) see assoc_to_json documentation
 	*/
 function mysql_to_json($query, $options = array()) {
-	if (!($result = mysql_query($query)))
-		die(mysql_error());
-	$result_array = array();
-	while($row = mysql_fetch_assoc($result))
-	  $result_array[] = $row;
-	return assoc_to_json($result_array, $options);
+	return assoc_to_json(mysql_to_assoc($query, $options), $options);
 }
 /** mysql_to_table
 	*/
