@@ -44,6 +44,11 @@ endif; ?>
 			);
 		</script>
 		<div id="app_container">
+		  <div id="sfapp_loading">
+		    Welcome to <strong>The Stereofyter</strong> - a place to meet the world, one mix at a time.<br />
+		    <img src="/images/site_loading.png" width="268" height="226" /><br />
+		    loading...
+		  </div>
 			<div id="sfapp">
 				<h1>Stereofyter requires Adobe Flash.</h1>
 				<p>Please update your browser's Flash plugin by clicking the button below.</p>
