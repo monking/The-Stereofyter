@@ -30,6 +30,7 @@ function login() {
 			dataType: 'json',
 			success: function(data) {
 				if (data.error) {
+				  alert(data.error);
 				} else {
 					$("#sfapp")[0].setUserSessionData(data);
 					closePop(loginPop);

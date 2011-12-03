@@ -12,6 +12,8 @@ require_from_inc_dir('array', 'error', 'db');
 function save_message($mix_data) {
 	if (!isset($_SESSION)) session_start();
 	if (!assoc_to_mysql(
+		'sf_messages',
+		isset($mix_data['WHERE'])? 'UPDATE': 'INSERT',
 		array(array_conform(
 			$mix_data,
 			array(
@@ -20,9 +22,7 @@ function save_message($mix_data) {
 				'response_to_msg' => -1,
 				'message' => ''
 				),
-			'')),
-		isset($mix_data['WHERE'])? 'UPDATE': 'INSERT',
-		'sf_messages'
+			''))
 	)) {
 		return log_error(mysql_error());
 	}

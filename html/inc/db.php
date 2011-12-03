@@ -15,7 +15,7 @@ $DB_SELECT = mysql_select_db(DB_NAME);
 	*
 	* NOTE: you must escape special characters in your values before calling assoc_to_mysql
 	*/
-function assoc_to_mysql($assoc, $method, $table_name, $db_name = null) {
+function assoc_to_mysql($table_name, $method, $assoc, $db_name = null) {
 	// Takes a 2-dimensional associative array and turns it into a SQL query.
 	// VERY INCOMPLETE! 2011-04-29
 	$methods = array('INSERT'=>'INSERT INTO', 'UPDATE'=>'UPDATE');
@@ -47,29 +47,30 @@ function assoc_to_mysql($assoc, $method, $table_name, $db_name = null) {
 	if (!mysql_query($query)) return false;
 	return true;
 }
+/** where_recurse
+  */
+function where_recurse($assoc, $conjunction = 'AND', $nested = TRUE) {
+  $conditions = array();
+  foreach($assoc as $field => $value) {
+		if ($field == 'OR' || is_array($value)) {
+	    $conditions[] = where_recurse($value, $field == 'OR' ? 'OR' : 'AND');
+		} else {
+  		$field= mysql_real_escape_string($field);
+		  //if $value is stdClass with property 'function', use without quotes
+		  // as in th case of the value $value->function = 'NOW()'
+  		$value = mysql_real_escape_string($value);
+  		$conditions[] = "`$field`='$value'";
+		}
+	}
+	$where = $nested ? '(' : '';
+	$where .= implode(" $conjunction ", $conditions);
+	$where .= $nested ? ')' : '';
+	return $where;
+}
 /** assoc_to_mysql_where
 	*/
 function assoc_to_mysql_where($assoc) {
-	// how can an associated array represent an AND/OR string, and should it?
-	// or should I just expect the string?
-	// currently assuming AND.
-	$query = ' WHERE ';
-	function whereRecurse($assoc, $conjunction = 'AND') {
-	  $conditions = array();
-	  foreach($assoc as $field => $value) {
-  		if ($field == 'OR' && count($value)) {
-		    $conditions[] = whereRecurse($value, 'OR');
-  		} else {
-    		$field= mysql_real_escape_string($field);
-  		  //if $value is stdClass with property 'function', use without quotes
-  		  // as in th case of the value $value->function = 'NOW()'
-    		$value = mysql_real_escape_string($value);
-    		$conditions[] = "`$field`='$value'";
-  		}
-  	}
-  	return '('.implode(" $conjunction ", $conditions).')';
-	}
-	return whereRecurse($assoc);
+	return ' WHERE '.where_recurse($assoc, 'AND', FALSE);
 }
 
 /** mysql_to_assoc
@@ -79,7 +80,7 @@ function assoc_to_mysql_where($assoc) {
 function mysql_to_assoc($query, $options = array()) {
   global $ERROR;
 	if (!($result = mysql_query($query))) {
-		$ERROR[] = mysql_error();
+		if (DEBUG) $ERROR[] = mysql_error();
 		return FALSE;
 	}
 	$result_array = array();
@@ -99,16 +100,7 @@ function mysql_to_json($query, $options = array()) {
 function mysql_to_table($query) {
 	$result = mysql_query($query);
 	if (!$result) {
-		$output = "<!-- $query -->";
-		$output .= "\r\n";
-		$output .= '<table>'."\r\n";
-		$output .= '	<tbody>'."\r\n";
-		$output .= '		<tr>'."\r\n";
-		$output .= '			<td>'.mysql_error().'</td>'."\r\n";
-		$output .= '		</tr>'."\r\n";
-		$output .= '	</tbody>'."\r\n";
-		$output .= '</table>'."\r\n";
-		echo $output;
+		if (DEBUG) $ERROR[] = mysql_error();
 		return false;
 	}
 	if (!mysql_num_rows($result)) {

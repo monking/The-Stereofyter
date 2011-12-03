@@ -3,8 +3,8 @@ msgtxt Please provide your email address.
 msgid "invalid-email"
 msgtxt Please check that your email address is correct.
 msgid "email-exists"
-msgtxt This email address is already registered. Did you mean to login?
-Click the link to login instead of sign up.
+msgtxt This email address is already registered. Did you mean to log in?
+Click the "Log in" instead of "Sign up".
 msgid "provide-password"
 msgtxt Please provide a password.
 msgid "login-form-incomplete"

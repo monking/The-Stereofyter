@@ -1,5 +1,6 @@
 <?php
 
+ini_set('display_errors', 1);
 require_from_inc_dir('array', 'error', 'db');
 
 /** login_user
@@ -9,36 +10,34 @@ function login_user($username, $password) {
 	$user_id = check_user_pass($username, $password);
 	if ($user_id === FALSE)
 		return FALSE;
-	die('hey');
-	$username = mysql_real_escape_string($username);
-	$result = mysql_query("SELECT id, name, email, country, musician, subscribe_updates, created FROM sf_users WHERE id='$user_id'");
-	if (!$result)
-		return log_error('database error', FALSE);
-	$row = mysql_fetch_assoc($result);
-	session_start();
-	$_SESSION['user'] = $row;
+	refresh_session_data($user_id);
 	return TRUE;
 }
   /** register_user
     * register a user
     */
-  function register_user($username, $email, $password) {
-  	$user_id = check_user_pass($username, $password);
-  	if ($user_id === FALSE)
-  		return FALSE;
-  	$username = mysql_real_escape_string($username);
-  	$result = mysql_query("SELECT id, name, email, country, musician, subscribe_updates, created FROM sf_users WHERE id='$user_id'");
-  	if (!$result)
-  		return log_error('database error', FALSE);
-  	$row = mysql_fetch_assoc($result);
-  	session_start();
-  	$_SESSION['user'] = $row;
-  	return TRUE;
-  }
+function register_user($email, $password, $username = '') {
+	$result = assoc_to_mysql('sf_users', 'INSERT', array(
+    array(
+      'username' => $username,
+      'email' => $email,
+      'password' => make_pass_hash($password),
+      'created' => array('function' => 'NOW()')
+      )
+    ));
+  if (!$result)
+		return FALSE;
+	refresh_session_data(mysql_insert_id());
+	return TRUE;
+}
 /** refresh_session_data
   * refresh the data in the logged-in user's session
   */
-function refresh_session_data() {
+function refresh_session_data($user_id = null) {
+  if ($user_id !== null) {
+    session_start();
+  	$_SESSION['user']['id'] = $user_id;
+  }
 	if (!isset($_SESSION)) return;
 	$id = mysql_real_escape_string($_SESSION['user']['id']);
 	$result = mysql_query("SELECT id, username, name, email, country, musician, subscribe_updates, created FROM sf_users WHERE id='$id'");
@@ -77,7 +76,7 @@ function update_user($id, $data, $hash = NULL) {
 		$data['password'] = make_pass_hash($data['password']);
 	}
 	$data['WHERE'] = array('id' => $id);
-	if (!assoc_to_mysql(array($data), 'UPDATE', 'sf_users'))
+	if (!assoc_to_mysql('sf_users', 'UPDATE', array($data)))
 		return log_error('database error');
 	if ($hash) {
 		delete_reset_password_hash($hash);
@@ -198,8 +197,9 @@ function check_user_exists($criteria) {
 	$where = assoc_to_mysql_where($criteria);
 	$query = "SELECT * FROM sf_users$where";
 	$result = mysql_query($query);
-	if (!$result) 
-		return log_error(mysql_error(), FALSE);
+	if (!$result) {
+		return log_error(DEBUG ? mysql_error() : 'database error', FALSE);
+	}
 	if (!mysql_num_rows($result)) 
 		return FALSE;
 	return TRUE;
