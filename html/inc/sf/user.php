@@ -18,6 +18,22 @@ function login_user($username, $password) {
 	$_SESSION['user'] = $row;
 	return TRUE;
 }
+  /** register_user
+    * register a user
+    */
+  function register_user($username, $email, $password) {
+  	$user_id = check_user_pass($username, $password);
+  	if ($user_id === FALSE)
+  		return FALSE;
+  	$username = mysql_real_escape_string($username);
+  	$result = mysql_query("SELECT id, name, email, country, musician, subscribe_updates, created FROM sf_users WHERE id='$user_id'");
+  	if (!$result)
+  		return log_error('database error', FALSE);
+  	$row = mysql_fetch_assoc($result);
+  	session_start();
+  	$_SESSION['user'] = $row;
+  	return TRUE;
+  }
 /** refresh_session_data
   * refresh the data in the logged-in user's session
   */
@@ -153,7 +169,8 @@ function check_user_pass($identifier, $password) {
 	if (!$row['password'])
 		return log_error('password not set', FALSE);
 	if (!check_pass_hash($password, $row['password']))
-		return log_error('email and password don\'t match', FALSE);
+		return log_error('incorrect login', FALSE);
+  	die($query);
 	return $row['id'];
 }
 /** make_pass_hash

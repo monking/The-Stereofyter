@@ -53,16 +53,23 @@ function assoc_to_mysql_where($assoc) {
 	// how can an associated array represent an AND/OR string, and should it?
 	// or should I just expect the string?
 	// currently assuming AND.
-	$cond_num = 0;
-	$query = ' WHERE';
-	foreach($assoc as $field => $value) {
-		$cond_num++;
-		$field = mysql_real_escape_string($field);
-		$value = mysql_real_escape_string($value);
-		$where_delim = $cond_num > 1? 'AND': '';
-		$query .= "$where_delim $field='$value'";
+	$query = ' WHERE ';
+	function whereRecurse($assoc, $conjunction = 'AND') {
+	  $conditions = array();
+	  foreach($assoc as $field => $value) {
+  		if ($field == 'OR' && count($value)) {
+		    $conditions[] = whereRecurse($value, 'OR');
+  		} else {
+    		$field= mysql_real_escape_string($field);
+  		  //if $value is stdClass with property 'function', use without quotes
+  		  // as in th case of the value $value->function = 'NOW()'
+    		$value = mysql_real_escape_string($value);
+    		$conditions[] = "`$field`='$value'";
+  		}
+  	}
+  	return '('.implode(" $conjunction ", $conditions).')';
 	}
-	return $query;
+	return whereRecurse($assoc);
 }
 
 /** mysql_to_assoc
