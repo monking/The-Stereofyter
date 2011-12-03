@@ -1,0 +1,17 @@
+msgid "provide-email"
+msgtxt Please provide your email address.
+msgid "invalid-email"
+msgtxt Please check that your email address is correct.
+msgid "email-exists"
+msgtxt This email address is already registered. Did you mean to login?
+Click the link to login instead of sign up.
+msgid "provide-password"
+msgtxt Please provide a password.
+msgid "login-form-incomplete"
+msgtxt Login / registration form is incomplete. Please contact support.
+msgid "password-mismatch"
+msgtxt Passwords don't match. Please re-enter your password.
+msgid "register: retype password"
+msgtxt Please provide your new password in both fields.
+msgid "incorrect login"
+msgtxt The username/email or password you entered are incorrect.

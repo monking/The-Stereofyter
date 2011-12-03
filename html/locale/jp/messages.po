@@ -1,0 +1,14 @@
+msgid "provide-email"
+msgtxt あなたのメールアドレスを入力してください。
+msgid "invalid-email"
+msgtxt あなたのメールアドレスが正しいことを確認してください。
+msgid "email-exists"
+msgtxt このメールアドレスは既に登録されています。この操作にはログインしてもしかして？ログインの代わりにサインアップするリンクをクリックします。
+msgid "provide-password"
+msgtxt パスワードを入力してください。
+msgid "login-form-incomplete"
+msgtxt ログイン/登録フォームが不完全です。サポートに連絡してください。
+msgid "password-mismatch"
+msgtxt パスワードが一致しません。パスワードを再入力してください
+msgid "provide-2-passwords"
+msgtxt 両方のフィールドに新しいパスワードを入力してください
