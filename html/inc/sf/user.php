@@ -9,6 +9,7 @@ function login_user($username, $password) {
 	$user_id = check_user_pass($username, $password);
 	if ($user_id === FALSE)
 		return FALSE;
+	die('hey');
 	$username = mysql_real_escape_string($username);
 	$result = mysql_query("SELECT id, name, email, country, musician, subscribe_updates, created FROM sf_users WHERE id='$user_id'");
 	if (!$result)
@@ -170,7 +171,6 @@ function check_user_pass($identifier, $password) {
 		return log_error('password not set', FALSE);
 	if (!check_pass_hash($password, $row['password']))
 		return log_error('incorrect login', FALSE);
-  	die($query);
 	return $row['id'];
 }
 /** make_pass_hash
