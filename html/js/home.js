@@ -54,6 +54,10 @@ function logout() {
 	});
 }
 
+function help() {
+	pop($("#instructions").clone().show());
+}
+
 $(function() {
 	if (window.location.hash == '#login') {
 		login();

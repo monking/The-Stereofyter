@@ -94,4 +94,7 @@ endif; ?>
 				<input type="submit" class="register" value="Register" />
 			</div>
 		</form>
+		<div id="instructions" style="display: none;">
+			<img src="images/instructions.jpg" width="1000" height="603" />
+		</div>
 <?php require('inc/footer.php'); ?>

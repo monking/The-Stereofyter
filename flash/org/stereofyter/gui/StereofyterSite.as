@@ -22,7 +22,8 @@ package org.stereofyter.gui {
 		public static const
 			SHOW_NEWSLETTER:String = "show_newsletter",
 			SHOW_ABOUT:String = "show_about",
-			REQUEST_SAVE_MIX:String = "save_mix";
+			REQUEST_SAVE_MIX:String = "save_mix",
+			SHOW_HELP:String = "show_help";
 
 		public var
 			foreground:Sprite,
@@ -191,6 +192,12 @@ package org.stereofyter.gui {
 						dispatchEvent(new Event(Mixer.REQUEST_SAVE_MIX, true));
 					}
 				},
+				"Help":{
+					"label":"HELP",
+					"action":function(event:MouseEvent) {
+						dispatchEvent(new Event(StereofyterSite.SHOW_HELP, true));
+					}
+				},
 				"Login":null,
 				"Demo":{
 					"label":"DEMO",
@@ -238,7 +245,7 @@ package org.stereofyter.gui {
 			// move buttonDemo to bottom
 			var demo = previewButtons.buttonDemo;
 			previewButtons.removeChild(demo);
-			demo.y = previewButtons.height + 20;
+			demo.y = previewButtons.height;
 			previewButtons.addChild(demo);
 			/*
 			demoMix.addEventListener(Event.SOUND_COMPLETE, function(event:Event) {

@@ -66,7 +66,7 @@ package org.stereofyter {
 						site.dispatchEvent(new Event(StereofyterSite.SHOW_ABOUT));
 					}
 				}
-			]);
+			], true);
 			site.hover("loading mixer engine", {progress: true});
 			prepareSaveLoad();
 			registerExternalMethods();
@@ -103,6 +103,9 @@ package org.stereofyter {
 			site.addEventListener(StereofyterSite.SHOW_NEWSLETTER, function() {
 				site.toggleNewsletterSignup();
 				site.hideSiteInfoPane();
+			});
+			site.addEventListener(StereofyterSite.SHOW_HELP, function() {
+				ExternalInterface.call('help');
 			});
 			site.addEventListener(Mixer.REQUEST_LOAD_DEMO, function(event:Event) {
 				if (typeof WebAppController.flashVars.demoMixID != "undefined") {
