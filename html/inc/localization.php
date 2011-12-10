@@ -6,7 +6,7 @@ if (!isset($_SESSION)) session_start();
 if (!isset($_SESSION['language'])) $_SESSION['language'] = 'en';
 $_SESSION['language'] = 'en';
 $po_file_path = LOCALE_DIR.$_SESSION['language'].'/messages.po';
-if (!file_exists($po_file_path)) throw new Exception("locale message file '$po_file_path' does not exist.");
+if (!file_exists($po_file_path)) exit();//throw new Exception("locale message file '$po_file_path' does not exist.");
 $raw_po = explode('msgid "', preg_replace('/[\n\r]+/', "\n", file_get_contents($po_file_path)));
 array_shift($raw_po);
 $po = array();
