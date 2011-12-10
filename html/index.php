@@ -50,9 +50,11 @@ endif; ?>
 		    loading...
 		  </div>
 			<div id="sfapp">
-				<h1>Stereofyter requires Adobe Flash.</h1>
-				<p>Please update your browser's Flash plugin by clicking the button below.</p>
-				<p><a href="http://www.adobe.com/go/getflashplayer"><img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" /></a></p>
+				<div class"="dflallback">
+					<h1>Stereofyter requires Adobe Flash.</h1>
+					<p>Please update your browser's Flash plugin by clicking the button below.</p>
+					<p><a href="http://www.adobe.com/go/getflashplayer"><img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" /></a></p>
+				</div>
 			</div>
 		</div>
 		<div class="footer">

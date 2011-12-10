@@ -272,6 +272,11 @@ public class Applet extends JApplet {
 	}
 	
 	
+	public boolean isReady() {
+		return true;
+	}
+	
+	
 	public boolean isPlaying() {
 		return IsPlaying;
 	}
