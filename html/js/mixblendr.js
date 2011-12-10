@@ -40,8 +40,7 @@ function checkMixblendr() {
 	setMBApplet();
 	var ready = false;
 	try {
-	  mbinterface.applet.isPlaying();
-	  ready = true;
+	  ready = mbinterface.applet.isReady();
 	} catch(e) {}
 	ready && dispatchMBEvent("ready");
 }
