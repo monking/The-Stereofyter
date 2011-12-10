@@ -1,6 +1,6 @@
 <?php
 
-function check_email_address($email) {
+function validate_email_address($email) {
   // First, we check that there's one @ symbol, 
   // and that the lengths are right.
   if (!preg_match("/^[^@]{1,64}@[^@]{1,255}$/", $email)) {

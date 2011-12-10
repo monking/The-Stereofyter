@@ -13,13 +13,15 @@ function pop(content, options) {
 	var contentObject = $(content);
 	if (!contentObject.length)
 		contentObject = content;
+	var parent = contentObject.parent();
+	if (parent.length) contentObject.data('popHome', parent);
 	contentBox.append(contentObject);
 	var closeButton = $('<div class="close">&times;</div>').appendTo(dialog);
 	closeButton.click(function() {
 		closePop(dialog);
 	});
 	$('body').append(dialog);
-	positionPop(dialog);
+	sizePop(dialog);
 	container.hide().slideDown(300);
 	return dialog;
 }
@@ -33,8 +35,14 @@ function sizePop(selector, width, height) {
 	var css = {};
 	css.width = options.width + (!isNaN(options.width)? 'px': '');
 	css.height = options.height + (!isNaN(options.height)? 'px': '');
-	console.log(css);
-	$('.content', dialog).css(css);
+	var content = $('.content', dialog);
+	content.css(css);
+	var windowHeight = $(window).height() - 80;
+	var windowWidth = $(window).width() - 50;
+	if (content.height() > windowHeight)
+		content.height(windowHeight);
+	if (content.width() > windowWidth)
+		content.width(windowWidth);
 	positionPop(dialog);
 }
 
@@ -48,9 +56,11 @@ function positionPop(selector) {
 
 function closePop(selector) {
 	var dialog = $(selector);
-	if (!dialog) return;
+	if (!dialog.length) return;
 	$('.container', dialog).slideUp(function() {
-		dialog.remove();
+		var popHome = dialog.data('popHome');
+		if (popHome) popHome.append(dialog);
+		else dialog.remove();
 	});
 }
 

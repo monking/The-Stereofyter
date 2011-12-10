@@ -66,7 +66,7 @@ package org.stereofyter {
 						site.dispatchEvent(new Event(StereofyterSite.SHOW_ABOUT));
 					}
 				}
-			]);
+			], true);
 			site.hover("loading mixer engine", {progress: true});
 			prepareSaveLoad();
 			registerExternalMethods();
@@ -104,6 +104,9 @@ package org.stereofyter {
 				site.toggleNewsletterSignup();
 				site.hideSiteInfoPane();
 			});
+			site.addEventListener(StereofyterSite.SHOW_HELP, function() {
+				ExternalInterface.call('help');
+			});
 			site.addEventListener(Mixer.REQUEST_LOAD_DEMO, function(event:Event) {
 				if (typeof WebAppController.flashVars.demoMixID != "undefined") {
 					loadMix(WebAppController.flashVars.demoMixID);
@@ -112,7 +115,7 @@ package org.stereofyter {
 				}
 			});
 			site.addEventListener(Mixer.REQUEST_SAVE_MIX, function(event:Event) {
-				if (session.hasOwnProperty('user')) {
+				if (session && session.hasOwnProperty('user')) {
 					var mixData = mixer.getMixData();
 					site.showSaveDialog(mixData.hasOwnProperty('id')? mixData.id: NaN);
 				} else {
@@ -201,7 +204,7 @@ package org.stereofyter {
 				site.hover("load error: "+mixer.error, {timeout: 0, close: "top right"});
 			});
 			mixer.addEventListener(Mixer.REQUEST_LOAD_MIX, function(event:Event) {
-				if (session.hasOwnProperty('user'))
+				if (session && session.hasOwnProperty('user'))
 					site.showLoadDialog();
 				else
 					ExternalInterface.call('login');

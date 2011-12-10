@@ -29,28 +29,28 @@ endif; ?>
 				wmode:"<?=/*TODO: remove this*/(isset($_GET['wmode'])? $_GET['wmode']: 'transparent')?>"
 			};
 			swfobject.embedSWF(
-				"swf/main.swf?v<?=MIXER_APP_VERSION?>",
-				"sfapp",
-				"100%",
-				"100%",
-				"9.0.0",
-				"swf/expressInstall.swf",
-				flashvars,
-				flashparams,
-				null,
-				function(e){
-					e.success && mbinterface.addEventListenerObject(e.ref);
-				}
-			);
+							"swf/main.swf?v<?=MIXER_APP_VERSION?>",
+							"sfapp",
+							"100%",
+							"100%",
+							"9.0.0",
+							"swf/expressInstall.swf",
+							flashvars,
+							flashparams,
+							null,
+							function(e){
+								e.success && mbinterface.addEventListenerObject(e.ref);
+							}
+						);
 		</script>
 		<div id="app_container">
-		  <div id="sfapp_loading">
-		    Welcome to <strong>The Stereofyter</strong> - a place to meet the world, one mix at a time.<br />
-		    <img src="/images/site_loading.png" width="268" height="226" /><br />
-		    loading...
-		  </div>
+			<div id="sfapp_loading">
+				Welcome to <strong>The Stereofyter</strong> - a place to meet the world, one loop at a time.<br />
+				<img src="/images/site_loading.png" width="268" height="226" /><br />
+				<span class="loading">loading...</span>
+			</div>
 			<div id="sfapp">
-				<div class"="dflallback">
+				<div class="noflash">
 					<h1>Stereofyter requires Adobe Flash.</h1>
 					<p>Please update your browser's Flash plugin by clicking the button below.</p>
 					<p><a href="http://www.adobe.com/go/getflashplayer"><img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" /></a></p>
@@ -64,18 +64,18 @@ endif; ?>
 		<div id="mbapp">
 			<applet CODE="com/mixblendr/gui/main/Applet" ARCHIVE="mixblendr/mixblendr.jar?v<?=MIXER_ENGINE_VERSION?>" WIDTH="1" HEIGHT="1" ALT="Your browser is not configured to view the applet. Please install Jave Runtime JRE 1.5 or higher. www.java.com/getjava" id="mixblendr"><PARAM name="url" value="competition/getfile"><PARAM name="REDIRECT_URL" value="competition/competition-entries/"><PARAM name="DEFAULT_TEMPO" value="120.0"></applet>
 		</div>
-		<form id="pop_login" class="login" style="display: none;">
-		  <input type="hidden" name="action" value="login" />
+		<form id="pop_login" action="scripts/login_register.php" class="login" style="display: none;">
+			<input type="hidden" name="action" value="login" />
 			<h2 class="login">Log In</h2>
 			<h2 class="register">Sign Up</h2>
 			<div class="login notice">
-			  New to Stereofyter? <a href="#" class="toggle-register">Sign Up</a>.
-		  </div>
+				New to Stereofyter? <a href="#" class="toggle-register">Sign Up</a>.
+			</div>
 			<div class="register notice">
-			  Already registered? <a href="#" class="toggle-login">Log In</a>.
-		  </div>
+				Already registered? <a href="#" class="toggle-login">Log In</a>.
+			</div>
 			<div class="line">
-				Username / Email Address<br />
+				<span class="login">Username / </span>Email Address<br />
 				<input type="text" name="username" />
 			</div>
 			<div class="line">
@@ -88,10 +88,13 @@ endif; ?>
 			<div class="line register">
 				Retype Password<br />
 				<input type="password" name="password2" />
-		  </div>
+			</div>
 			<div class="line">
 				<input type="submit" class="login" value="Log In" />
 				<input type="submit" class="register" value="Register" />
 			</div>
 		</form>
+		<div id="instructions" style="display: none;">
+			<img src="images/instructions.jpg" width="1000" height="603" />
+		</div>
 <?php require('inc/footer.php'); ?>

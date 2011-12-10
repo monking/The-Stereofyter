@@ -9,27 +9,28 @@ function login() {
   if (loginPop) return;
 	var form =$('form#pop_login').first().clone();
 	loginPop = pop(form.show());
-  $(".toggle-register", form).click(function(event) {
+  $(".toggle-register", form).unbind('click').click(function(event) {
     event.preventDefault();
     form = $(this).closest("form");
     $("input[name=action]", form).val("register");
     form.removeClass("login").addClass("register");
   });
-  $(".toggle-login", form).click(function(event) {
+  $(".toggle-login", form).unbind('click').click(function(event) {
     event.preventDefault();
     form = $(this).closest("form");
     $("input[name=action]", form).val("login");
-    $(this).closest("form").removeClass("register").addClass("login");
+    form.removeClass("register").addClass("login");
   });
 	form.submit(function(event) {
 		event.preventDefault();
 		$.ajax({
-			url: '/scripts/login.php',
+			url: form.attr("action"),
 			data: form.serialize(),
 			type: 'POST',
 			dataType: 'json',
 			success: function(data) {
 				if (data.error) {
+				  alert(data.error);
 				} else {
 					$("#sfapp")[0].setUserSessionData(data);
 					closePop(loginPop);
@@ -51,6 +52,10 @@ function logout() {
 			}
 		}
 	});
+}
+
+function help() {
+	pop($("#instructions").clone().show());
 }
 
 $(function() {
