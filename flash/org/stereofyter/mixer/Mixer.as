@@ -317,8 +317,8 @@
 			placeTooltip();
 		}
 		
-		public function addTooltip(object:DisplayObject, message:String):void {
-			object.addEventListener(MouseEvent.MOUSE_OVER, function() { showTooltip(message); });
+		public function addTooltip(object:DisplayObject, message:Object):void {
+			object.addEventListener(MouseEvent.MOUSE_OVER, function() { showTooltip((typeof message == "function"? message() : message) as String); });
 			object.addEventListener(MouseEvent.MOUSE_OUT, hideTooltip);
 		}
 		
@@ -909,12 +909,14 @@ import org.stereofyter.mixer.Region;
 			ui.buttonLoadMix.addEventListener(MouseEvent.CLICK, function(event:MouseEvent) {
 				dispatchEvent(new Event(Mixer.REQUEST_LOAD_MIX));
 			});
+			addTooltip(ui.buttonLoadMix, 'Load Saved Mix');
 			ui.buttonLoadMix.buttonMode = true;
 			
 			/* Playback */
 			ui.buttonPlay.addEventListener(MouseEvent.CLICK, function(event:MouseEvent) {
 				togglePause();
 			});
+			addTooltip(ui.buttonPlay, function(){return isPlaying? 'Pause' : 'Play'});
 			ui.buttonStop.addEventListener(MouseEvent.CLICK, function(event:MouseEvent) {
 				dispatchEvent(new Event(Mixer.STOP));
 				dispatchEvent(new Event(Mixer.REWIND));
