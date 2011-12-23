@@ -19,9 +19,9 @@ package com.chrislovejoy {
 				FlashVars = LoaderInfo(_root.stage.loaderInfo).parameters;
 			}
 		}
-
+		
 		public static function get flashVars():Object {
-			return FlashVars;
+			return FlashVars || {};
 		}
 
 		public function get url():String {
@@ -44,6 +44,10 @@ package com.chrislovejoy {
 			right = url.indexOf('/', left);
 			if(right > 0) return url.substring(left, right);
 			else return '';
+		}
+		
+		public static function getflashVar(param:String):Object {
+			return FlashVars && FlashVars.hasOwnProperty(param) ? FlashVars[param] : null;
 		}
 
 	}

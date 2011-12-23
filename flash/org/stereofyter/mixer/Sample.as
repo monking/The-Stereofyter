@@ -96,6 +96,13 @@ package org.stereofyter.mixer {
 	public function get duration():Number {
 		return data.duration;
 	}
+	
+	/**
+	 * get beats per loop
+	 */
+	public function get beats():Number {
+		return data.duration*data.tempo/60000;
+	}
 
   }
 

@@ -1,7 +1,6 @@
 ﻿package org.stereofyter.mixer {
 	
 	import com.adobe.serialization.json.JSON;
-	import com.adobe.utils.ArrayUtil;
 	import com.chrislovejoy.WebAppController;
 	import com.chrislovejoy.display.FrameSkipper;
 	import com.chrislovejoy.gui.DragAndDrop;
@@ -21,8 +20,6 @@
 	import flash.external.ExternalInterface;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
-	import flash.net.URLLoader;
-	import flash.net.URLRequest;
 	import flash.sampler.Sample;
 	import flash.ui.Keyboard;
 	import flash.utils.Timer;
@@ -50,7 +47,6 @@
 			REQUEST_SAVE_MIX:String = 'request_save_mix',
 			REQUEST_LOAD_DEMO:String = 'request_load_demo',
 			REWIND:String = "mixer_rewind",
-			SAMPLE_LIST_LOADED:String = "mixer_sample_list_loaded",
 			SEEK:String = "mixer_seek",
 			SEEK_FINISH:String = "mixer_seek_finish",
 			SEEK_START:String = "mixer_seek_start",
@@ -72,9 +68,9 @@
 			tracks:Array = [],
 			Regions:Array = [],
 			bins:Array = [],
-			samples:Array = [],
-			sampleData:Array = [],
-			SampleRoot:String,
+//			samples:Array = [],
+//			sampleData:Array = [],
+//			SampleRoot:String,
 			trackWidth:Number,
 			trackHeight:Number,
 			playhead:MovieClip,
@@ -111,6 +107,7 @@
 			ui.scaleX = 1.15;
 			ui.scaleY = 1.15;
 			bottom = new MixerBottom();
+			loopBrowser = new LoopBrowser();
 			dj = bottom.dj;
 			tooltip = new MixerTooltip();
 			addChild(ui);
@@ -133,7 +130,7 @@
 		public function addRegion(sample:Sample):Region {
 			var region = new Region(
 				sample,
-				BEAT_WIDTH * beatsPerRegion,
+				BEAT_WIDTH * sample.beats,
 				trackHeight - 1,
 				{
 					grid:            snapGrid,
@@ -196,11 +193,11 @@
 			}
 		}
 		
-		public function addSample(sample:Sample) {
-			samples.push(sample);
+		public function addSample(sample:Sample):Boolean {
 			for (var i:int = 0; i < bins.length; i++) {
-				if (bins[i].addSample(sample)) break;
+				if (bins[i].addSample(sample)) return true;
 			}
+			return false;
 		}
 		
 		public function clearMix():void {
@@ -295,18 +292,7 @@
 		}
 		
 		public function loadSampleList(url:String):void {
-			var loader:URLLoader = new URLLoader();
-			loader.addEventListener(Event.COMPLETE, function(event:Event) {
-				try {
-					var json:Object = JSON.decode(loader.data);
-					SampleRoot = json.sampleRoot;
-					sampleData = ArrayUtil.createUniqueCopy(sampleData.concat(json.samples));
-					dispatchEvent(new Event(SAMPLE_LIST_LOADED, true));
-				} catch (error:Error) {
-					Debug.log(error, "loading sample list failed ('"+url+"')");
-				}
-			});
-			loader.load(new URLRequest(url));
+			loopBrowser.loadSampleList(url);
 		}
 		
 		public function showTooltip(message:String) {
@@ -472,7 +458,7 @@
 			var sample:Sample;
 			for (var i:int = 0; i < MixData.mix.samples.length; i++) {
 				var sampleFound:Boolean = false;
-				for each (sample in samples) {
+				for each (sample in loopBrowser.samples) {
 					if (sample.src == MixData.mix.samples[i]) {
 						indexedSamples[i] = sample;
 						sampleFound = true;
@@ -495,6 +481,11 @@
 			}
 			var soloRegion:Region = null;
 			var parseTimer:Timer = new Timer(PARSE_REGION_INTERVAL, 1);
+			
+			clearBins();
+			for (var key in indexedSamples) {
+				addSample(indexedSamples[key]);
+			}
 			parseTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function(event:TimerEvent) {
 				if (parseTrackPointer < MixData.mix.tracks.length && (!MixData.mix.tracks[parseTrackPointer] || !MixData.mix.tracks[parseTrackPointer][parseRegionPointer])) {
 					parseRegionPointer = 0;
@@ -592,10 +583,11 @@
 				var track:Track = tracks[targetTrackIndex] as Track;
 				var targetBeatIndex:int = track.getRegionPositionBeat(region);
 				var collision:Boolean = false;
-				if (!!track.getRegionAtBeat(targetBeatIndex)) {
+				var regionAtTarget:Region = track.getRegionAtBeat(targetBeatIndex);
+				if (!!regionAtTarget) {
 					collision = true;
 					if (useNextOpenSpace) {
-						for (var i:int = targetBeatIndex; i < MAX_BEATS; i+=beatsPerRegion) {
+						for (var i:int = targetBeatIndex; i < MAX_BEATS; i+=regionAtTarget.beats) {
 							if (!track.getRegionAtBeat(i)) {
 								targetBeatIndex = i;
 								collision = false;
@@ -905,7 +897,7 @@ import org.stereofyter.mixer.Region;
 				resize();
 			});
 			/* Data Events */
-			addEventListener(SAMPLE_LIST_LOADED, onSampleListLoad);
+			addEventListener(LoopBrowser.SAMPLE_LIST_LOADED, onSampleListLoad);
 			ui.buttonLoadMix.addEventListener(MouseEvent.CLICK, function(event:MouseEvent) {
 				dispatchEvent(new Event(Mixer.REQUEST_LOAD_MIX));
 			});
@@ -951,19 +943,16 @@ import org.stereofyter.mixer.Region;
 			tooltip.y = mouseY;
 		}
 		
-		private function onSampleListLoad(event:Event):void {
-			/*for preview, just put all samples in the bin*/
+		private function clearBins():void {
 			bins[0].clearSamples();
 			bins[1].clearSamples();
-			for (var i:int = 0; i < sampleData.length; i++) {
-				addSample(new Sample({
-					src:sampleData[i].src,
-					name:sampleData[i].name,
-					family:sampleData[i].family,
-					country:sampleData[i].country,
-					tempo:sampleData[i].tempo,
-					key:sampleData[i].key
-				}));
+		}
+		
+		private function onSampleListLoad(event:Event):void {
+			/*for preview, just put first samples in the bin*/
+			clearBins();
+			for (var i:int = 0; i < loopBrowser.samples.length; i++) {
+				if (!addSample(loopBrowser.samples[i])) break;
 			}
 		}
 		

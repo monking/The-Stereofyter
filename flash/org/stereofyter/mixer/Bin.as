@@ -5,7 +5,6 @@ package org.stereofyter.mixer {
   import flash.events.Event;
   import flash.events.MouseEvent;
   import flash.events.TimerEvent;
-  import flash.sampler.Sample;
   import flash.utils.Timer;
   
   import org.stereofyter.mixblendr.*;
@@ -37,7 +36,7 @@ package org.stereofyter.mixer {
        * Bin contains symbols of records
        * mousing over flips through the records
        * dragging from a record produces a new instance
-       * of org.stereofyte.mixer.Cell
+       * of org.stereofyte.mixer.Region
        */
       drawBin();
       attachBehaviors();
