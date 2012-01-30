@@ -178,7 +178,7 @@ header('Content-type: application/json; charset=utf-8');
 		{
 			"src":"12-8_Electric_Arpeggio_10.ogg",
 			"title":"Electric Arpeggio",
-			"family":"strings",
+			"family":"guitar",
 			"country":"U.S.A.",
 			"artist":"",
 			"artistId":"",
@@ -190,7 +190,7 @@ header('Content-type: application/json; charset=utf-8');
 		{
 			"src":"12-8_Muted_Acoustic_Strum.ogg",
 			"title":"Muted Acoustic Strum",
-			"family":"strings",
+			"family":"guitar",
 			"country":"U.S.A.",
 			"artist":"",
 			"artistId":"",
@@ -214,7 +214,7 @@ header('Content-type: application/json; charset=utf-8');
 		{
 			"src":"80s_Pop_Rock_Guitar_01.ogg",
 			"title":"90s Pop Rock Guitar",
-			"family":"strings",
+			"family":"guitar",
 			"country":"U.S.A.",
 			"artist":"",
 			"artistId":"",
@@ -238,7 +238,7 @@ header('Content-type: application/json; charset=utf-8');
 		{
 			"src":"African_King_Ensemble_17.ogg",
 			"title":"African King Ensemble",
-			"family":"vocal",
+			"family":"drum",
 			"country":"U.S.A.",
 			"artist":"",
 			"artistId":"",
@@ -250,7 +250,7 @@ header('Content-type: application/json; charset=utf-8');
 		{
 			"src":"Alt_Pop_Acoustic_06.ogg",
 			"title":"Alt Pop Acoustic",
-			"family":"strings",
+			"family":"guitar",
 			"country":"U.S.A.",
 			"artist":"",
 			"artistId":"",
@@ -262,7 +262,7 @@ header('Content-type: application/json; charset=utf-8');
 		{
 			"src":"Alternative_Acoustic_07.ogg",
 			"title":"Alternative Acoustic",
-			"family":"strings",
+			"family":"guitar",
 			"country":"U.S.A.",
 			"artist":"",
 			"artistId":"",
@@ -550,7 +550,7 @@ header('Content-type: application/json; charset=utf-8');
 		{
 			"src":"Vinyl_Scratch_21.ogg",
 			"title":"Vinyl Scratch",
-			"family":"strings",
+			"family":"vocal",
 			"country":"U.S.A.",
 			"artist":"",
 			"artistId":"",
