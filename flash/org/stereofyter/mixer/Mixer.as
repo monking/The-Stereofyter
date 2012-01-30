@@ -34,7 +34,7 @@
 			ENCODE_BEGIN:String = "mixer_encode_begin",
 			ENCODE_COMPLETE:String = "mixer_encode_complete",
 			ENCODE_ERROR:String = "mixer_encode_error",
-			MAX_BEATS:int = 240,
+			MAX_BEATS:int = 480,
 			MAX_TRACKS:int = 8,
 			PARSE_BEGIN:String = "mixer_parse_begin",
 			PARSE_COMPLETE:String = "mixer_parse_complete",
