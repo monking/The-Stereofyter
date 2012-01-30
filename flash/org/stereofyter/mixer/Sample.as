@@ -109,6 +109,14 @@ package org.stereofyter.mixer {
 		public function get beats():Number {
 			return data.duration*data.tempo/60000;
 		}
+		
+		/**
+		 * get: is this sample part of the selection?
+		 */
+		public function get selected():Boolean {
+			Debug.log(data.selected);
+			return data.selected == 1;
+		}
 
 	}
 

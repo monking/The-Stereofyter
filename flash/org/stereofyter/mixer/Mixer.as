@@ -48,6 +48,7 @@
 			REQUEST_LOAD_DEMO:String = 'request_load_demo',
 			REWIND:String = "mixer_rewind",
 			SAMPLE_ADDED:String = "sample_added",
+			SAMPLE_REMOVED:String = "sample_removed",
 			SEEK:String = "mixer_seek",
 			SEEK_FINISH:String = "mixer_seek_finish",
 			SEEK_START:String = "mixer_seek_start",
@@ -198,7 +199,20 @@
 			for (var i:int = 0; i < bins.length; i++) {
 				if (bins[i].addSample(sample)) {
 					_addedSample = sample;
+					loopBrowser.setSampleUsed(sample, true);
 					dispatchEvent(new Event(SAMPLE_ADDED));
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		public function removeSample(sample:Sample):Boolean {
+			for (var i:int = 0; i < bins.length; i++) {
+				if (bins[i].removeSample(sample)) {
+					_addedSample = sample;
+					loopBrowser.setSampleUsed(sample, false);
+					dispatchEvent(new Event(SAMPLE_REMOVED));
 					return true;
 				}
 			}
@@ -954,6 +968,8 @@ import org.stereofyter.mixer.Region;
 			
 			/* Interface events */
 			newTrackDelay.addEventListener(TimerEvent.TIMER, finishAddTrackDelay);
+			loopBrowser.addEventListener(LoopBrowserRegion.ADD, onAddSampleToBin);
+			loopBrowser.addEventListener(LoopBrowserRegion.REMOVE, onRemoveSampleFromBin);
 		}
 		
 		private function placeTooltip(event:Event = null) {
@@ -967,11 +983,26 @@ import org.stereofyter.mixer.Region;
 		}
 		
 		private function onSampleListLoad(event:Event):void {
-			/*for preview, just put first samples in the bin*/
+			/*for starters, add selected samples to the bins*/
 			clearBins();
 			for (var i:int = 0; i < loopBrowser.samples.length; i++) {
-				if (!addSample(loopBrowser.samples[i])) break;
+				Debug.log(loopBrowser.samples[i].selected);
+				if (loopBrowser.samples[i].selected) {
+					if (!addSample(loopBrowser.samples[i])) break;
+				}
 			}
+		}
+		
+		private function onAddSampleToBin(event:Event):void {
+			var sample:Sample = event.target.sample as Sample;
+			addSample(sample);
+			loopBrowser.setSampleUsed(sample, true);
+		}
+		
+		private function onRemoveSampleFromBin(event:Event):void {
+			var sample:Sample = event.target.sample as Sample;
+			removeSample(sample);
+			loopBrowser.setSampleUsed(sample, false);
 		}
 		
 		private function showRegionTooltip(event:Event):void {

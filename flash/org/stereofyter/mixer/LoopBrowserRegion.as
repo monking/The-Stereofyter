@@ -24,6 +24,7 @@ package org.stereofyter.mixer {
 
 		public static const
 			ADD = "loopbrowser_region_add",
+			REMOVE = "loopbrowser_region_remove",
 			BUTTON_OVER = "button_over",
 			BUTTON_OUT = "button_out";
 
@@ -37,7 +38,8 @@ package org.stereofyter.mixer {
 		private var
 			_sample:Sample,
 			icon:InstrumentIcon,
-			_seek:Number = 0;
+			_seek:Number = 0,
+			_inUse:Boolean = false;
 
 		public function LoopBrowserRegion(sample:Sample):void {
 			this._sample = sample;
@@ -51,13 +53,19 @@ package org.stereofyter.mixer {
 			 *	symbol for sample instrument
 			 */
 			this.name = _sample.src;
-			label_title.text = _sample.artist + " - " + _sample.title;
+			label_title.text = /*_sample.artist + " - " + */_sample.title;
 			label_bpm.text = 'tempo: ' + _sample.tempo + " BPM";
 			label_key.text = 'key: ' + _sample.key.replace(/^\*$/, 'any');
 			label_length.text = _sample.beats + ' beats ' + StringUtils.formatMilliseconds(_sample.duration, '(%m:%S)');
-			background.gotoAndStop(_sample.family);
 			draw();
+			setUsed(false);
 			attachBehaviors();
+		}
+		
+		public function setUsed(used:Boolean):void {
+			background.gotoAndStop(used ? 'gray' : _sample.family);
+			buttonAdd.gotoAndStop(used ? 'minus' : 'plus');
+			_inUse = used;
 		}
 	
 		public function get beats():int {
@@ -87,7 +95,7 @@ package org.stereofyter.mixer {
 			buttonAdd.gotoAndStop('plus');
 			addTooltip(buttonAdd, "Add to My Bin");
 			buttonAdd.addEventListener(MouseEvent.CLICK, function(event) {
-				dispatchEvent(new Event(ADD));
+				dispatchEvent(new Event(_inUse ? REMOVE : ADD, true));
 			});
 		}
 

@@ -85,15 +85,10 @@ package org.stereofyter.mixer
 			}
 			return samples;
 		}
-		public function disableSample(sample:Sample):void {
+		public function setSampleUsed(sample:Sample, used:Boolean = true):void {
 			var region:LoopBrowserRegion = getSampleRegion(sample);
 			if (!region) return;
-			region.background.gotoAndStop('gray');
-		}
-		public function enableSample(sample:Sample):void {
-			var region:LoopBrowserRegion = getSampleRegion(sample);
-			if (!region) return;
-			region.background.gotoAndStop(sample.family);
+			region.setUsed(used);
 		}
 		public function get selectedSample():Sample {
 			if (selectedIndex == -1) return null;
@@ -168,7 +163,11 @@ package org.stereofyter.mixer
 						family:sampleData[i].family,
 						country:sampleData[i].country,
 						tempo:sampleData[i].tempo,
-						key:sampleData[i].key
+						key:sampleData[i].key,
+						artist:sampleData[i].artist,
+						artistId:sampleData[i].artistId,
+						duration:sampleData[i].duration,
+						selected:sampleData[i].selected
 					};
 					var sample = new Sample(options);
 					addSample(sample);
