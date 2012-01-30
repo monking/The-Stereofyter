@@ -34,7 +34,7 @@ function assoc_to_mysql($table_name, $method, $assoc, $db_name = null) {
 				if (is_array($value) && array_key_exists('function', $value))
 					$query .= $value['function'];
 				else 
-					$query .= "'".mysql_real_escape_string($value)."'";
+					$query .= "'".str_replace("'", "\\'", $value)."'";
 			}
 			if (array_key_exists('WHERE', $row)) {
 				$query .= assoc_to_mysql_where($row['WHERE']);
