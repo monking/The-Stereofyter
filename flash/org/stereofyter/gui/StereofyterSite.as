@@ -172,7 +172,7 @@ package org.stereofyter.gui {
 		
 		private function addPreviewButtons():void {
 			previewButtons = new SiteButtons();
-			midground.addChild(previewButtons);
+			background.addChild(previewButtons);
 			var buttonData:Object = {
 				"About":{
 					"label":"ABOUT",

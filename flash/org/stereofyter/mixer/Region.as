@@ -188,6 +188,10 @@ package org.stereofyter.mixer {
       return Solo;
     }
 	
+	public function get beats():int {
+		return _sample.beats;
+	}
+	
 	public function get duration():Number {
 		return _sample.duration;
 	}
@@ -214,7 +218,7 @@ package org.stereofyter.mixer {
       /*
        * Instrument Icon button
        */
-      addTooltip(ui.buttons.buttonBody, sample.name);
+      addTooltip(ui.buttons.buttonBody, sample.title);
       ui.buttons.buttonBody.addEventListener(MouseEvent.MOUSE_DOWN, function(event:MouseEvent) {
         if (isDragging) return;
         function click(event:MouseEvent) {

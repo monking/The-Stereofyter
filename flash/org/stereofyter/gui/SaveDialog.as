@@ -1,6 +1,7 @@
 package org.stereofyter.gui
 {
 	import com.adobe.serialization.json.JSON;
+	import com.chrislovejoy.utils.StringUtils;
 	import com.chrislovejoy.utils.Debug;
 	
 	import fl.controls.Button;
@@ -92,11 +93,8 @@ package org.stereofyter.gui
 				mixListXData = {};
 				for (var i:int = 0; i < data.length; i++) {
 					mixListXData[data[i].id] = data[i];
-					var seconds:String = String(Math.round(data[i].duration / 1000 % 60));
-					if (seconds.length == 1) seconds = "0"+seconds;
-					var minutes:String = String(Math.floor(data[i].duration / 60000));
 					form.mixList.addItem({
-						label: data[i].title + ' ('+minutes+':'+seconds+')',
+						label: data[i].title + StringUtils.formatMilliseconds(data[i].duration, ' (%m:%S)'),
 						data:data[i].id
 					});
 				}

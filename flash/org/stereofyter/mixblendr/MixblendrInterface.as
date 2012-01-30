@@ -44,14 +44,14 @@ package org.stereofyter.mixblendr {
 			}
 		}
 	
-	public function check():void {
-		Debug.log(ready, 'MixblendrInterface.check()');
-		!ready && ExternalInterface.call("checkMixblendr");
-	}
-	
-	public function get ready():Boolean {
-		return !!jsBridgeName;
-	}
+		public function check():void {
+			Debug.log(ready, 'MixblendrInterface.check()');
+			!ready && ExternalInterface.call("checkMixblendr");
+		}
+		
+		public function get ready():Boolean {
+			return !!jsBridgeName;
+		}
 
 		protected function dispatchMBEvent(type, data):void {
 			this.data = data;

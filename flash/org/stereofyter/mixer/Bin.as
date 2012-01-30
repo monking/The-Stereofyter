@@ -13,7 +13,6 @@ package org.stereofyter.mixer {
 
     public static const
       PULL:String = "pull",
-      PREVIEW_TOGGLE:String = "preview_toggle",
       CAPACITY:int = 9;
 
     private static const
@@ -72,7 +71,7 @@ package org.stereofyter.mixer {
 	
 	public function clearSamples():void {
 		for (var i:int = 0; i < samples.length; i++) {
-			removeChild(samples[i].element);
+			sampleHolder.removeChild(samples[i].element);
 		}
 		samples = [];
 	}
@@ -182,7 +181,7 @@ package org.stereofyter.mixer {
         tooltip.visible = false;
       });
       tooltip.addEventListener(MouseEvent.CLICK, function(event:MouseEvent) {
-        dispatchEvent(new Event(Bin.PREVIEW_TOGGLE, true));
+        selectedSample.dispatchEvent(new Event(Sample.PREVIEW_TOGGLE, true));
       });
       addEventListener(MouseEvent.MOUSE_MOVE, scroll);
       addEventListener(MouseEvent.MOUSE_OVER, function(event:MouseEvent) {
@@ -200,7 +199,7 @@ package org.stereofyter.mixer {
       }
       tooltip.y = samples[selectedIndex].element.y + 25;
       tooltip.gotoAndStop(selectedSample.family);
-      tooltip.label.text = selectedSample.name;
+      tooltip.label.text = selectedSample.title;
       if (previewPlayingIndex == selectedIndex) {
         tooltip.previewButton.gotoAndStop("playing");
       } else {

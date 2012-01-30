@@ -197,8 +197,8 @@ package org.stereofyter {
 					engine.call("setRegionMuted", otherRegion.regionIndex, otherRegion.trackIndex, otherRegion.isMuted || otherRegion.solo == Region.SOLO_OTHER);
 				}
 			});
-			mixer.addEventListener(Bin.PREVIEW_TOGGLE, function(event:Event) {
-				engine.call("previewToggle", mixer.sampleRoot+event.target.selectedSample.src);
+			mixer.addEventListener(Sample.PREVIEW_TOGGLE, function(event:Event) {
+				engine.call("previewToggle", mixer.sampleRoot+event.target.src);
 			});
 			mixer.addEventListener(Mixer.PARSE_ERROR, function(event:Event) {
 				site.hover("load error: "+mixer.error, {timeout: 0, close: "top right"});

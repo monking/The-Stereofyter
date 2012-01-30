@@ -9,157 +9,183 @@ header('Content-type: application/json; charset=utf-8');
 	"samples":[
 		{
 			"src":"African_Mist_Voice_1.ogg",
-			"name":"African Mist Voice 1",
+			"title":"African Mist Voice 1",
 			"family":"vocal",
 			"country":"South Africa",
 			"artist":"",
 			"artistId":"",
 			"tempo":"120",
 			"duration":"4000",
-			"key":"*"
+			"key":"*",
+			"selected":"1"
 		},
 		{
 			"src":"African_Mist_Voice_2.ogg",
-			"name":"African Mist Voice 2",
+			"title":"African Mist Voice 2",
 			"family":"vocal",
 			"country":"South Africa",
 			"artist":"",
 			"artistId":"",
 			"tempo":"120",
 			"duration":"4000",
-			"key":"*"
+			"key":"*",
+			"selected":"1"
 		},
 		{
 			"src":"Backroads_Banjo.ogg",
-			"name":"Backroads Banjo",
+			"title":"Backroads Banjo",
 			"family":"guitar",
 			"country":"U.S.A.",
 			"artist":"",
 			"artistId":"",
 			"tempo":"120",
 			"duration":"4000",
-			"key":"*"
+			"key":"*",
+			"selected":"1"
 		},
 		{
 			"src":"Cuban_Percussion.ogg",
-			"name":"Cuban Percussion",
+			"title":"Cuban Percussion",
 			"family":"drum",
 			"country":"Cuba",
 			"artist":"",
 			"artistId":"",
 			"tempo":"120",
 			"duration":"4000",
-			"key":"*"
+			"key":"*",
+			"selected":"1"
 		},
 		{
 			"src":"Djembe.ogg",
-			"name":"Djembe",
+			"title":"Djembe",
 			"family":"drum",
 			"country":"Mali",
 			"artist":"",
 			"artistId":"",
 			"tempo":"120",
 			"duration":"4000",
-			"key":"*"
+			"key":"*",
+			"selected":"1"
 		},
 		{
 			"src":"Electro_Transistor_Beat.ogg",
-			"name":"Electro Transistor Beat",
+			"title":"Electro Transistor Beat",
 			"family":"drum",
 			"country":"U.S.A.",
 			"artist":"",
 			"artistId":"",
 			"tempo":"120",
 			"duration":"4000",
-			"key":"*"
+			"key":"*",
+			"selected":"1"
 		},
 		{
 			"src":"Hip_Hop_Wakka_Guitar.ogg",
-			"name":"Hip Hop Wakka Guitar",
+			"title":"Hip Hop Wakka Guitar",
 			"family":"guitar",
 			"country":"U.S.A.",
 			"artist":"",
 			"artistId":"",
 			"tempo":"120",
 			"duration":"4000",
-			"key":"*"
+			"key":"*",
+			"selected":"1"
 		},
 		{
 			"src":"House_Lazy_Beat.ogg",
-			"name":"House Lazy Beat",
+			"title":"House Lazy Beat",
 			"family":"drum",
 			"country":"U.S.A.",
 			"artist":"",
 			"artistId":"",
 			"tempo":"120",
 			"duration":"4000",
-			"key":"*"
+			"key":"*",
+			"selected":"1"
 		},
 		{
 			"src":"Jazz_Piano.ogg",
-			"name":"Jazz Piano",
+			"title":"Jazz Piano",
 			"family":"strings",
 			"country":"U.S.A.",
 			"artist":"",
 			"artistId":"",
 			"tempo":"120",
 			"duration":"4000",
-			"key":"*"
+			"key":"*",
+			"selected":"1"
 		},
 		{
 			"src":"Cuban_Voice.ogg",
-			"name":"Cuban Voice",
+			"title":"Cuban Voice",
 			"family":"vocal",
 			"country":"Cuba",
 			"artist":"",
 			"artistId":"",
 			"tempo":"120",
 			"duration":"4000",
-			"key":"*"
+			"key":"*",
+			"selected":"1"
 		},
 		{
 			"src":"Eastern_Gold_Voice.ogg",
-			"name":"Eastern Gold Voice",
+			"title":"Eastern Gold Voice",
 			"family":"vocal",
 			"country":"Egypt",
 			"artist":"",
 			"artistId":"",
 			"tempo":"120",
 			"duration":"4000",
-			"key":"*"
+			"key":"*",
+			"selected":"1"
 		},
 		{
 			"src":"Koto.ogg",
-			"name":"Koto",
+			"title":"Koto",
 			"family":"guitar",
 			"country":"Japan",
 			"artist":"",
 			"artistId":"",
 			"tempo":"120",
 			"duration":"4000",
-			"key":"*"
+			"key":"*",
+			"selected":"1"
 		},
 		{
 			"src":"Sine_Bass.ogg",
-			"name":"Sine Bass",
+			"title":"Sine Bass",
 			"family":"guitar",
 			"country":"U.S.A.",
 			"artist":"",
 			"artistId":"",
 			"tempo":"120",
 			"duration":"4000",
-			"key":"*"
+			"key":"*",
+			"selected":"1"
 		},
 		{
 			"src":"Tremolo_Organ.ogg",
-			"name":"Tremolo Organ",
+			"title":"Tremolo Organ",
 			"family":"strings",
 			"country":"U.S.A.",
 			"artist":"",
 			"artistId":"",
 			"tempo":"120",
 			"duration":"4000",
-			"key":"*"
+			"key":"*",
+			"selected":"1"
+		},
+		{
+			"src":"xxxfilenamexxx.ogg",
+			"title":"XXXTITLEXXX",
+			"family":"strings",
+			"country":"U.S.A.",
+			"artist":"",
+			"artistId":"",
+			"tempo":"120",
+			"duration":"4000",
+			"key":"*",
+			"selected":"1"
 		}
 	]
 }

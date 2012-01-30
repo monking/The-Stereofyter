@@ -47,6 +47,7 @@
 			REQUEST_SAVE_MIX:String = 'request_save_mix',
 			REQUEST_LOAD_DEMO:String = 'request_load_demo',
 			REWIND:String = "mixer_rewind",
+			SAMPLE_ADDED:String = "sample_added",
 			SEEK:String = "mixer_seek",
 			SEEK_FINISH:String = "mixer_seek_finish",
 			SEEK_START:String = "mixer_seek_start",
@@ -68,9 +69,7 @@
 			tracks:Array = [],
 			Regions:Array = [],
 			bins:Array = [],
-//			samples:Array = [],
-//			sampleData:Array = [],
-//			SampleRoot:String,
+			loopBrowser:LoopBrowser,
 			trackWidth:Number,
 			trackHeight:Number,
 			playhead:MovieClip,
@@ -98,7 +97,8 @@
 			dj:MovieClip,
 			djSide:String,
 			loading:Boolean = false,
-			parsing:Boolean = false;
+			parsing:Boolean = false,
+			_addedSample:Sample;
 		
 		public function Mixer(width:Number = 500, height:Number = 240, trackCount:Number = 8):void {
 			Width = width;
@@ -112,6 +112,7 @@
 			tooltip = new MixerTooltip();
 			addChild(ui);
 			addChild(bottom);
+			bottom.addChild(loopBrowser);
 			addChild(tooltip);
 			addBin(new Bin());
 			addBin(new Bin());
@@ -195,7 +196,11 @@
 		
 		public function addSample(sample:Sample):Boolean {
 			for (var i:int = 0; i < bins.length; i++) {
-				if (bins[i].addSample(sample)) return true;
+				if (bins[i].addSample(sample)) {
+					_addedSample = sample;
+					dispatchEvent(new Event(SAMPLE_ADDED));
+					return true;
+				}
 			}
 			return false;
 		}
@@ -391,8 +396,8 @@
 			return _error;
 		}
 		
-		public function get sampleRoot():String {
-			return SampleRoot;
+		public function get addedSample():Sample {
+			return _addedSample;
 		}
 		
 		public function get regions():Array {
@@ -424,6 +429,10 @@
 		
 		public function get tempo():Number {
 			return Tempo;
+		}
+		
+		public function get sampleRoot():String {
+			return loopBrowser.sampleRoot;
 		}
 		
 		override public function get width():Number {
@@ -466,7 +475,7 @@
 				}
 				if (!sampleFound) {
 					//not found, try for partial matches
-					for each (sample in samples) {
+					for each (sample in loopBrowser.samples) {
 						if (MixData.mix.samples[i].indexOf(sample.src) > -1) {
 							indexedSamples[i] = sample;
 							sampleFound = true;
@@ -487,6 +496,7 @@
 				addSample(indexedSamples[key]);
 			}
 			parseTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function(event:TimerEvent) {
+				Debug.log(parseTrackPointer + ' : ' + parseRegionPointer, 'parseTimer');
 				if (parseTrackPointer < MixData.mix.tracks.length && (!MixData.mix.tracks[parseTrackPointer] || !MixData.mix.tracks[parseTrackPointer][parseRegionPointer])) {
 					parseRegionPointer = 0;
 					parseTrackPointer++;
@@ -494,7 +504,7 @@
 					return;
 				}
 				if (parseTrackPointer >= MixData.mix.tracks.length) {
-					parseTrackPointer--;
+					parseTrackPointer = MixData.mix.tracks.length- 1;
 					//TODO: set the defined soloRegion to solo
 					//if (soloRegion) soloRegion.setSolo(Region.SOLO_THIS);
 					parsing = false;
@@ -502,6 +512,7 @@
 					return;
 				}
 				var regionData = MixData.mix.tracks[parseTrackPointer][parseRegionPointer];
+				Debug.log(JSON.encode(regionData), 'regionData');
 				dispatchEvent(new Event(Mixer.PARSE_BEGIN, true));
 				if (typeof regionData[ENCODED_KEY_SAMPLE] == undefined || typeof regionData[ENCODED_KEY_BEAT] == undefined) {
 					_error = "the loaded mix is incompatible";
@@ -619,6 +630,7 @@
 				}
 			}
 import flash.events.Event;
+import flash.events.MouseEvent;
 
 import org.stereofyter.mixer.Region;
 			
@@ -897,7 +909,7 @@ import org.stereofyter.mixer.Region;
 				resize();
 			});
 			/* Data Events */
-			addEventListener(LoopBrowser.SAMPLE_LIST_LOADED, onSampleListLoad);
+			loopBrowser.addEventListener(LoopBrowser.SAMPLE_LIST_LOADED, onSampleListLoad);
 			ui.buttonLoadMix.addEventListener(MouseEvent.CLICK, function(event:MouseEvent) {
 				dispatchEvent(new Event(Mixer.REQUEST_LOAD_MIX));
 			});
@@ -914,6 +926,12 @@ import org.stereofyter.mixer.Region;
 				dispatchEvent(new Event(Mixer.REWIND));
 			});
 			ui.seekbar.addEventListener(MouseEvent.MOUSE_DOWN, onStartSeekbarSlide);
+			bottom.loopBrowserButton.addEventListener(MouseEvent.CLICK, function(event:MouseEvent) {
+				loopBrowser.toggle();
+				bottom.loopBrowserButton.gotoAndStop(loopBrowser.active ? 'minus' : 'plus');
+				dj.visible = loopBrowser.active ? false : true;
+				bottom.turntables.visible = loopBrowser.active ? false : true;
+			});
 			updatePlayhead();
 			
 			/* Solo */
@@ -957,7 +975,7 @@ import org.stereofyter.mixer.Region;
 		}
 		
 		private function showRegionTooltip(event:Event):void {
-			var region:Region = event.target as Region;
+			var region:Object = event.target as Object;
 			showTooltip(region.tooltipMessage);
 		}
 		
@@ -1009,6 +1027,8 @@ import org.stereofyter.mixer.Region;
 			bins[0].y = 20;
 			bins[1].x = 160;
 			bins[1].y = bins[0].y;
+			bottom.loopBrowserButton.x = bins[1].x + bins[1].width + 10;
+			bottom.loopBrowserButton.y = bins[1].y;
 		}
 		
 		private function parseOnClear(event:Event):void {

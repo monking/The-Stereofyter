@@ -1,5 +1,7 @@
 <?php
 
+require_from_inc_dir('json');
+
 /** array_conform
   *	$input (array) : array to conform to default
   * $default (array) : array on which to model input
@@ -76,8 +78,8 @@ function assoc_to_json($assoc, $options = array()) {
 			if ($first_field) {
 				if ($options['whitespace'] == 'newline')
 					$json .= "\n".$options['indent']."	";
-				if ($options['structure'] == 'object')
-					$json .= "\"$value\":";
+				if ($options['structure'] == 'object')//object: use first column as the key for the row
+					$json .= '"'.json_escape($value).'":';
 				if ($options['structure'] != 'column')
 					$json .= "{";
 				$first_field = false;
@@ -86,16 +88,16 @@ function assoc_to_json($assoc, $options = array()) {
 				$field_count++;
 				if ($options['whitespace'] == 'newline')
 					$json .= "\n".$options['indent'].'		';
-				$json .= "\"$field\":";
+				$json .= '"'.json_escape($field).'":';
 				if (is_numeric($value)) {
-  				$json .= $value;
-  		  } else if(array_search($field, $options['objects']) !== false) {
-				  if (empty($value))
-  					$json .= 'null';
-  				else
-  					$json .= $value;
+					$json .= $value;
+				} else if(array_search($field, $options['objects']) !== false) {
+					if (empty($value))
+						$json .= 'null';
+					else
+						$json .= $value;
 				} else {
-					$json .= "\"$value\"";
+					$json .= '"'.json_escape($value).'"';
 				}
 				$field_count < count($row) && $json .= ",";
 			}
