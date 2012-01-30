@@ -101,7 +101,7 @@ header('Content-type: application/json; charset=utf-8');
 			"tempo":120,
 			"duration":4000,
 			"key":"*",
-			"selected":0
+			"selected":1
 		},
 		{
 			"src":"Jazz_Piano.ogg",
@@ -149,7 +149,7 @@ header('Content-type: application/json; charset=utf-8');
 			"tempo":120,
 			"duration":4000,
 			"key":"*",
-			"selected":0
+			"selected":1
 		},
 		{
 			"src":"Sine_Bass.ogg",
@@ -197,7 +197,7 @@ header('Content-type: application/json; charset=utf-8');
 			"tempo":120,
 			"duration":4000,
 			"key":"*",
-			"selected":0
+			"selected":1
 		},
 		{
 			"src":"70s_Electric_Piano_24.ogg",
@@ -209,7 +209,7 @@ header('Content-type: application/json; charset=utf-8');
 			"tempo":120,
 			"duration":4000,
 			"key":"*",
-			"selected":0
+			"selected":1
 		},
 		{
 			"src":"80s_Pop_Rock_Guitar_01.ogg",
@@ -281,7 +281,7 @@ header('Content-type: application/json; charset=utf-8');
 			"tempo":120,
 			"duration":4000,
 			"key":"*",
-			"selected":0
+			"selected":1
 		},
 		{
 			"src":"Beachside_Drumset_08.ogg",
@@ -305,7 +305,7 @@ header('Content-type: application/json; charset=utf-8');
 			"tempo":120,
 			"duration":4000,
 			"key":"*",
-			"selected":0
+			"selected":1
 		},
 		{
 			"src":"Blues_Guitar_03.ogg",
@@ -365,7 +365,7 @@ header('Content-type: application/json; charset=utf-8');
 			"tempo":120,
 			"duration":4000,
 			"key":"*",
-			"selected":0
+			"selected":1
 		},
 		{
 			"src":"Courier_Hi_Strings_01.ogg",
@@ -389,7 +389,7 @@ header('Content-type: application/json; charset=utf-8');
 			"tempo":120,
 			"duration":4000,
 			"key":"*",
-			"selected":0
+			"selected":1
 		},
 		{
 			"src":"DJ_Scratching_and_Effect_35.ogg",
@@ -449,7 +449,7 @@ header('Content-type: application/json; charset=utf-8');
 			"tempo":120,
 			"duration":4000,
 			"key":"*",
-			"selected":0
+			"selected":1
 		},
 		{
 			"src":"Irish_Lore_Voice_02.ogg",
@@ -473,7 +473,7 @@ header('Content-type: application/json; charset=utf-8');
 			"tempo":120,
 			"duration":4000,
 			"key":"*",
-			"selected":0
+			"selected":1
 		},
 		{
 			"src":"Orchestral_Strings_33.ogg",
@@ -485,7 +485,7 @@ header('Content-type: application/json; charset=utf-8');
 			"tempo":120,
 			"duration":4000,
 			"key":"*",
-			"selected":0
+			"selected":1
 		},
 		{
 			"src":"Remix_Punctuation_FX_12.ogg",
@@ -509,7 +509,7 @@ header('Content-type: application/json; charset=utf-8');
 			"tempo":120,
 			"duration":4000,
 			"key":"*",
-			"selected":0
+			"selected":1
 		},
 		{
 			"src":"Romantic_Piano_33.ogg",
@@ -538,7 +538,7 @@ header('Content-type: application/json; charset=utf-8');
 		{
 			"src":"Turkish_Morning_Drum_01.ogg",
 			"title":"Turkish Morning Drum",
-			"family":"strings",
+			"family":"drum",
 			"country":"U.S.A.",
 			"artist":"",
 			"artistId":"",

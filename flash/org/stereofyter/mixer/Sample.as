@@ -114,7 +114,6 @@ package org.stereofyter.mixer {
 		 * get: is this sample part of the selection?
 		 */
 		public function get selected():Boolean {
-			Debug.log(data.selected);
 			return data.selected == 1;
 		}
 

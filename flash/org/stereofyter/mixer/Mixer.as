@@ -510,7 +510,6 @@
 				addSample(indexedSamples[key]);
 			}
 			parseTimer.addEventListener(TimerEvent.TIMER_COMPLETE, function(event:TimerEvent) {
-				Debug.log(parseTrackPointer + ' : ' + parseRegionPointer, 'parseTimer');
 				if (parseTrackPointer < MixData.mix.tracks.length && (!MixData.mix.tracks[parseTrackPointer] || !MixData.mix.tracks[parseTrackPointer][parseRegionPointer])) {
 					parseRegionPointer = 0;
 					parseTrackPointer++;
@@ -526,7 +525,6 @@
 					return;
 				}
 				var regionData = MixData.mix.tracks[parseTrackPointer][parseRegionPointer];
-				Debug.log(JSON.encode(regionData), 'regionData');
 				dispatchEvent(new Event(Mixer.PARSE_BEGIN, true));
 				if (typeof regionData[ENCODED_KEY_SAMPLE] == undefined || typeof regionData[ENCODED_KEY_BEAT] == undefined) {
 					_error = "the loaded mix is incompatible";
@@ -986,7 +984,6 @@ import org.stereofyter.mixer.Region;
 			/*for starters, add selected samples to the bins*/
 			clearBins();
 			for (var i:int = 0; i < loopBrowser.samples.length; i++) {
-				Debug.log(loopBrowser.samples[i].selected);
 				if (loopBrowser.samples[i].selected) {
 					if (!addSample(loopBrowser.samples[i])) break;
 				}
@@ -995,7 +992,7 @@ import org.stereofyter.mixer.Region;
 		
 		private function onAddSampleToBin(event:Event):void {
 			var sample:Sample = event.target.sample as Sample;
-			addSample(sample);
+			if (!addSample(sample)) return;
 			loopBrowser.setSampleUsed(sample, true);
 		}
 		
