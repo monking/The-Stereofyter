@@ -274,7 +274,7 @@ header('Content-type: application/json; charset=utf-8');
 		{
 			"src":"Arabian_Nights_Gombri_07.ogg",
 			"title":"Arabian Nights Gombri",
-			"family":"drum",
+			"family":"guitar",
 			"country":"U.S.A.",
 			"artist":"",
 			"artistId":"",
@@ -485,7 +485,7 @@ header('Content-type: application/json; charset=utf-8');
 			"tempo":120,
 			"duration":4000,
 			"key":"*",
-			"selected":1
+			"selected":0
 		},
 		{
 			"src":"Remix_Punctuation_FX_12.ogg",
