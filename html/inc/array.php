@@ -1,6 +1,6 @@
 <?php
 
-require_from_inc_dir('json');
+require_from_inc('json');
 
 /** array_conform
   *	$input (array) : array to conform to default

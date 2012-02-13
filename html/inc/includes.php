@@ -4,7 +4,7 @@ if (!isset($ERROR)) $ERROR = array();
 
 define('INCLUDE_DIRNAME', dirname(__FILE__));
 
-function require_from_inc_dir()
+function require_from_inc()
 	{
 	foreach (func_get_args() as $include_name)
 		{
@@ -20,6 +20,6 @@ function require_from_inc_dir()
 if(!isset($INCLUDE)) $INCLUDE = array();
 array_unshift($INCLUDE, '../../_config');
 $INCLUDE = array_unique($INCLUDE);
-call_user_func_array('require_from_inc_dir', $INCLUDE);
+call_user_func_array('require_from_inc', $INCLUDE);
 
 ?>

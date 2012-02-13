@@ -1,7 +1,7 @@
 <?php
 
 ini_set('display_errors', 1);
-require_from_inc_dir('array', 'error', 'db');
+require_from_inc('array', 'error', 'db');
 
 /** login_user
   * login a user by username or email address, and password

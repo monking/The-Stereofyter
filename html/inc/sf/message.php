@@ -1,6 +1,6 @@
 <?php
 
-require_from_inc_dir('array', 'error', 'db');
+require_from_inc('array', 'error', 'db');
 
 /** save_message
   * $mix_data (array)

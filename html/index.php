@@ -1,9 +1,10 @@
 <?php
 session_start();
-$INCLUDE = array('db', 'layout', 'sf/user');
+require_once('inc/base.php');
+require_from_inc('db', 'layout', 'sf/user');
 $CSS = array('home', 'pop');
 $JS = array('jquery', 'swfobject', 'javaobject', 'mixblendr', 'pop', 'home');
-require('inc/header.php');
+require('view/header.tpl.php');
 ?>
 		<script type="text/javascript">
 			var flashvars = {
@@ -97,4 +98,4 @@ endif; ?>
 		<div id="instructions" style="display: none;">
 			<img src="images/instructions.jpg" width="1000" height="603" />
 		</div>
-<?php require('inc/footer.php'); ?>
+<?php require('view/footer.tpl.php'); ?>

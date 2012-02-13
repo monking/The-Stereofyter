@@ -1,7 +1,7 @@
 <?php
 $CSS = array('unsubscribe');
 require_once('inc/header.php');
-require_from_inc_dir('user');
+require_from_inc('user');
 
 $view = 'default';
 if (isset($_GET['error'])) log_error($_GET['error']);
