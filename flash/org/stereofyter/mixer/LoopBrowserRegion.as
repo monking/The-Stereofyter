@@ -63,6 +63,7 @@ package org.stereofyter.mixer {
 		}
 		
 		public function setUsed(used:Boolean):void {
+			label_title.text = /*_sample.artist + " - " + */_sample.title + (used ? ' (already in your bin)' : '');
 			background.gotoAndStop(used ? 'gray' : _sample.family);
 			buttonAdd.gotoAndStop(used ? 'minus' : 'plus');
 			_inUse = used;

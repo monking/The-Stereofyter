@@ -9,7 +9,7 @@ class Forum {
   }
   public function post($data) {
     global $db;
-    if (!is_array($data) || !@$data['']) return false;
+    if (!is_array($data) || !@$data['MESSAGE']) return false;
   }
   public function get($options) {
     global $db;
