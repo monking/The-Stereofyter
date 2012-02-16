@@ -1,7 +1,10 @@
 <?php
 
-require_from_inc_dir('json');
-
+function json_escape($string) {
+  $string = preg_replace('/(\n\r|\n|\r)+/', '\n', $string);
+  $string = preg_replace('/"/', '\"', $string);
+	return $string;
+}
 /** array_conform
   *	$input (array) : array to conform to default
   * $default (array) : array on which to model input
@@ -115,4 +118,5 @@ function assoc_to_json($assoc, $options = array()) {
 		$json .= $options['structure'] == 'object'? '}': ']';
 	return $json;
 }
+
 ?>

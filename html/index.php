@@ -1,9 +1,13 @@
 <?php
 session_start();
-$INCLUDE = array('db', 'layout', 'sf/user');
+require_once('../_config.php');
+depends(
+  'layout',
+  'sf/user'
+);
 $CSS = array('home', 'pop');
 $JS = array('jquery', 'swfobject', 'javaobject', 'mixblendr', 'pop', 'home');
-require('inc/header.php');
+require('view/header.php');
 ?>
 		<script type="text/javascript">
 			var flashvars = {
@@ -15,8 +19,8 @@ require('inc/header.php');
 				saveUrl:"scripts/save_mix.php",
 				loadUrl:"scripts/load_mix.php",
 				registerUrl:"scripts/register.php"<?
-$demoMixResult = mysql_query("SELECT id FROM sf_mixes WHERE title LIKE 'TheDemoMix' LIMIT 1");
-$demoMix = mysql_fetch_assoc($demoMixResult);
+$demoMix = $db->mysql_to_assoc("SELECT id FROM sf_mixes WHERE title LIKE 'TheDemoMix' LIMIT 1");
+$demoMix = count($demoMix) ? $demoMix[0] : array();
 if ($demoMix && is_numeric($demoMix['id'])):?>,
 				demoMixID:"<?=$demoMix['id']?>"<?
 endif;
@@ -97,4 +101,4 @@ endif; ?>
 		<div id="instructions" style="display: none;">
 			<img src="images/instructions.jpg" width="1000" height="603" />
 		</div>
-<?php require('inc/footer.php'); ?>
+<?php require('view/footer.php'); ?>

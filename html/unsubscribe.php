@@ -1,5 +1,5 @@
 <?php
-$includes = array('db', 'validation');
+$includes = array('database.class', 'validation');
 $CSS = array('unsubscribe');
 require_once('inc/header.php');
 ?>

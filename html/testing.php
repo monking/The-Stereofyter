@@ -1,5 +1,5 @@
 <?php
-$INCLUDE = array('layout', 'db');
+$INCLUDE = array('layout', 'database.class');
 $CSS = array('test_home');
 $JS = array('swfobject', 'javaobject', 'mixblendr', 'test_home');
 require('inc/header.php');

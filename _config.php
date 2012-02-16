@@ -1,23 +1,40 @@
 <?php
-ini_set('display_errors', 0);
+ini_set('display_errors', true);
 define('DEBUG', FALSE);
 define('MIXER_APP_VERSION', '06003');
 define('MIXER_ENGINE_VERSION', '0103');
+require_once('html/inc/includes.php');
+depends(
+  'database.class',
+  'forum.class',
+  'user.class'
+);
+$db = new Database();
+$user = new User(json_decode(@$_COOKIE['user']));
+$forum = new Forum(array(
+  'table'=>'forum'
+));
 if (strpos($_SERVER['SERVER_NAME'], 'local') !== FALSE) {
-  define('DB_HOST', '127.0.0.1');
-  define('DB_USER', 'forum');
-  define('DB_PASS', 'australia');
-  define('DB_NAME', 'stereofyter');
+  $db->connect(array(
+    'host'=>'127.0.0.1',
+    'user'=>'forum',
+    'pass'=>'australia',
+    'name'=>'stereofyter'
+  ));
 } elseif (strpos($_SERVER['SERVER_NAME'], 'chrislovejoy.com') !== FALSE) {
-  define('DB_HOST', 'internal-db.s7816.gridserver.com');
-  define('DB_USER', 'db7816_stereofy');
-  define('DB_PASS', 'australia');
-  define('DB_NAME', 'db7816_stereofyte');
+  $db->connect(array(
+    'host'=>'internal-db.s7816.gridserver.com',
+    'user'=>'db7816_stereofy',
+    'pass'=>'australia',
+    'name'=>'db7816_stereofyte'
+  ));
 } else {
-  define('DB_HOST', 'internal-db.s85217.gridserver.com');
-  define('DB_USER', 'db85217_sfweb');
-  define('DB_PASS', 'australia');
-  define('DB_NAME', 'db85217_stereofyte_app');
+  $db->connect(array(
+    'host'=>'internal-db.s85217.gridserver.com',
+    'user'=>'db85217_sfweb',
+    'pass'=>'australia',
+    'name'=>'db85217_stereofyte_app'
+  ));
 }
 
 ?>
