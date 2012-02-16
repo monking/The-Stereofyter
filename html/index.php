@@ -11,7 +11,7 @@ require('view/header.php');
 ?>
 		<script type="text/javascript">
 			var flashvars = {
-				session:"<?=str_replace('"', '\"', get_session_data_json());?>",
+				session:"<?=str_replace('"', '\"', $user->get_session_data_json());?>",
 				webRoot:"http://<?=$_SERVER['SERVER_NAME'];?>",
 				sampleListUrl:"scripts/samples.json.php",
 				mixListUrl:"scripts/my_mixes.json.php",

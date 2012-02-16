@@ -48,12 +48,12 @@ function save_mix($mix_data) {
 	if (isset($mix_data['id'])) {
 		$mix['modified'] = array('function' => 'NOW()');
 		$mix['WHERE'] = array('id' => $mix_data['id']);
-		if (!assoc_to_mysql('sf_mixes', 'UPDATE', array($mix)))
+		if (!$db->assoc_to_mysql('sf_mixes', 'UPDATE', $mix))
 			return log_error(mysql_error(), FALSE);
 		$saved_mix_id = $mix_data['id'];
 	} else {
 		$mix['created'] = array('function' => 'NOW()');
-		if (!assoc_to_mysql('sf_mixes', 'INSERT', array($mix)))
+		if (!$db->assoc_to_mysql('sf_mixes', 'INSERT', $mix))
 			return log_error(mysql_error(), FALSE);
 		$saved_mix_id = mysql_insert_id();
 		add_mix_owner($saved_mix_id, $_SESSION['user']['id']);

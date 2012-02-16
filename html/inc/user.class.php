@@ -2,15 +2,11 @@
 
 depends('array', 'error', 'database.class');
 class User {
-  public $username;
-  public function User($data) {
-    $defaults = array(
-      'id'=>null,
-      'id'=>null
-    );
-    foreach ($defaults as $key => $value) {
-      $this->$key = @array_key_exists($key, $options) ? $options[$key] : $defaults[$key];
-    }
+  public static $publicParams = array('id', 'name', 'country', 'created');
+  private $data;
+  public function User($data = null) {
+    if ($data)
+      $this->set($data);
   }
     /**login_user
     * login a user by username or email address, and password
@@ -26,13 +22,11 @@ class User {
       * register a user
       */
   public function register($email, $password, $username = '') {
-  	$result = assoc_to_mysql('sf_users', 'INSERT', array(
-      array(
+  	$result = $db->assoc_to_mysql(USER_TABLE, 'INSERT', array(
         'username' => $username,
         'email' => $email,
         'password' => make_pass_hash($password),
         'created' => array('function' => 'NOW()')
-        )
       ));
     if (!$result)
   		return FALSE;
@@ -43,14 +37,8 @@ class User {
       * refresh the data in the logged-in user's session
       */
   public function set($data) {
-    
-    if ($user_id !== null) {
-      session_start();
-    	$_SESSION['user']['id'] = $user_id;
-    }
-  	if (!isset($_SESSION)) return;
   	$id = mysql_real_escape_string($user_id);
-  	$result = mysql_query("SELECT id, username, name, email, country, musician, subscribe_updates, created FROM sf_users WHERE id='$id'");
+  	$result = mysql_query("SELECT id, username, name, email, country, musician, subscribe_updates, created FROM ${USER_TABLE} WHERE id='$id'");
   	if (!$result || !mysql_num_rows($result)) return;
   	$row = mysql_fetch_assoc($result);
   	$_SESSION['user'] = $row;
@@ -58,30 +46,22 @@ class User {
     /** refresh_session_data
       * refresh the data in the logged-in user's session
       */
-    public function fetch($user_id) {
-    if ($user_id !== null) {
-      session_start();
-    	$_SESSION['user']['id'] = $user_id;
-    }
-  	if (!isset($_SESSION)) return;
-  	$id = mysql_real_escape_string($user_id);
-  	$result = mysql_query("SELECT id, username, name, email, country, musician, subscribe_updates, created FROM sf_users WHERE id='$id'");
-  	if (!$result || !mysql_num_rows($result)) return;
-  	$row = mysql_fetch_assoc($result);
-  	$_SESSION['user'] = $row;
+  public function fetch() {
+    if (!$this->data->id) return false;
+  	$id = mysql_real_escape_string($this->data->id);
+  	$result = $db->mysql_to_assoc("SELECT id, username, name, email, country, musician, subscribe_updates, created FROM ${USER_TABLE} WHERE id='$id'");
+  	if (!$result) return false;
+  	$this->data = (object) $result[0];
   }
   /** get_session_data_json
     * format relevant session data into a JSON object
     */
-  function get_session_data_json() {
-  	if (!isset($_SESSION) || !isset($_SESSION['user'])) return '{}';
-  	$json = '{"user":{';
-  	$json .= '"id":"'.$_SESSION['user']['id'].'"';
-  	$json .= ', "name":"'.$_SESSION['user']['name'].'"';
-  	$json .= ', "country":"'.$_SESSION['user']['country'].'"';
-  	$json .= ', "created":"'.$_SESSION['user']['created'].'"';
-  	$json .= '}}';
-  	return $json;
+  public function get_session_data_json() {
+    $data = array();
+    foreach (User::$publicParams as $key) {
+      $data[$key] = $this->data->$key;
+    }
+    return json_encode((object) $this->data);
   }
   /** update_user
     * set the password on a user
@@ -101,7 +81,7 @@ class User {
   		$data['password'] = make_pass_hash($data['password']);
   	}
   	$data['WHERE'] = array('id' => $id);
-  	if (!assoc_to_mysql('sf_users', 'UPDATE', array($data)))
+  	if (!$db->assoc_to_mysql(USER_TABLE, 'UPDATE', $data))
   		return log_error('database error');
   	if ($hash) {
   		delete_reset_password_hash($hash);
@@ -112,7 +92,7 @@ class User {
     */
   function send_reset_password_hash($email) {
   	$email = mysql_real_escape_string($email);
-  	$result = mysql_query("SELECT id FROM sf_users WHERE email='$email'");
+  	$result = mysql_query("SELECT id FROM ${USER_TABLE} WHERE email='$email'");
   	if (!$result)
   		return log_error('database error');
   	if (!mysql_num_rows($result))
@@ -184,7 +164,7 @@ class User {
   		$user_where = "email='$identifier'";
   	else
   		$user_where = "username='$identifier'";
-  	$query = "SELECT id, password FROM sf_users WHERE $user_where";
+  	$query = "SELECT id, password FROM ${USER_TABLE} WHERE $user_where";
   	$result = mysql_query($query);
   	if (!$result)
   		return log_error('database error', FALSE);
@@ -219,8 +199,8 @@ class User {
     * RETURNS TRUE or FALSE
     */
   function check_user_exists($criteria) {
-  	$where = assoc_to_mysql_where($criteria);
-  	$query = "SELECT * FROM sf_users$where";
+  	$where = Database::assoc_to_mysql_where($criteria);
+  	$query = "SELECT * FROM ${USER_TABLE}$where";
   	$result = mysql_query($query);
   	if (!$result) {
   		return log_error(DEBUG ? mysql_error() : 'database error', FALSE);

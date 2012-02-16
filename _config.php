@@ -3,6 +3,8 @@ ini_set('display_errors', true);
 define('DEBUG', FALSE);
 define('MIXER_APP_VERSION', '06003');
 define('MIXER_ENGINE_VERSION', '0103');
+define('USER_TABLE', 'sf_user');
+define('FORUM_TABLE', 'sf_mix_messages');
 require_once('html/inc/includes.php');
 depends(
   'database.class',
@@ -11,9 +13,7 @@ depends(
 );
 $db = new Database();
 $user = new User(json_decode(@$_COOKIE['user']));
-$forum = new Forum(array(
-  'table'=>'forum'
-));
+$forum = new Forum();
 if (strpos($_SERVER['SERVER_NAME'], 'local') !== FALSE) {
   $db->connect(array(
     'host'=>'127.0.0.1',

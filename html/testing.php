@@ -3,7 +3,7 @@ $INCLUDE = array('layout', 'database.class');
 $CSS = array('test_home');
 $JS = array('swfobject', 'javaobject', 'mixblendr', 'test_home');
 require('inc/header.php');
-echo assoc_to_mysql_where(array('OR'=>array('me'=>'Christopher', 'you'=>'smokin babe'), 'stuff'=>'crazy')); exit;
+echo Database::assoc_to_mysql_where(array('OR'=>array('me'=>'Christopher', 'you'=>'smokin babe'), 'stuff'=>'crazy')); exit;
 ?>
 		<div id="app_container">
 			<div id="sfapp">

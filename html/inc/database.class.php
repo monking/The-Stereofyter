@@ -12,7 +12,7 @@ class Database {
     unset($pass);
     if (!mysql_select_db($name)) return false;
   }
-  /** assoc_to_mysql
+  /** post
   	* build and submit a MySQL query from an associative array
   	* @assoc (Array) keys for column names.
   	*		A key of 'WHERE' should have another associative array as a value, and will be
@@ -23,19 +23,22 @@ class Database {
   	*
   	* NOTE: you must escape special characters in your values before calling assoc_to_mysql
   	*/
-  public function assoc_to_mysql($table_name, $method, $assoc, $db_name = null) {
+  public function post($table_name, $method, $assoc, $db_name = null) {
   	// Takes a 2-dimensional associative array and turns it into a SQL query.
   	// VERY INCOMPLETE! 2011-04-29
   	$methods = array('INSERT'=>'INSERT INTO', 'UPDATE'=>'UPDATE');
+  	$reserved = array('WHERE');
   	$query = '';
   	if (array_key_exists($method, $methods)) {
   		$row_num = 0;
+  		if (!array_key_exists(0, $assoc))
+  		  $assoc = array($assoc);
   		foreach($assoc as $row) {
   			$row_num++;
   			$query .= "$methods[$method] $table_name SET";
   			$field_num = 0;
   			foreach($row as $field => $value) {
-  				if ('WHERE' == $field) continue;
+  				if (array_search($field, $reserved) !== false) continue;
   				$field_num++;
   				$field_delimiter = $field_num > 1? ',': '';
   				$query .= "$field_delimiter $field=";
@@ -45,7 +48,7 @@ class Database {
   					$query .= "'".str_replace("'", "\\'", $value)."'";
   			}
   			if (array_key_exists('WHERE', $row)) {
-  				$query .= assoc_to_mysql_where($row['WHERE']);
+  				$query .= self::assoc_to_mysql_where($row['WHERE']);
   			}
   			$query .= ';';
   		}
@@ -55,13 +58,50 @@ class Database {
   	if (!mysql_query($query)) return false;
   	return true;
   }
+  /** get
+  	* build and submit a MySQL query from an associative array
+  	* @assoc (Array) keys for column names.
+  	*		A key of 'WHERE' should have another associative array as a value, and will be
+  	*		turned into a MySQL 'WHERE' statement.
+  	* @method (String) 'INSERT' or 'UPDATE'
+  	* @table_name (String)
+  	* @db_name (OPTIONAL String)
+  	*
+  	* NOTE: you must escape special characters in your values before calling assoc_to_mysql
+  	*/
+  public function get($table_name, $assoc, $db_name = null) {
+  	// Takes a 2-dimensional associative array and turns it into a SQL query.
+  	// VERY INCOMPLETE! 2011-04-29
+  	$reserved = array('WHERE', 'ORDER BY', 'LIMIT');
+  	$where = '';
+  	$orderby = '';
+  	$limit = '';
+		if (array_key_exists('WHERE', $assoc)) {
+		  print_r($assoc);
+			$where = self::assoc_to_mysql_where($assoc['WHERE']);
+			unset($assoc['WHERE']);
+		}
+		if (array_key_exists('ORDER BY', $assoc)) {
+			$orderby = ' ORDER BY '.$assoc['ORDER BY'];
+			unset($assoc['ORDER BY']);
+		}
+		if (array_key_exists('LIMIT', $assoc)) {
+			$limit = ' LIMIT '.$assoc['LIMIT'];
+			unset($assoc['LIMIT']);
+		}
+		$fields = isset($assoc['fields']) ? implode(', ', $assoc['fields']) : '*';
+		$query = "SELECT $fields FROM $table_name$where$orderby$limit;";
+		exit($query);
+		
+  	return mysql_query($query);
+  }
   /** where_recurse
     */
   public static function where_recurse($assoc, $conjunction = 'AND', $nested = TRUE) {
     $conditions = array();
     foreach($assoc as $field => $value) {
   		if ($field == 'OR' || is_array($value)) {
-  	    $conditions[] = where_recurse($value, $field == 'OR' ? 'OR' : 'AND');
+  	    $conditions[] = self::where_recurse($value, $field == 'OR' ? 'OR' : 'AND');
   		} else {
     		$field= mysql_real_escape_string($field);
   		  //if $value is stdClass with property 'function', use without quotes
@@ -78,7 +118,7 @@ class Database {
   /** assoc_to_mysql_where
   	*/
   public static function assoc_to_mysql_where($assoc) {
-  	return ' WHERE '.where_recurse($assoc, 'AND', FALSE);
+  	return $assoc ? ' WHERE '.self::where_recurse($assoc, 'AND', FALSE) : '';
   }
 
   /** mysql_to_assoc
