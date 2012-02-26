@@ -1,5 +1,4 @@
 <?php
-session_start();
 require_once('../_config.php');
 depends(
   'layout',
@@ -7,11 +6,11 @@ depends(
 );
 $CSS = array('home', 'pop');
 $JS = array('jquery', 'swfobject', 'javaobject', 'mixblendr', 'pop', 'home');
-require('view/header.php');
+include('view/header.php');
 ?>
 		<script type="text/javascript">
 			var flashvars = {
-				session:"<?=str_replace('"', '\"', $user->get_session_data_json());?>",
+				session:"<?=str_replace('"', '\"', json_encode((object) $user->data));?>",
 				webRoot:"http://<?=$_SERVER['SERVER_NAME'];?>",
 				sampleListUrl:"scripts/samples.json.php",
 				mixListUrl:"scripts/my_mixes.json.php",
@@ -19,7 +18,18 @@ require('view/header.php');
 				saveUrl:"scripts/save_mix.php",
 				loadUrl:"scripts/load_mix.php",
 				registerUrl:"scripts/register.php"<?
-$demoMix = $db->mysql_to_assoc("SELECT id FROM sf_mixes WHERE title LIKE 'TheDemoMix' LIMIT 1");
+$demoMix = $db->get_assoc(
+  'sf_mixes',
+  array(
+    array(
+      'fields'=>array('id'),
+      'WHERE' => array(
+        'title'=>'TheDemoMix'
+      ),
+      'LIMIT'=>1
+    )
+  )
+);
 $demoMix = count($demoMix) ? $demoMix[0] : array();
 if ($demoMix && is_numeric($demoMix['id'])):?>,
 				demoMixID:"<?=$demoMix['id']?>"<?
@@ -101,4 +111,4 @@ endif; ?>
 		<div id="instructions" style="display: none;">
 			<img src="images/instructions.jpg" width="1000" height="603" />
 		</div>
-<?php require('view/footer.php'); ?>
+<?php include('view/footer.php'); ?>

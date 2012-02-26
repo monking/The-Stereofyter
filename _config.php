@@ -1,19 +1,19 @@
 <?php
 ini_set('display_errors', true);
-define('DEBUG', FALSE);
+define('DEBUG', TRUE);
 define('MIXER_APP_VERSION', '06003');
 define('MIXER_ENGINE_VERSION', '0103');
-define('USER_TABLE', 'sf_user');
-define('FORUM_TABLE', 'sf_mix_messages');
 require_once('html/inc/includes.php');
 depends(
+  'array_helpers',
   'database.class',
   'forum.class',
   'user.class'
 );
+session_start();
 $db = new Database();
-$user = new User(json_decode(@$_COOKIE['user']));
-$forum = new Forum();
+$user = new User(array('table'=>'sf_users'));
+$forum = new Forum(array('table'=>'sf_mix_messages'));
 if (strpos($_SERVER['SERVER_NAME'], 'local') !== FALSE) {
   $db->connect(array(
     'host'=>'127.0.0.1',

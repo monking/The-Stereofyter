@@ -2,7 +2,7 @@
 $INCLUDE = array('layout', 'database.class');
 $CSS = array('test_home');
 $JS = array('swfobject', 'javaobject', 'mixblendr', 'test_home');
-require('inc/header.php');
+include('inc/header.php');
 echo Database::assoc_to_mysql_where(array('OR'=>array('me'=>'Christopher', 'you'=>'smokin babe'), 'stuff'=>'crazy')); exit;
 ?>
 		<div id="app_container">
@@ -19,4 +19,4 @@ echo Database::assoc_to_mysql_where(array('OR'=>array('me'=>'Christopher', 'you'
 		<div id="mbapp">
 			<applet CODE="com/mixblendr/gui/main/Applet" ARCHIVE="mixblendr/mixblendr.jar?TIMESTAMP=<?=time();?>" WIDTH="1000" HEIGHT="500" ALT="Your browser is not configured to view the applet. Please install Jave Runtime JRE 1.5 or higher." id="mixblendr"><PARAM name="url" value="competition/getfile"><PARAM name="REDIRECT_URL" value="competition/competition-entries/"><PARAM name="DEFAULT_TEMPO" value="120.0"></applet>
 		</div>
-<?php require('inc/footer.php'); ?>
+<?php include('inc/footer.php'); ?>

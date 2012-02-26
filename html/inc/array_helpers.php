@@ -24,27 +24,35 @@ function json_escape($string) {
 			['a' => 'prefix_thing', 'b' => 'prefix_other']
 		
   */
-function array_conform($input, $default, $filter = '')
-	{
-	foreach ($default as $key => $value)
-		{
+function array_conform($input, $default, $filter = '') {
+  if (!$input) $input = array();
+	foreach ($default as $key => $value) {
 		if (!array_key_exists($key, $input)) $input[$key] = $value;
-		}
-	foreach ($input as $key => $value)
-		{
-		if (!array_key_exists($key, $default))
-			{
+	}
+	foreach ($input as $key => $value) {
+		if (!array_key_exists($key, $default)) {
 			unset($input[$key]);
 			continue;
-			}
-		if ($filter && function_exists($filter))
+		}
+		if ($filter && function_exists($filter)) {
 			if (!$filter($key, $input[$key]))
 				unset($input[$key]);
-				
 		}
-	return $input;
 	}
-  
+	return $input;
+}
+
+/** filter_mysql_assoc
+  * filter function for array_conform
+  * removes elements with the value -1 and escapes values for MySQL input
+  */
+function filter_mysql_assoc($key, &$value) {
+	if ($value == -1) return FALSE;
+	if (!count($value))
+		$value = mysql_real_escape_string($value);
+	return TRUE;
+}
+
 /** assoc_to_json
 	* $assoc (array)
 	* $options (array)

@@ -2,8 +2,8 @@
 
 //header('Content-type: application/json; charset=utf-8');
 
-$INCLUDE = array('sf/mix');
-require_once('../inc/includes.php');
+require_once('../../_config.php');
+depends('sf/mix');
 
 $mix_id = FALSE;
 session_start();

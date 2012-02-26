@@ -1,17 +1,7 @@
 <?php
 
-depends('array', 'error', 'database.class', 'sf/user');
+depends('array_helpers', 'error', 'database.class', 'sf/user');
 
-/** filter_mysql_assoc
-  * filter function for array_conform
-  * removes elements with the value -1 and escapes values for MySQL input
-  */
-function filter_sf_mysql_assoc($key, &$value) {
-	if ($value == -1) return FALSE;
-	if (!count($value))
-		$value = mysql_real_escape_string($value);
-	return TRUE;
-}
 /** save_mix
   * $mix_data (array)
 		['mix'] (string) JSON-encoded mix data to be saved
@@ -43,7 +33,7 @@ function save_mix($mix_data) {
 			'duration' => '',
 			'modified_by' => $_SESSION['user']['id']
 		),
-		'filter_sf_mysql_assoc'
+		'filter_mysql_assoc'
 	);
 	if (isset($mix_data['id'])) {
 		$mix['modified'] = array('function' => 'NOW()');

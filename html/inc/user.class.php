@@ -1,28 +1,36 @@
 <?php
 
-depends('array', 'error', 'database.class');
+depends('array_helpers', 'error', 'database.class');
 class User {
   public static $publicParams = array('id', 'name', 'country', 'created');
-  private $data;
-  public function User($data = null) {
-    if ($data)
-      $this->set($data);
+  public $data;
+  public function User($options = array()) {
+    $defaults = array(
+      'table'=>''
+    );
+    foreach ($defaults as $key => $value) {
+      $this->$key = @array_key_exists($key, $options) ? $options[$key] : $defaults[$key];
+    }
+    if (!@$this->table) die('User requires a database table.');
+    if ($_SESSION && $_SESSION['user'])
+      $this->set($_SESSION['user']);
   }
     /**login_user
     * login a user by username or email address, and password
     */
   public function login($username, $password) {
-  	$user_id = check_user_pass($username, $password);
+  	$user_id = $this->check_pass($username, $password);
   	if ($user_id === FALSE)
   		return FALSE;
-  	refresh_session_data($user_id);
+  	if (!$_SESSION) session_start();
+  	$_SESSION['user'] = $this->fetch($user_id);
   	return TRUE;
   }
-    /** register_user
-      * register a user
-      */
+  /** register_user
+    * register a user
+    */
   public function register($email, $password, $username = '') {
-  	$result = $db->assoc_to_mysql(USER_TABLE, 'INSERT', array(
+  	$result = $db->assoc_to_mysql($this->table, 'INSERT', array(
         'username' => $username,
         'email' => $email,
         'password' => make_pass_hash($password),
@@ -30,43 +38,59 @@ class User {
       ));
     if (!$result)
   		return FALSE;
-  	refresh_session_data(mysql_insert_id());
+  	$this->fetch(mysql_insert_id());
   	return TRUE;
   }
-    /** refresh_session_data
-      * refresh the data in the logged-in user's session
-      */
-  public function set($data) {
-  	$id = mysql_real_escape_string($user_id);
-  	$result = mysql_query("SELECT id, username, name, email, country, musician, subscribe_updates, created FROM ${USER_TABLE} WHERE id='$id'");
-  	if (!$result || !mysql_num_rows($result)) return;
-  	$row = mysql_fetch_assoc($result);
-  	$_SESSION['user'] = $row;
-  }
-    /** refresh_session_data
-      * refresh the data in the logged-in user's session
-      */
-  public function fetch() {
-    if (!$this->data->id) return false;
-  	$id = mysql_real_escape_string($this->data->id);
-  	$result = $db->mysql_to_assoc("SELECT id, username, name, email, country, musician, subscribe_updates, created FROM ${USER_TABLE} WHERE id='$id'");
-  	if (!$result) return false;
-  	$this->data = (object) $result[0];
-  }
-  /** get_session_data_json
-    * format relevant session data into a JSON object
+  /** set
+    * set the data object on the current user
     */
-  public function get_session_data_json() {
-    $data = array();
-    foreach (User::$publicParams as $key) {
-      $data[$key] = $this->data->$key;
-    }
-    return json_encode((object) $this->data);
+  public function set($data) {
+    $data = array_conform(
+      $data,
+      array(
+	      'id'=>null,
+	      'username'=>null,
+	      'name'=>null,
+	      'email'=>null,
+	      'country'=>null,
+	      'musician'=>null,
+	      'subscribe_updates'=>null,
+	      'created'=>null
+	    )
+	  );
+	  $this->data = (object) $data;
+  }
+  /** fetch
+    * fetch the user object's data
+    */
+  public function fetch($user_id = null) {
+    global $db;
+    if (!$user_id && !$this->data->id) return false;
+  	$id = mysql_real_escape_string($user_id ? $user_id : $this->data->id);
+  	$result = $db->get(
+  	  $this->table,
+  	  array(
+  	    'fields'=>array(
+  	      'id',
+  	      'username',
+  	      'name',
+  	      'email',
+  	      'country',
+  	      'musician',
+  	      'subscribe_updates',
+  	      'created'
+  	    ),
+  	    'WHERE'=>array('id'=>$id)
+  	  )
+  	);
+  	if (!$result) return false;
+  	$this->data = mysql_fetch_object($result);
+  	return $this->data;
   }
   /** update_user
     * set the password on a user
     */
-  function update_user($id, $data, $hash = NULL) {
+  public function update($id, $data, $hash = NULL) {
   	if ($hash != NULL) {
   		$hash_user_id = check_reset_password_hash($hash, FALSE, $id);
   		if (!is_numeric($hash_user_id))
@@ -75,13 +99,13 @@ class User {
   	}
   	if (array_key_exists('password', $data)) {
   		if (array_key_exists('old_password', $data)) {
-  			if (!check_user_pass($username, $data['old_password'])) return log_error('wrong old password');
+  			if (!$this->check_pass($data['old_password'])) return log_error('wrong old password');
   		} else if (!$hash)
   			return log_error('need old password');
   		$data['password'] = make_pass_hash($data['password']);
   	}
   	$data['WHERE'] = array('id' => $id);
-  	if (!$db->assoc_to_mysql(USER_TABLE, 'UPDATE', $data))
+  	if (!$db->assoc_to_mysql($this->table, 'UPDATE', $data))
   		return log_error('database error');
   	if ($hash) {
   		delete_reset_password_hash($hash);
@@ -90,9 +114,9 @@ class User {
   /** send_reset_password_hash
     * email the hash to reset the password
     */
-  function send_reset_password_hash($email) {
+  private function send_reset_password_hash($email) {
   	$email = mysql_real_escape_string($email);
-  	$result = mysql_query("SELECT id FROM ${USER_TABLE} WHERE email='$email'");
+  	$result = mysql_query("SELECT id FROM ${$this->table} WHERE email='$email'");
   	if (!$result)
   		return log_error('database error');
   	if (!mysql_num_rows($result))
@@ -117,7 +141,7 @@ class User {
     * if it's expired, remove it
     * RETURNS numeric ID, or String error
     */
-  function check_reset_password_hash($hash, $delete = FALSE, $match_id = NULL) {
+  private function check_reset_password_hash($hash, $delete = FALSE, $match_id = NULL) {
   	$HASH_LIFE = 86400; // 24 hours in seconds
   	$hash = mysql_real_escape_string($hash);
   	$expired = FALSE;
@@ -144,28 +168,34 @@ class User {
   /** delete_reset_password_hash
     * delete a hash from the table by hash or by user_id
     */
-  function delete_reset_password_hash($hash, $user_id = NULL) {
+  private function delete_reset_password_hash($hash, $user_id = NULL) {
   	if ($user_id !== NULL)
   		$where = "user_id='".mysql_real_escape_string($user_id)."'";
   	else
   		$where = "hash='".mysql_real_escape_string($hash)."'";
   	mysql_query("DELETE FROM sf_reset_hashes WHERE $where");
   }
-  /** check_user_pass
+  /** check_pass
     * check for a password match on a user
     * using numeric id, alphanumeric username, or email address
     * RETURNS user ID or FALSE
     */
-  function check_user_pass($identifier, $password) {
+  private function check_pass($identifier, $password) {
+    global $db;
   	$identifier = mysql_real_escape_string($identifier);
   	if (is_numeric($identifier))
-  		$user_where = "id='$identifier'";
+  		$user_where = 'id';
   	else if (strpos($identifier, "@"))
-  		$user_where = "email='$identifier'";
+  		$user_where = 'email';
   	else
-  		$user_where = "username='$identifier'";
-  	$query = "SELECT id, password FROM ${USER_TABLE} WHERE $user_where";
-  	$result = mysql_query($query);
+  		$user_where = 'username';
+  	$result = $db->get(
+  	  $this->table,
+  	  array(
+  	    'fields'=>array('id', 'password'),
+  	    'WHERE'=>array($user_where=>$identifier)
+  	  )
+  	);
   	if (!$result)
   		return log_error('database error', FALSE);
   	if (!mysql_num_rows($result))
@@ -173,14 +203,14 @@ class User {
   	$row = mysql_fetch_assoc($result);
   	if (!$row['password'])
   		return log_error('password not set', FALSE);
-  	if (!check_pass_hash($password, $row['password']))
+  	if (!$this->check_pass_hash($password, $row['password']))
   		return log_error('incorrect login', FALSE);
   	return $row['id'];
   }
   /** make_pass_hash
     * make a salted hash of the password
     */
-  function make_pass_hash($password) {
+  private function make_pass_hash($password) {
   	$salt = substr(sha1(rand()), 0, 24);
   	$hash = sha1($salt.$password);
   	return $salt.$hash;
@@ -188,7 +218,7 @@ class User {
   /** check_pass_hash
     * check a password against a salted hash
     */
-  function check_pass_hash($password, $hash) {
+  private function check_pass_hash($password, $hash) {
   	$salt = substr($hash, 0, 24);
   	if ($hash != $salt.sha1($salt.$password))
   		return FALSE;
@@ -198,9 +228,9 @@ class User {
     * $criteria (array) associative array of fields to reference
     * RETURNS TRUE or FALSE
     */
-  function check_user_exists($criteria) {
+  public function check_user_exists($criteria) {
   	$where = Database::assoc_to_mysql_where($criteria);
-  	$query = "SELECT * FROM ${USER_TABLE}$where";
+  	$query = "SELECT * FROM ${$this->table}$where";
   	$result = mysql_query($query);
   	if (!$result) {
   		return log_error(DEBUG ? mysql_error() : 'database error', FALSE);

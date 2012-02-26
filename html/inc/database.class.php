@@ -1,7 +1,7 @@
 <?php
 
 class Database {
-  private $db_conn;
+  public $db_conn;
   public function Database($params = array()) {
     if ($params)
       $this->connect($params);
@@ -10,7 +10,7 @@ class Database {
     $this->db_conn = mysql_connect($params['host'], $params['user'], $params['pass']);
     if (!$this->db_conn) return false;
     unset($pass);
-    if (!mysql_select_db($name)) return false;
+    if (!mysql_select_db($params['name'])) return false;
   }
   /** post
   	* build and submit a MySQL query from an associative array
@@ -19,13 +19,10 @@ class Database {
   	*		turned into a MySQL 'WHERE' statement.
   	* @method (String) 'INSERT' or 'UPDATE'
   	* @table_name (String)
-  	* @db_name (OPTIONAL String)
   	*
   	* NOTE: you must escape special characters in your values before calling assoc_to_mysql
   	*/
-  public function post($table_name, $method, $assoc, $db_name = null) {
-  	// Takes a 2-dimensional associative array and turns it into a SQL query.
-  	// VERY INCOMPLETE! 2011-04-29
+  public function post($table_name, $method, $assoc) {
   	$methods = array('INSERT'=>'INSERT INTO', 'UPDATE'=>'UPDATE');
   	$reserved = array('WHERE');
   	$query = '';
@@ -55,6 +52,7 @@ class Database {
   	} else {
   		return false;
   	}
+  	echo ($query);
   	if (!mysql_query($query)) return false;
   	return true;
   }
@@ -65,11 +63,10 @@ class Database {
   	*		turned into a MySQL 'WHERE' statement.
   	* @method (String) 'INSERT' or 'UPDATE'
   	* @table_name (String)
-  	* @db_name (OPTIONAL String)
   	*
   	* NOTE: you must escape special characters in your values before calling assoc_to_mysql
   	*/
-  public function get($table_name, $assoc, $db_name = null) {
+  public function get($table_name, $assoc) {
   	// Takes a 2-dimensional associative array and turns it into a SQL query.
   	// VERY INCOMPLETE! 2011-04-29
   	$reserved = array('WHERE', 'ORDER BY', 'LIMIT');
@@ -77,7 +74,6 @@ class Database {
   	$orderby = '';
   	$limit = '';
 		if (array_key_exists('WHERE', $assoc)) {
-		  print_r($assoc);
 			$where = self::assoc_to_mysql_where($assoc['WHERE']);
 			unset($assoc['WHERE']);
 		}
@@ -91,9 +87,11 @@ class Database {
 		}
 		$fields = isset($assoc['fields']) ? implode(', ', $assoc['fields']) : '*';
 		$query = "SELECT $fields FROM $table_name$where$orderby$limit;";
-		exit($query);
-		
   	return mysql_query($query);
+  }
+  public function get_first_obj($table_name, $assoc) {
+    $result = $this->get($table_name, $assoc);
+    return mysql_fetch_obj($result);
   }
   /** where_recurse
     */
@@ -124,14 +122,25 @@ class Database {
   /** mysql_to_assoc
   	* $query (string) MySQL QUERY whose result will be shown
   	*/
-  public function mysql_to_assoc($query) {
+  public function get_assoc($table_name, $assoc) {
     global $ERROR;
-  	if (!($result = mysql_query($query))) {
+  	if (!($result = $this->get($table_name, $assoc))) {
   		if (DEBUG) $ERROR[] = mysql_error();
   		return FALSE;
   	}
   	$result_array = array();
   	while($row = mysql_fetch_assoc($result))
+  	  $result_array[] = $row;
+  	return $result_array;
+  }
+  public function get_object($table_name, $assoc) {
+    global $ERROR;
+  	if (!($result = $this->get($table_name, $assoc))) {
+  		if (DEBUG) $ERROR[] = mysql_error();
+  		return FALSE;
+  	}
+  	$result_array = array();
+  	while($row = mysql_fetch_object($result))
   	  $result_array[] = $row;
   	return $result_array;
   }
