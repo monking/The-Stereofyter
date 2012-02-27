@@ -5,6 +5,7 @@ require_once('../../_config.php');
 if (@$_REQUEST['message']) {
   $forum->post(array(
     'message'=>$_REQUEST['message'],
+    'title'=>$_REQUEST['title'],
     'user_id'=>$user->id,
     'reply_on_id'=>@$_REQUEST['reply_on'] ? $_REQUEST['reply_on'] : -1,
     'link_id'=>@$_REQUEST['mix_id'] ? $_REQUEST['mix_id'] : -1

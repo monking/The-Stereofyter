@@ -24,6 +24,7 @@ class Forum {
         $data,
         array(
           'message' => '',
+          'title' => '',
           'user_id' => -1,
           'link_id' => -1,
           'reply_on_id' => -1,

@@ -52,7 +52,6 @@ class Database {
   	} else {
   		return false;
   	}
-  	echo ($query);
   	if (!mysql_query($query)) return false;
   	return true;
   }
@@ -66,31 +65,32 @@ class Database {
   	*
   	* NOTE: you must escape special characters in your values before calling assoc_to_mysql
   	*/
-  public function get($table_name, $assoc) {
-  	// Takes a 2-dimensional associative array and turns it into a SQL query.
-  	// VERY INCOMPLETE! 2011-04-29
-  	$reserved = array('WHERE', 'ORDER BY', 'LIMIT');
-  	$where = '';
-  	$orderby = '';
-  	$limit = '';
-		if (array_key_exists('WHERE', $assoc)) {
-			$where = self::assoc_to_mysql_where($assoc['WHERE']);
-			unset($assoc['WHERE']);
-		}
-		if (array_key_exists('ORDER BY', $assoc)) {
-			$orderby = ' ORDER BY '.$assoc['ORDER BY'];
-			unset($assoc['ORDER BY']);
-		}
-		if (array_key_exists('LIMIT', $assoc)) {
-			$limit = ' LIMIT '.$assoc['LIMIT'];
-			unset($assoc['LIMIT']);
-		}
-		$fields = isset($assoc['fields']) ? implode(', ', $assoc['fields']) : '*';
-		$query = "SELECT $fields FROM $table_name$where$orderby$limit;";
+  public function get($table_name, $query) {
+  	// Takes a string query, or 2-dimensional associative array and turns it into a SQL query.
+  	if (is_array($query)) {
+    	$reserved = array('WHERE', 'ORDER BY', 'LIMIT');
+    	$where = '';
+    	$orderby = '';
+    	$limit = '';
+  		if (array_key_exists('WHERE', $query)) {
+  			$where = self::assoc_to_mysql_where($query['WHERE']);
+  			unset($query['WHERE']);
+  		}
+  		if (array_key_exists('ORDER BY', $query)) {
+  			$orderby = ' ORDER BY '.$query['ORDER BY'];
+  			unset($query['ORDER BY']);
+  		}
+  		if (array_key_exists('LIMIT', $query)) {
+  			$limit = ' LIMIT '.$query['LIMIT'];
+  			unset($query['LIMIT']);
+  		}
+  		$fields = isset($query['fields']) ? implode(', ', $query['fields']) : '*';
+  		$query = "SELECT $fields FROM $table_name$where$orderby$limit;";
+  	}
   	return mysql_query($query);
   }
-  public function get_first_obj($table_name, $assoc) {
-    $result = $this->get($table_name, $assoc);
+  public function get_first_obj($table_name, $query) {
+    $result = $this->get($table_name, $query);
     return mysql_fetch_obj($result);
   }
   /** where_recurse
