@@ -14,16 +14,16 @@ depends('array_helpers', 'error', 'database.class', 'sf/user');
 function save_mix($mix_data) {
 	if (!isset($_SESSION)) session_start();
 
-	if (!isset($_SESSION['user']['id']))
+	if (!isset($user->id))
 		return log_error('not logged in', FALSE);
 	if (!isset($mix_data['mix']))
 		return log_error('no mix data received for saving', FALSE);
 
 	if (isset($mix_data['id'])) {
-		if (!check_mix_owner($mix_data['id'], $_SESSION['user']['id']))
+		if (!check_mix_owner($mix_data['id'], $user->id))
 			unset($mix_data['id']);
 	}
-	$mix = array_conform(
+	$mix_fields = array_conform(
 		$mix_data,
 		array(
 			'mix' => '',
@@ -31,22 +31,30 @@ function save_mix($mix_data) {
 			'chromatic_key' => '',
 			'tempo' => '',
 			'duration' => '',
-			'modified_by' => $_SESSION['user']['id']
+			'modified_by' => $user->id
 		),
 		'filter_mysql_assoc'
 	);
 	if (isset($mix_data['id'])) {
-		$mix['modified'] = array('function' => 'NOW()');
-		$mix['WHERE'] = array('id' => $mix_data['id']);
-		if (!$db->assoc_to_mysql('sf_mixes', 'UPDATE', $mix))
+		$mix_fields['modified'] = array('function' => 'NOW()');
+		if (!$db->post(array(
+		  'table'=>'sf_mixes',
+		  'method'=>'UPDATE',
+		  'fields'=>$mix_fields,
+		  'where'=>array('id' => $mix_data['id'])
+		)))
 			return log_error(mysql_error(), FALSE);
 		$saved_mix_id = $mix_data['id'];
 	} else {
-		$mix['created'] = array('function' => 'NOW()');
-		if (!$db->assoc_to_mysql('sf_mixes', 'INSERT', $mix))
+		$mix_fields['created'] = array('function' => 'NOW()');
+		if (!$db->post(array(
+  		  'table'=>'sf_mixes',
+  		  'method'=>'UPDATE',
+  		  'fields'=>$mix_fields,
+		)))
 			return log_error(mysql_error(), FALSE);
 		$saved_mix_id = mysql_insert_id();
-		add_mix_owner($saved_mix_id, $_SESSION['user']['id']);
+		add_mix_owner($saved_mix_id, $user->id);
 	}
 	return $saved_mix_id;
 }

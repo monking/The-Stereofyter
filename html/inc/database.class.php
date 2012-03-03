@@ -14,44 +14,36 @@ class Database {
   }
   /** post
   	* build and submit a MySQL query from an associative array
-  	* @assoc (Array) keys for column names.
-  	*		A key of 'WHERE' should have another associative array as a value, and will be
-  	*		turned into a MySQL 'WHERE' statement.
-  	* @method (String) 'INSERT' or 'UPDATE'
-  	* @table_name (String)
+  	* @$query (Array/String) an array or string query
+  	*   table (REQUIRED)
+  	*   method (String; default 'UPDATE') 'INSERT' or 'UPDATE'
+  	*   fields (Array) keys for column names.
+  	*		  A key of 'WHERE' should have another associative array as a value, and will be
+  	*		  turned into a MySQL 'WHERE' statement.
   	*
-  	* NOTE: you must escape special characters in your values before calling assoc_to_mysql
+  	* NOTE: you must escape special characters in your values before calling get
   	*/
-  public function post($table_name, $method, $assoc) {
-  	$methods = array('INSERT'=>'INSERT INTO', 'UPDATE'=>'UPDATE');
-  	$reserved = array('WHERE');
-  	$query = '';
-  	if (array_key_exists($method, $methods)) {
-  		$row_num = 0;
-  		if (!array_key_exists(0, $assoc))
-  		  $assoc = array($assoc);
-  		foreach($assoc as $row) {
-  			$row_num++;
-  			$query .= "$methods[$method] $table_name SET";
-  			$field_num = 0;
-  			foreach($row as $field => $value) {
-  				if (array_search($field, $reserved) !== false) continue;
-  				$field_num++;
-  				$field_delimiter = $field_num > 1? ',': '';
-  				$query .= "$field_delimiter $field=";
+  public function post($query) {
+    if (is_array($query)) {
+    	$methods = array('insert'=>'INSERT INTO', 'update'=>'UPDATE');
+    	$query_string = '';
+    	if (array_key_exists($method, $methods)) {
+  			$fields = array();
+  			foreach($query['fields'] as $field => $value) {
   				if (is_array($value) && array_key_exists('function', $value))
-  					$query .= $value['function'];
+  					$value = $value['function'];
   				else 
-  					$query .= "'".str_replace("'", "\\'", $value)."'";
+  					$value = "'".str_replace("'", "\\'", $value)."'";
+  				$fields[] = "$field=$value";
   			}
-  			if (array_key_exists('WHERE', $row)) {
-  				$query .= self::assoc_to_mysql_where($row['WHERE']);
-  			}
-  			$query .= ';';
-  		}
-  	} else {
-  		return false;
-  	}
+  			$fields = implode(', ', $fields);
+				$where = array_key_exists('where', $query) ? self::get_where($query['where']) : '';
+  			$query = "${methods[$query['method']]} ${query['table']} SET $fields $where;";
+    	} else {
+    		return false;
+    	}
+    }
+    exit($query);
   	if (!mysql_query($query)) return false;
   	return true;
   }
@@ -63,30 +55,30 @@ class Database {
   	* @method (String) 'INSERT' or 'UPDATE'
   	* @table_name (String)
   	*
-  	* NOTE: you must escape special characters in your values before calling assoc_to_mysql
+  	* NOTE: you must escape special characters in your values before calling get
   	*/
-  public function get($table_name, $query) {
+  public function get($query) {
   	// Takes a string query, or 2-dimensional associative array and turns it into a SQL query.
   	if (is_array($query)) {
-    	$reserved = array('WHERE', 'ORDER BY', 'LIMIT');
     	$where = '';
     	$orderby = '';
     	$limit = '';
-  		if (array_key_exists('WHERE', $query)) {
-  			$where = self::assoc_to_mysql_where($query['WHERE']);
-  			unset($query['WHERE']);
+  		if (array_key_exists('where', $query)) {
+  			$where = self::get_where($query['where']);
+  			unset($query['where']);
   		}
-  		if (array_key_exists('ORDER BY', $query)) {
-  			$orderby = ' ORDER BY '.$query['ORDER BY'];
-  			unset($query['ORDER BY']);
+  		if (array_key_exists('order', $query)) {
+  			$orderby = ' order '.$query['order'];
+  			unset($query['order']);
   		}
-  		if (array_key_exists('LIMIT', $query)) {
-  			$limit = ' LIMIT '.$query['LIMIT'];
-  			unset($query['LIMIT']);
+  		if (array_key_exists('limit', $query)) {
+  			$limit = ' limit '.$query['limit'];
+  			unset($query['limit']);
   		}
   		$fields = isset($query['fields']) ? implode(', ', $query['fields']) : '*';
-  		$query = "SELECT $fields FROM $table_name$where$orderby$limit;";
+  		$query = "SELECT $fields FROM ${query['table']}$where$orderby$limit;";
   	}
+    //exit($query);
   	return mysql_query($query);
   }
   public function get_first_obj($table_name, $query) {
@@ -113,18 +105,18 @@ class Database {
   	$where .= $nested ? ')' : '';
   	return $where;
   }
-  /** assoc_to_mysql_where
+  /** get_where
   	*/
-  public static function assoc_to_mysql_where($assoc) {
+  public static function get_where($assoc) {
   	return $assoc ? ' WHERE '.self::where_recurse($assoc, 'AND', FALSE) : '';
   }
 
-  /** mysql_to_assoc
+  /** get_assoc
   	* $query (string) MySQL QUERY whose result will be shown
   	*/
-  public function get_assoc($table_name, $assoc) {
+  public function get_assoc($query) {
     global $ERROR;
-  	if (!($result = $this->get($table_name, $assoc))) {
+  	if (!($result = $this->get($query))) {
   		if (DEBUG) $ERROR[] = mysql_error();
   		return FALSE;
   	}
@@ -133,9 +125,9 @@ class Database {
   	  $result_array[] = $row;
   	return $result_array;
   }
-  public function get_object($table_name, $assoc) {
+  public function get_object($query) {
     global $ERROR;
-  	if (!($result = $this->get($table_name, $assoc))) {
+  	if (!($result = $this->get($query))) {
   		if (DEBUG) $ERROR[] = mysql_error();
   		return FALSE;
   	}

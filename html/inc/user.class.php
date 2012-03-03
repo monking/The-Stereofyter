@@ -30,12 +30,16 @@ class User {
     * register a user
     */
   public function register($email, $password, $username = '') {
-  	$result = $db->assoc_to_mysql($this->table, 'INSERT', array(
+  	$result = $db->post(array(
+      'table'=>$this->table,
+      'method'=>'INSERT',
+      'fields'=>array(
         'username' => $username,
         'email' => $email,
         'password' => make_pass_hash($password),
         'created' => array('function' => 'NOW()')
-      ));
+      )
+    ));
     if (!$result)
   		return FALSE;
   	$this->fetch(mysql_insert_id());
@@ -68,8 +72,8 @@ class User {
     if (!$user_id && !$this->data->id) return false;
   	$id = mysql_real_escape_string($user_id ? $user_id : $this->data->id);
   	$result = $db->get(
-  	  $this->table,
   	  array(
+  	    'table'=>$this->table,
   	    'fields'=>array(
   	      'id',
   	      'username',
@@ -80,7 +84,7 @@ class User {
   	      'subscribe_updates',
   	      'created'
   	    ),
-  	    'WHERE'=>array('id'=>$id)
+  	    'where'=>array('id'=>$id)
   	  )
   	);
   	if (!$result) return false;
@@ -104,8 +108,12 @@ class User {
   			return log_error('need old password');
   		$data['password'] = make_pass_hash($data['password']);
   	}
-  	$data['WHERE'] = array('id' => $id);
-  	if (!$db->assoc_to_mysql($this->table, 'UPDATE', $data))
+  	if (!$db->post(array(
+  	 'table'=>$this->table,
+  	 'method'=>'UPDATE',
+  	 'fields'=>$data,
+  	 'where'=>array('id' => $id)
+  	)))
   		return log_error('database error');
   	if ($hash) {
   		delete_reset_password_hash($hash);
@@ -190,10 +198,10 @@ class User {
   	else
   		$user_where = 'username';
   	$result = $db->get(
-  	  $this->table,
   	  array(
+  	    'table'=>$this->table,
   	    'fields'=>array('id', 'password'),
-  	    'WHERE'=>array($user_where=>$identifier)
+  	    'where'=>array($user_where=>$identifier)
   	  )
   	);
   	if (!$result)
@@ -229,7 +237,7 @@ class User {
     * RETURNS TRUE or FALSE
     */
   public function check_user_exists($criteria) {
-  	$where = Database::assoc_to_mysql_where($criteria);
+  	$where = Database::get_where($criteria);
   	$query = "SELECT * FROM ${$this->table}$where";
   	$result = mysql_query($query);
   	if (!$result) {

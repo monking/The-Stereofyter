@@ -10,8 +10,8 @@ if ($_POST['hash']) {
 	if (!isset($_POST['id'])) return 'no user id given';
 	session_start();
 	if (!isset($_SESSION['user'])
-	|| !isset($_SESSION['user']['id'])
-	|| $_POST['id'] != $_SESSION['user']['id'])
+	|| !isset($user->id)
+	|| $_POST['id'] != $user->id)
 		return 'log in as this user before updating';
 
 	$hash = NULL;
@@ -50,7 +50,7 @@ else if(isset($_POST['success'])) {
 } else {
 	header('Content-type: application/json; charset=utf-8');
 	printf('{"user":{');
-	printf('"id":"'.$_SESSION['user']['id'].'"');
+	printf('"id":"'.$user->id.'"');
 	printf('"username":"'.$_SESSION['user']['username'].'"');
 	printf('"name":"'.$_SESSION['user']['name'].'"');
 	printf('"email":"'.$_SESSION['user']['email'].'"');

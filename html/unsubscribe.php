@@ -30,11 +30,14 @@ else:
 		die('You have unsubscribed from the Stereofyte Newsletter.');
 	}
 
-	$query = array(
-		'WHERE' => array('email' => $email),
-		'subscribe_updates' => 'no'
-	);
-	if (!$db->assoc_to_mysql('users', 'UPDATE', $query))
+	if (!$db->get(array(
+	  'table'=>'users',
+	  'method'=>'UPDATE',
+	  'where'=>array('email' => $email),
+	  'fields'=>array(
+  		'subscribe_updates' => 'no'
+	  )
+	)))
 		exit('There was a problem processing your request. Please try again in a moment.');
 	die('You have unsubscribed from the Stereofyte Newsletter.');
 ?>

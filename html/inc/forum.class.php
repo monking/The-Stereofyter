@@ -23,12 +23,15 @@ class Forum {
       array_conform(
         $data,
         array(
-          'message' => '',
-          'title' => '',
-          'user_id' => -1,
-          'link_id' => -1,
-          'reply_on_id' => -1,
-          'attachment_id' => -1
+          'table' => $this->table,
+          'fields' => array(
+            'message' => '',
+            'title' => '',
+            'user_id' => -1,
+            'link_id' => -1,
+            'reply_on_id' => -1,
+            'attachment_id' => -1
+          )
         ),
         'filter_mysql_assoc'
       )
@@ -36,14 +39,15 @@ class Forum {
   }
   public function get($options) {
     global $db;
+    $options['table'] = $this->table;
     $list = $db->get_assoc(
-      $this->table,
       array_conform(
         $options,
         array(
-          'WHERE' => '',
-          'ORDER BY' => 'date DESC',
-          'LIMIT' => '10'
+          'table' => $this->table,
+          'where' => '',
+          'order' => 'date DESC',
+          'limit' => '10'
         )
       )
     );

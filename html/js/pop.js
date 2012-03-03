@@ -16,7 +16,7 @@ function pop(content, options) {
 	var parent = contentObject.parent();
 	if (parent.length) contentObject.data('popHome', parent);
 	contentBox.append(contentObject);
-	var closeButton = $('<div class="close">&times;</div>').appendTo(dialog);
+	var closeButton = $('<div class="close"></div>').appendTo(dialog);
 	closeButton.click(function() {
 		closePop(dialog);
 	});

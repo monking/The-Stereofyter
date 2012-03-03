@@ -19,15 +19,13 @@ include('view/header.php');
 				loadUrl:"scripts/load_mix.php",
 				registerUrl:"scripts/register.php"<?
 $demoMix = $db->get_assoc(
-  'sf_mixes',
   array(
-    array(
-      'fields'=>array('id'),
-      'WHERE' => array(
-        'title'=>'TheDemoMix'
-      ),
-      'LIMIT'=>1
-    )
+    'table'=>'sf_mixes',
+    'fields'=>array('id'),
+    'where' => array(
+      'title'=>'TheDemoMix'
+    ),
+    'limit'=>1
   )
 );
 $demoMix = count($demoMix) ? $demoMix[0] : array();

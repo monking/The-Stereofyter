@@ -27,7 +27,12 @@ function json_escape($string) {
 function array_conform($input, $default, $filter = '') {
   if (!$input) $input = array();
 	foreach ($default as $key => $value) {
-		if (!array_key_exists($key, $input)) $input[$key] = $value;
+		if (!array_key_exists($key, $input)) {
+		  if (is_array($default[$key]))
+		    array_conform($value, $default[$key], $filter);
+		  else
+    		$input[$key] = $value;
+		}
 	}
 	foreach ($input as $key => $value) {
 		if (!array_key_exists($key, $default)) {
