@@ -6,7 +6,8 @@
       preview: 3,
       limit: 10,
       previewLength: 32,
-      api: null
+      api: null,
+      poll: 60000,
     }, options);
     var these = this;
     var story = [];
@@ -22,6 +23,10 @@
           });
         }
       });
+    }
+    var pollInterval;
+    if (options.poll) {
+      pollInterval = setInterval(fetch, options.poll);
     }
     $(this).each(function() {
       var container = $(this);
@@ -46,7 +51,8 @@
         });
       }
       container.data('forum', {
-        draw:draw
+        draw:draw,
+        fetch:fetch
       });
       (showingFull ? preview : full).hide();
     });
