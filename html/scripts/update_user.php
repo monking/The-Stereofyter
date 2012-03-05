@@ -1,7 +1,7 @@
 <?php
 
-$INCLUDE = array('sf/user', 'url');
-require_once('../inc/includes.php');
+require_once('../../config.php');
+depends('sf/user', 'url');
 
 if ($_POST['hash']) {
 	$hash = $_POST['hash'];

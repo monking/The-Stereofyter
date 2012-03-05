@@ -1,12 +1,11 @@
 <?php
 
-require_once('../../_config.php');
+require_once('../../config.php');
 depends('validation', 'localization');
-//header('Cache-Control: no-cache, must-revalidate');
-//header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-//header('Content-type: application/json');
+header('Cache-Control: no-cache, must-revalidate');
+header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 //header('Content-type: text/html; charset=UTF-8;');
-//header('Content-type: application/json; charset=utf-8');
+header('Content-type: application/json; charset=utf-8');
 
 if (!isset($_REQUEST['action']) || !$_REQUEST['action'])
 	die('{"error":"'.json_escape(__('login-form-incomplete', true)).'"}');

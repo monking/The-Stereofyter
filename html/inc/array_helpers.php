@@ -29,7 +29,7 @@ function array_conform($input, $default, $filter = '') {
 	foreach ($default as $key => $value) {
 		if (!array_key_exists($key, $input)) {
 		  if (is_array($default[$key]))
-		    array_conform($value, $default[$key], $filter);
+		    $input[$key] = array_conform($value, $default[$key], $filter);
 		  else
     		$input[$key] = $value;
 		}

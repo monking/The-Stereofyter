@@ -12,8 +12,7 @@ depends('array_helpers', 'error', 'database.class', 'sf/user');
   * RETURNS (number) id of saved mix, or -1 on error
   */
 function save_mix($mix_data) {
-	if (!isset($_SESSION)) session_start();
-
+  global $user, $db;
 	if (!isset($user->id))
 		return log_error('not logged in', FALSE);
 	if (!isset($mix_data['mix']))
@@ -39,7 +38,7 @@ function save_mix($mix_data) {
 		$mix_fields['modified'] = array('function' => 'NOW()');
 		if (!$db->post(array(
 		  'table'=>'sf_mixes',
-		  'method'=>'UPDATE',
+		  'method'=>'update',
 		  'fields'=>$mix_fields,
 		  'where'=>array('id' => $mix_data['id'])
 		)))
@@ -49,7 +48,7 @@ function save_mix($mix_data) {
 		$mix_fields['created'] = array('function' => 'NOW()');
 		if (!$db->post(array(
   		  'table'=>'sf_mixes',
-  		  'method'=>'UPDATE',
+  		  'method'=>'insert',
   		  'fields'=>$mix_fields,
 		)))
 			return log_error(mysql_error(), FALSE);
@@ -64,10 +63,11 @@ function save_mix($mix_data) {
   * RETURNS Boolean success
   */
 function add_mix_owner($mix_id, $user_id) {
-	global $ERROR;
+	global $ERROR, $user;
 	$mix_id = mysql_real_escape_string($mix_id);
 	$user_id = mysql_real_escape_string($user_id);
-	if (!check_user_exists(array('id' => $user_id))) 
+	$user_exists = $user->check_user_exists(array('id' => $user_id));
+	if (!$user_exists) 
 		return log_error('user does not exist', FALSE);
 	if (check_mix_owner($mix_id, $user_id)) return TRUE;
 	$query = "INSERT INTO sf_mix_owners SET mix_id='$mix_id', owner_id='$user_id'";

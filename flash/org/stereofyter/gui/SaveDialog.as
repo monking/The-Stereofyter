@@ -71,6 +71,12 @@ package org.stereofyter.gui
 		public function get mixTitle():String {
 			return form.title.text;
 		}
+		public function get mixPublished():Boolean {
+			return form.published.selected;
+		}
+		public function get mixMessage():String {
+			return form.message.text;
+		}
 		protected function onMixListLoadComplete(event:Event) {
 			try {
 				var data:Object = JSON.decode(mixListLoader.data);

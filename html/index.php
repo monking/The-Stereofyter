@@ -1,5 +1,5 @@
 <?php
-require_once('../_config.php');
+require_once('../config.php');
 depends(
   'layout',
   'sf/user'
@@ -10,7 +10,7 @@ include('view/header.php');
 ?>
 		<script type="text/javascript">
 			var flashvars = {
-				session:"<?=str_replace('"', '\"', json_encode((object) $user->data));?>",
+				user:"<?=str_replace('"', '\"', json_encode((object) $user->data));?>",
 				webRoot:"http://<?=$_SERVER['SERVER_NAME'];?>",
 				sampleListUrl:"scripts/samples.json.php",
 				mixListUrl:"scripts/my_mixes.json.php",

@@ -3,7 +3,7 @@
 depends('array_helpers', 'error', 'database.class');
 class User {
   public static $publicParams = array('id', 'name', 'country', 'created');
-  public $data;
+  public $data, $id;
   public function User($options = array()) {
     $defaults = array(
       'table'=>''
@@ -63,6 +63,7 @@ class User {
 	    )
 	  );
 	  $this->data = (object) $data;
+  	$this->id = $this->data->id;
   }
   /** fetch
     * fetch the user object's data
@@ -88,7 +89,7 @@ class User {
   	  )
   	);
   	if (!$result) return false;
-  	$this->data = mysql_fetch_object($result);
+  	$this->set(mysql_fetch_object($result));
   	return $this->data;
   }
   /** update_user
@@ -237,9 +238,8 @@ class User {
     * RETURNS TRUE or FALSE
     */
   public function check_user_exists($criteria) {
-  	$where = Database::get_where($criteria);
-  	$query = "SELECT * FROM ${$this->table}$where";
-  	$result = mysql_query($query);
+    global $db;
+    $result = $db->get(array('table'=>$this->table, 'where'=>$criteria));
   	if (!$result) {
   		return log_error(DEBUG ? mysql_error() : 'database error', FALSE);
   	}

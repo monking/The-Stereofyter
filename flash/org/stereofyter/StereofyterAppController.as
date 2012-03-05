@@ -25,6 +25,7 @@ package org.stereofyter {
 
 	public class StereofyterAppController extends WebAppController {
 		public static var
+			USER_SESSION_UPDATED:String = 'userSessionUpdated',
 			WEBROOT:String = '.';
 
 		private var
@@ -33,9 +34,10 @@ package org.stereofyter {
 			site:StereofyterSite,
 			engineDelay:Timer,
 			feedbackDelay:Timer,
-			session:Object = {},
+			user:Object = {},
 			saveLoader:URLLoader,
-			loadLoader:URLLoader;
+			loadLoader:URLLoader,
+			loginQueue:Array;
 
 		public function StereofyterAppController(root:DisplayObject, debug:Boolean = false):void {
 			super(root, debug);
@@ -43,8 +45,8 @@ package org.stereofyter {
 			_root.stage.align = StageAlign.TOP_LEFT;
 			_root.stage.quality = StageQuality.HIGH;
 			_root.stage.scaleMode = StageScaleMode.NO_SCALE;
-			if (flashVars.session)
-				session = JSON.decode(flashVars.session);
+			if (flashVars.user)
+				user = JSON.decode(flashVars.user);
 			engine = new MixblendrInterface();
 			site = new StereofyterSite();
 			_root.stage.addChild(site);
@@ -75,7 +77,25 @@ package org.stereofyter {
 		}
 		
 		public function setUserSessionData(data:Object):void {
-			session = data;
+			Debug.log(data, 'setUserSessionData');
+			var fireLogin:Boolean = !user && data;
+			user = data;
+			fireLogin && fireLoginQueue();
+		}
+		
+		private function queueOnLogin(action:Function):void {
+			if (!loginQueue) loginQueue = [];
+			loginQueue.push(action);
+		}
+		
+		private function fireLoginQueue():void {
+			if (!loginQueue) return;
+			for (var i:int = 0; i < loginQueue.length; i++) {
+				try {
+					loginQueue[i]();
+				} catch(e) {}
+			}
+			loginQueue = [];
 		}
 		
 		private function onMixblendrReady(event:Event):void {
@@ -115,17 +135,25 @@ package org.stereofyter {
 				}
 			});
 			site.addEventListener(Mixer.REQUEST_SAVE_MIX, function(event:Event) {
-				if (session && session.hasOwnProperty('user')) {
+				if (user && user.hasOwnProperty('id')) {
 					var mixData = mixer.getMixData();
 					site.showSaveDialog(mixData.hasOwnProperty('id')? mixData.id: NaN);
 				} else {
+					queueOnLogin(function() {
+						var mixData = mixer.getMixData();
+						site.showSaveDialog(mixData.hasOwnProperty('id')? mixData.id: NaN);
+					});
 					ExternalInterface.call('login');
 				}
 			});
 			site.addEventListener(SaveDialog.SUBMIT_SAVE_MIX, function(event:Event) {
 				var dialog:SaveDialog = event.target as SaveDialog;
 				dialog.hide();
-				var dialogMixData = { title:dialog.mixTitle };
+				var dialogMixData = {
+					title:dialog.mixTitle,
+					published:dialog.mixPublished,
+					message:dialog.mixMessage
+				};
 				dialogMixData.id = dialog.mixId;
 				mixer.updateMixData(dialogMixData);
 				saveMix();
@@ -136,7 +164,6 @@ package org.stereofyter {
 				loadMix(dialog.mixId);
 			});
 		}
-		
 		
 		private function registerExternalMethods():void {
 			ExternalInterface.addCallback("setUserSessionData", setUserSessionData);
@@ -204,10 +231,14 @@ package org.stereofyter {
 				site.hover("load error: "+mixer.error, {timeout: 0, close: "top right"});
 			});
 			mixer.addEventListener(Mixer.REQUEST_LOAD_MIX, function(event:Event) {
-				if (session && session.hasOwnProperty('user'))
+				if (user && user.hasOwnProperty('id'))
 					site.showLoadDialog();
-				else
+				else {
+					queueOnLogin(function() {
+						site.showLoadDialog();
+					});
 					ExternalInterface.call('login');
+				}
 			});
 			engine.addEventListener("playbackStart", function(event:Event) {
 				trace("playbackStart");
@@ -267,7 +298,7 @@ package org.stereofyter {
 			loadLoader.load(loadReq);
 		}
 
-		private function saveMix():void {
+		private function saveMix(otherData:Object = null):void {
 			site.hover("saving", {progress: true, timeout: 0, close: "none"});
 			
 			mixer.encodeMix();
@@ -276,14 +307,23 @@ package org.stereofyter {
 			
 			var saveReq:URLRequest = new URLRequest(WebAppController.flashVars.saveUrl);
 			saveReq.data = "mix="+encodeURIComponent(JSON.encode(mixData.mix));
+			if (!otherData) otherData = {};
 			if (mixData.hasOwnProperty("id") && !isNaN(mixData.id))
-				saveReq.data += "&id="+mixData.id;
+				otherData.id = mixData.id;
 			if (mixData.hasOwnProperty("title"))
-				saveReq.data += "&title="+mixData.title;
+				otherData.title = mixData.title;
 			if (mixData.hasOwnProperty("key"))
-				saveReq.data += "&key="+mixData.key;
-			saveReq.data += "&tempo="+mixData.tempo;
-			saveReq.data += "&duration="+mixer.getDuration();
+				otherData.key = mixData.key;
+			if (mixData.hasOwnProperty("published"))
+				otherData.published = mixData.published ? 1 : 0;
+			if (mixData.hasOwnProperty("message"))
+				otherData.message = mixData.message;
+			otherData.tempo = mixData.tempo;
+			otherData.duration = mixer.getDuration();
+			for (var key:String in otherData) {
+				saveReq.data += '&'+key+'='+encodeURIComponent(otherData[key]);
+			}
+			
 			Debug.log(saveReq.data, "saveReq.data");
 			saveReq.method = URLRequestMethod.POST;
 			saveLoader.load(saveReq);

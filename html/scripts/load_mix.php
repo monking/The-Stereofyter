@@ -2,7 +2,7 @@
 
 //header('Content-type: application/json; charset=utf-8');
 
-require_once('../../_config.php');
+require_once('../../config.php');
 depends('sf/mix');
 
 $mix_id = FALSE;
@@ -32,7 +32,7 @@ die('{"error":"The requested mix no longer exists."}');
 } else if ($mix_data[0]['published'] == '1') {
   $allow_access = TRUE;
 } else if (@$user) {
-  $query = "SELECT '1' FROM sf_mix_owners WHERE owner_id='${$user->id}' AND mix_id='$mix_id'";
+  $query = "SELECT '1' FROM sf_mix_owners WHERE owner_id='$user->id' AND mix_id='$mix_id'";
   $result = $db->get($query);
   if ($result && mysql_num_rows($result))
     $allow_access = TRUE;

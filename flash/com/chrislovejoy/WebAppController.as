@@ -1,11 +1,12 @@
 package com.chrislovejoy {
 	import com.chrislovejoy.utils.Debug;
-
+	
 	import flash.display.DisplayObject;
 	import flash.display.LoaderInfo;
+	import flash.events.EventDispatcher;
 	import flash.external.ExternalInterface;
 
-	public class WebAppController {
+	public class WebAppController extends EventDispatcher {
 		protected static var
 			FlashVars:Object = {};
 

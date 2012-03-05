@@ -1,6 +1,6 @@
 <?php
 ini_set('display_errors', true);
-define('DEBUG', TRUE);
+define('DEBUG', true);
 define('MIXER_APP_VERSION', '06003');
 define('MIXER_ENGINE_VERSION', '0103');
 require_once('html/inc/includes.php');

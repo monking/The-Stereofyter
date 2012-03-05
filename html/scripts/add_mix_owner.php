@@ -1,7 +1,7 @@
 <?php
 
-$INCLUDE = array('sf/mix');
-require_once('../inc/includes.php');
+require_once('../../config.php');
+depends('sf/mix');
 // TODO: uncomment JSON header when finished debugging
 //header('Content-type: application/json');
 

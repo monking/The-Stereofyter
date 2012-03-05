@@ -27,7 +27,7 @@ class Database {
     if (is_array($query)) {
     	$methods = array('insert'=>'INSERT INTO', 'update'=>'UPDATE');
     	$query_string = '';
-    	if (array_key_exists($method, $methods)) {
+    	if (array_key_exists($query['method'], $methods)) {
   			$fields = array();
   			foreach($query['fields'] as $field => $value) {
   				if (is_array($value) && array_key_exists('function', $value))
@@ -43,7 +43,6 @@ class Database {
     		return false;
     	}
     }
-    exit($query);
   	if (!mysql_query($query)) return false;
   	return true;
   }
@@ -68,20 +67,20 @@ class Database {
   			unset($query['where']);
   		}
   		if (array_key_exists('order', $query)) {
-  			$orderby = ' order '.$query['order'];
+  			$orderby = ' ORDER BY '.$query['order'];
   			unset($query['order']);
   		}
   		if (array_key_exists('limit', $query)) {
-  			$limit = ' limit '.$query['limit'];
+  			$limit = ' LIMIT '.$query['limit'];
   			unset($query['limit']);
   		}
   		$fields = isset($query['fields']) ? implode(', ', $query['fields']) : '*';
   		$query = "SELECT $fields FROM ${query['table']}$where$orderby$limit;";
   	}
-    //exit($query);
+    //echo $query;
   	return mysql_query($query);
   }
-  public function get_first_obj($table_name, $query) {
+  public function get_first_object($table_name, $query) {
     $result = $this->get($table_name, $query);
     return mysql_fetch_obj($result);
   }

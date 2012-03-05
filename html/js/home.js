@@ -36,6 +36,10 @@ function login() {
 					closePop(loginPop);
 					loginPop = null;
 				}
+			},
+			error: function(data) {
+  			closePop(loginPop);
+  			loginPop = null;
 			}
 		});
 	});

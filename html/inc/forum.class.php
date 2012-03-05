@@ -14,33 +14,30 @@ class Forum {
     global $db, $user;
     if (!is_array($data)
       || !@$data['message']
-      || !$user->data->id)
+      || !$user->id)
       return false;
     $data['user_id'] = $user->data->id;
-    $db->post(
-      $this->table,
-      'INSERT',
-      array_conform(
+    $db->post(array(
+      'table' => $this->table,
+      'method' => 'insert',
+      'fields' => array_conform(
         $data,
         array(
-          'table' => $this->table,
-          'fields' => array(
-            'message' => '',
-            'title' => '',
-            'user_id' => -1,
-            'link_id' => -1,
-            'reply_on_id' => -1,
-            'attachment_id' => -1
-          )
+          'message' => '',
+          'title' => '',
+          'user_id' => -1,
+          'link_id' => -1,
+          'reply_on_id' => -1,
+          'attachment_id' => -1
         ),
         'filter_mysql_assoc'
       )
-    );
+    ));
   }
   public function get($options) {
     global $db;
     $options['table'] = $this->table;
-    $list = $db->get_assoc(
+    $list = $db->get_object(
       array_conform(
         $options,
         array(
