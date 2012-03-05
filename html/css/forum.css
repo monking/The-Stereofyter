@@ -1,15 +1,20 @@
-#forum {
+#forum .preview {
   position: fixed;
-  top: 0;
-  right: 10px;
+  bottom: 0;
+  right: 8px;
   z-index: 8;
   background-color: #fff;
-}
-#forum .preview h3 {
-}
-#forum .preview {
+  width: 160px;
+  border-radius: 4px 4px 0 0;
+  -webkit-border-radius: 4px 4px 0 0;
+  -moz-border-radius: 4px 4px 0 0;
+  box-shadow: rgba(0,0,0,0.5) 0 0 8px;
   font-size: 11px;
-  padding: 4px;
+  padding: 10px;
+}
+#forum .preview .message {
+  max-height: 2.2em;
+  overflow: hidden;
 }
 #forum .preview .show-full {
 }

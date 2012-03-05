@@ -30,7 +30,8 @@ function save_mix($mix_data) {
 			'chromatic_key' => '',
 			'tempo' => '',
 			'duration' => '',
-			'modified_by' => $user->id
+			'modified_by' => $user->id,
+			'published' => 0
 		),
 		'filter_mysql_assoc'
 	);
