@@ -63,6 +63,9 @@ function help() {
 }
 
 $(function() {
+  $("#forum").forum({
+    api:'/scripts/forum.php'
+  });
 	if (window.location.hash == '#login') {
 		login();
 		window.location.hash = '';

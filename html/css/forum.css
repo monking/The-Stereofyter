@@ -1,0 +1,19 @@
+#forum {
+  position: fixed;
+  top: 0;
+  right: 10px;
+  z-index: 8;
+  background-color: #fff;
+}
+#forum .preview h3 {
+}
+#forum .preview {
+  font-size: 11px;
+  padding: 4px;
+}
+#forum .preview .show-full {
+}
+#forum .preview .entry {
+  margin: 4px 0;
+  padding: 2px 0;
+}

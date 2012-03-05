@@ -3,12 +3,17 @@
 class Forum {
   public function Forum($options = array()) {
     $defaults = array(
-      'table'=>''
+      'table'=>'',
+      'linkInterface'=>''
     );
     foreach ($defaults as $key => $value) {
       $this->$key = @array_key_exists($key, $options) ? $options[$key] : $defaults[$key];
     }
-    if (!@$this->table) die('Forum requires a database table.');
+    if (!$this->table) die('Forum requires a database table.');
+    if ($this->linkInterface) {
+      require_once(dirname(__FILE__).'/'.$this->linkInterface.'.class.php');
+      $this->linkInterface = new $this->linkInterface();
+    }
   }
   public function post($data) {
     global $db, $user;
@@ -44,7 +49,13 @@ class Forum {
           'table' => $this->table,
           'where' => '',
           'order' => 'date DESC',
-          'limit' => '10'
+          'limit' => '10',
+          'join' => array(
+            'table' => $this->linkInterface->table,
+            'fields' => $this->linkInterface->fields,
+            'remote_id' => 'link_id'
+          ),
+          'filter' => $this->linkInterface->filter
         )
       )
     );

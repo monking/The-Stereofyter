@@ -20,6 +20,7 @@ package org.stereofyter.gui {
 	public class StereofyterSite extends Sprite {
 		
 		public static const
+			SHOW_FORUM:String = 'show_forum',
 			SHOW_NEWSLETTER:String = "show_newsletter",
 			SHOW_ABOUT:String = "show_about",
 			REQUEST_SAVE_MIX:String = "save_mix",
@@ -181,9 +182,9 @@ package org.stereofyter.gui {
 					}
 				},
 				"Connect":{
-					"label":"NEWSLETTER",
+					"label":"FORUM",
 					"action":function(event:MouseEvent) {
-						dispatchEvent(new Event(StereofyterSite.SHOW_NEWSLETTER, true));
+						dispatchEvent(new Event(StereofyterSite.SHOW_FORUM, true));
 					}
 				},
 				"Save":{

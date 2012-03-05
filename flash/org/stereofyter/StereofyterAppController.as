@@ -83,6 +83,14 @@ package org.stereofyter {
 			fireLogin && fireLoginQueue();
 		}
 		
+		public function loadMix(id:int = -1):void {
+			site.hover("loading", {progress: true, timeout: 0, close: "none"});
+			var loadReq:URLRequest = new URLRequest(WebAppController.flashVars.loadUrl);
+			if (id != -1)
+				loadReq.data = "id="+id;
+			loadLoader.load(loadReq);
+		}
+		
 		private function queueOnLogin(action:Function):void {
 			if (!loginQueue) loginQueue = [];
 			loginQueue.push(action);
@@ -119,6 +127,11 @@ package org.stereofyter {
 			site.addEventListener(StereofyterSite.SHOW_ABOUT, function() {
 				site.toggleSiteInfoPane();
 				site.hideNewsletterSignup();
+			});
+			site.addEventListener(StereofyterSite.SHOW_FORUM, function() {
+				ExternalInterface.call('showForum');
+				site.hideNewsletterSignup();
+				site.hideSiteInfoPane();
 			});
 			site.addEventListener(StereofyterSite.SHOW_NEWSLETTER, function() {
 				site.toggleNewsletterSignup();
@@ -167,6 +180,7 @@ package org.stereofyter {
 		
 		private function registerExternalMethods():void {
 			ExternalInterface.addCallback("setUserSessionData", setUserSessionData);
+			ExternalInterface.addCallback("loadMix", loadMix);
 		}
 
 		private function addMixer():void {
@@ -288,14 +302,6 @@ package org.stereofyter {
 		
 		private function updatePlayhead(event:Event):void {
 			mixer.playbackPosition = engine.call("getPlaybackPosition");
-		}
-
-		private function loadMix(id:int = -1):void {
-			site.hover("loading", {progress: true, timeout: 0, close: "none"});
-			var loadReq:URLRequest = new URLRequest(WebAppController.flashVars.loadUrl);
-			if (id != -1)
-				loadReq.data = "id="+id;
-			loadLoader.load(loadReq);
 		}
 
 		private function saveMix(otherData:Object = null):void {

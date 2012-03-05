@@ -59,30 +59,48 @@ class Database {
   public function get($query) {
   	// Takes a string query, or 2-dimensional associative array and turns it into a SQL query.
   	if (is_array($query)) {
+    	$join = '';
     	$where = '';
     	$orderby = '';
     	$limit = '';
+  		if (array_key_exists('join', $query)) {
+  			$join = self::get_join($query);
+  		}
   		if (array_key_exists('where', $query)) {
   			$where = self::get_where($query['where']);
-  			unset($query['where']);
   		}
   		if (array_key_exists('order', $query)) {
   			$orderby = ' ORDER BY '.$query['order'];
-  			unset($query['order']);
   		}
   		if (array_key_exists('limit', $query)) {
   			$limit = ' LIMIT '.$query['limit'];
-  			unset($query['limit']);
   		}
-  		$fields = isset($query['fields']) ? implode(', ', $query['fields']) : '*';
-  		$query = "SELECT $fields FROM ${query['table']}$where$orderby$limit;";
+  		$fields = count(@$query['fields']) ? $query['fields'] : array($query['table'].'.*');
+  		if (@$query['join']) {
+    		if (count(@$query['join']['fields'])) {
+          foreach ($query['join']['fields'] as &$field) {
+            if (is_array($field))
+              $field = $field[0];
+            else
+              $field = $query['join']['table'].'.'.$field;
+          }
+          $fields = array_merge($fields, $query['join']['fields']);
+        } else {
+          $fields[] = $query['join']['table'].'.*';
+        }
+  		}
+  		$fields = implode(', ', $fields);
+  		$query = "SELECT $fields FROM ${query['table']}$join$where$orderby$limit;";
   	}
     //echo $query;
   	return mysql_query($query);
   }
   public function get_first_object($table_name, $query) {
     $result = $this->get($table_name, $query);
-    return mysql_fetch_obj($result);
+    $object = mysql_fetch_obj($result);
+    if (@$query['filter'])
+      $query['filter']($object);
+    return $object;
   }
   /** where_recurse
     */
@@ -103,6 +121,11 @@ class Database {
   	$where .= implode(" $conjunction ", $conditions);
   	$where .= $nested ? ')' : '';
   	return $where;
+  }
+  /** get_join
+  	*/
+  public static function get_join($query) {
+  	return @$query['join'] ? ' LEFT JOIN '.$query['join']['table'].' ON '.$query['table'].'.'.$query['join']['remote_id'].'='.$query['join']['table'].'.id': '';
   }
   /** get_where
   	*/
@@ -131,8 +154,11 @@ class Database {
   		return FALSE;
   	}
   	$result_array = array();
-  	while($row = mysql_fetch_object($result))
+  	while($row = mysql_fetch_object($result)) {
+  	  if (@$query['filter'])
+  	    $query['filter']($row);
   	  $result_array[] = $row;
+	  }
   	return $result_array;
   }
   /** mysql_to_table

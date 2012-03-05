@@ -8,12 +8,13 @@ depends(
   'array_helpers',
   'database.class',
   'forum.class',
-  'user.class'
+  'user.class',
+  'ForumMixLink.class'
 );
 session_start();
 $db = new Database();
 $user = new User(array('table'=>'sf_users'));
-$forum = new Forum(array('table'=>'sf_mix_messages'));
+$forum = new Forum(array('table'=>'sf_mix_messages', 'linkInterface'=>ForumMixLink));
 if (strpos($_SERVER['SERVER_NAME'], 'local') !== FALSE) {
   $db->connect(array(
     'host'=>'127.0.0.1',
