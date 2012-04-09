@@ -1,24 +1,62 @@
-#forum .preview {
+#forum {
   position: fixed;
   bottom: 0;
   right: 8px;
   z-index: 8;
   background-color: #fff;
-  width: 160px;
   border-radius: 4px 4px 0 0;
   -webkit-border-radius: 4px 4px 0 0;
   -moz-border-radius: 4px 4px 0 0;
   box-shadow: rgba(0,0,0,0.5) 0 0 8px;
-  font-size: 11px;
   padding: 10px;
+  max-height: 90%;
+}
+#forum .full {
+  width: 320px;
+  font-size: 12px;
+  overflow-x: visible;
+  overflow-y: auto;
+  max-height: inherit;
+}
+#forum .full .toggle-full {}
+#forum .preview {  
+  width: 160px;
+  font-size: 11px;
 }
 #forum .preview .message {
   max-height: 2.2em;
   overflow: hidden;
 }
-#forum .preview .show-full {
-}
+#forum .preview .toggle-full {}
 #forum .preview .entry {
   margin: 4px 0;
   padding: 2px 0;
+}
+#forum .reply .message {
+  min-height: 2.2em;
+  border: 1px solid #000;
+  border-radius: 3px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  padding: 4px;
+}
+#forum .reply .submit {
+  border: 1px solid #ccc;
+  background-color: #eee;
+  color: #c35;
+  cursor: pointer;
+  float: right;
+  padding: 3px 8px;
+  border-radius: 6px;
+  -moz-border-radius: 6px;
+  -webkit-border-radius: 6px;
+  margin: 4px 0;
+}
+#forum .reply .submit:hover, #forum .reply .submit:focus {
+  background-color: #c35;
+  color: #fff;
+}
+#forum .footer {
+  clear: both;
+  text-align: right;
 }

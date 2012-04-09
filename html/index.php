@@ -69,29 +69,14 @@ endif; ?>
 				</div>
 			</div>
 		</div>
-		<div class="footer">
+		<div class="page-footer">
 			The Stereofyter is a project of On the Map Records (OtMR), a non-profit organization that uses music to fight stereotypes.<br />
 			OtMR is fiscally sponsored by Artspire, a project of the New York Foundation for the Arts (NYFA). Visit <a href="http://www.onthemaprecords.org" target="_blank">www.onthemaprecords.org</a> for more information. 
 		</div>
 		<div id="mbapp">
 			<applet CODE="com/mixblendr/gui/main/Applet" ARCHIVE="mixblendr/mixblendr.jar?v<?=MIXER_ENGINE_VERSION?>" WIDTH="1" HEIGHT="1" ALT="Your browser is not configured to view the applet. Please install Jave Runtime JRE 1.5 or higher. www.java.com/getjava" id="mixblendr"><PARAM name="url" value="competition/getfile" /><PARAM name="REDIRECT_URL" value="competition/competition-entries/" /><PARAM name="DEFAULT_TEMPO" value="120.0" /></applet>
 		</div>
-		<div id="forum">
-		  <div class="preview">
-		    <h3>Latest in the Forum</h3>
-  		  <ul class="list">
-  	    </ul>
-  	    <a href="#" class="show-full">more...</a>
-	    </div>
-	    <div class="full hide">
-  		  <ul class="list">
-  	    </ul>
-  		  <form class="reply" action="/scripts/forum.php" method="POST">
-  		    <textarea name="message"></textarea>
-  		    <input type="submit" value="Send" />
-  	    </form>
-      </div>
-	  </div>
+		<?=$forum->markup?>
 		<form id="pop_login" action="scripts/login_register.php" class="login" style="display: none;">
 			<input type="hidden" name="action" value="login" />
 			<h2 class="login">Log In</h2>

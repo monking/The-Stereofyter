@@ -1,0 +1,88 @@
+ABSTRACT
+| This doc is meant to sketch out how the forum will work from every part and
+| in every action. Some interactions need to cascade at some point, so this doc
+| will serve as the guide for where to handle cascading actions.
+ACTION GLOSS
+| possible actions on any particular item, restricted depending on user
+	insert
+	| insert a new post, related to no other posts
+	edit
+	| edit an existing post: generally restricted to author
+	reply
+	| insert a new post, in the thread of another comment
+	delete
+	| mark a post 'deleted' to remove it from view
+	read
+	| access a post & read its data
+TREE
+	case: no posts
+		actions
+			insert
+			read
+			| returns an empty list
+	case: many posts
+		actions
+			insert
+			read all
+				view
+				| list of newest entry with reference to thread leader
+			| returns a list of the newest entry and the thread leader.
+			read one
+DATABASE
+	table comments
+		id
+		| INT: primary key, auto-increment
+		path
+		| VARCHAR: "{parent.path}.{this.id}"
+			Note
+			| inserting without a parent (new post, not reply) will appear as
+			| ".{this.id}"
+			| One could retrieve a post's replies by using:
+			| ... WHERE path LIKE '%{this.path}%'
+			| This would work even if this post is a reply to something else.
+			| ------
+			| One could retrieve an entire tree by getting the first parent:
+			| {origin} = {this.path}.replace(/(\.\d+).*/, '\1')
+			| ... WHERE path LIKE '{origin}%'
+			Problem
+			| How do I know that when retrieving the whole tree from a deep
+			| reply, I'm retrieving messages relevant to the selected post?
+				ORDER
+				| - Since IDs art auto-incrementing, I can assume that a list
+				|   sorted by IDs matches one sorted by time.
+				| - Sorting by `path` means sorting by post order by each level
+				|   first ****PROVIDED THAT**** IDs are the same character
+				|   length.
+				|   - sorting a VARCHAR with entries like
+				|     .1
+				|     .1.2
+				|     .1.2.5
+				|     .1.2.10
+				|     .1.3
+				|     .1.3.4
+				|     .1.6
+				|     .1.6.9
+				|     .7
+				|     .7.8
+				|     the jump to the next set of digits breaks the whole deal
+				|   - could do 6-digit hexadecimal: 1.6M values
+				|     .000001
+				|     .000001.000002
+				|     .000001.000002.000005
+				|     .000001.000002.00000A
+				|     .000001.000003
+				|     .000001.000003.000004
+				|     .000001.000006
+				|     .000001.000006.000009
+				|     .000007
+				|     .000007.000008
+				|   - ...or, could do 8-bit hexadecimal: 4.3B
+				|   - ...or Unicode characters, if I can figure easily create
+				|     values that sort correctly
+				| Anyhow:
+				| ... ORDER BY path ASC
+				| would give me the tree that I need, then in the view, just
+				| indent it by how many parents it has
+				LIMIT
+				| can I select this item, its children, AND ITS ANCESTORS,
+				| without getting its siblings and ancestors' siblings?
