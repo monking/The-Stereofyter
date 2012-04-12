@@ -2,7 +2,7 @@
 
 class Forum {
     public $markup = '
-    <div id="forum" class="hide">
+    <div id="forum">
         <div class="glance">
             <h3>Latest in the Forum</h3>
             <ul class="list">
@@ -12,28 +12,32 @@ class Forum {
                 </li>
             </ul>
             <div class="footer">
-                <a href="#" class="toggle-glance">more...</a>
+                <a href="#" class="set-view" rel="preview">more...</a>
             </div>
         </div>
-        <div class="full">
+        <div class="preview">
             <ul class="list">
                 <li>
                     <div class="title"></div>
                     <div class="body"></div>
                 </li>
             </ul>
-            <div class="detail">
-                <h4 class="title"></h4>
-                <div class="body"></div>
-                <div class="actions">
-                    <form class="reply" action="/scripts/forum.php" method="POST">
-                        <div class="message" contenteditable="true"></div>
-                        <a class="submit" href="#">Send</a>
-                    </form>
-                </div>
-            </div><div class="footer">
-                <a href="#" class="toggle-glance">less...</a>
+            <div class="footer">
+                <a href="#" class="set-view" rel="glance">less...</a>
             </div>
+        </div>
+        <div class="detail">
+            <h4 class="title"></h4>
+            <div class="body"></div>
+            <div class="footer">
+                <a href="#" class="back-view">back &raquo;</a>
+            </div>
+        </div>
+        <div class="actions hide">
+            <form class="reply" action="/scripts/forum.php" method="POST">
+                <div class="message" contenteditable="true"></div>
+                <a class="submit" href="#">Send</a>
+            </form>
         </div>
     </div>';
     public function Forum($options = array()) {

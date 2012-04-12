@@ -11,24 +11,24 @@
   padding: 10px;
   max-height: 90%;
 }
-#forum .full {
+#forum .preview,
+#forum .detail {
   width: 320px;
   font-size: 12px;
   overflow-x: visible;
   overflow-y: auto;
   max-height: inherit;
 }
-#forum .full .toggle-full {}
-#forum .preview {  
+#forum .glance {  
   width: 160px;
   font-size: 11px;
 }
-#forum .preview .message {
+#forum .glance .message {
   max-height: 2.2em;
   overflow: hidden;
 }
-#forum .preview .toggle-full {}
-#forum .preview .entry {
+#forum .glance .set-view {}
+#forum .glance .entry {
   margin: 4px 0;
   padding: 2px 0;
 }
