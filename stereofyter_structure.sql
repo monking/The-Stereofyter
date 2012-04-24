@@ -74,6 +74,9 @@ CREATE TABLE IF NOT EXISTS `sf_mix_lineage` (
 
 CREATE TABLE IF NOT EXISTS `sf_mix_messages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `link_id` int(11) NOT NULL,
+  `attachment_id` int(11) NOT NULL,
+  `reply_on_id` int(11) NOT NULL DEFAULT '-1',
   `link_id` int(11) NOT NULL DEFAULT '-1',
   `attachment_id` int(11) NOT NULL DEFAULT '-1',
   `reply_on_id` int(11) NOT NULL DEFAULT '-1',
