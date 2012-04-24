@@ -60,10 +60,11 @@
 		var draw = {
 			detail: function() {
 				$detailContainer = views[options.view].container;
-				$(".title", $detailContainer).text(story[options.offset].link_name);
+                var title = story[options.offset].link_name || story[options.offset].title || 'New Post';
+				$(".title", $detailContainer).text(title);
 				var body = "";
-				if (story[options.offset].link_id)
-					body += '<div class="link"><a href="?mix='+story[options.offset].link_id+'" ref="'+story[options.offset].link_id+'">load mix</a></div>';
+				if (story[options.offset].link)
+					body += '<div class="link"><a href="'+story[options.offset].link+'" ref="'+story[options.offset].link_id+'">Load Mix: '+story[options.offset].link_name+'</a></div>';
 				body += '<div class="message">'+story[options.offset].message+'</div>';
 				$(".body", $detailContainer).html(body);
 				$(".link a", $detailContainer).click(function(event) {
@@ -85,8 +86,9 @@
 				paging.page = Math.floor(paging.offset / paging.limit);
 				paging.pages = Math.ceil(story.length / paging.limit);
 				for (var i = paging.page * paging.limit; i < paging.offset + paging.limit && i < story.length; i++) {
+                    var title = story[i].link_name || story[i].title || 'New Post';
 					var markup = '<li class="entry">';
-					markup += '<h4 class="title"><a href="#" ref="'+story[i].id+'">'+story[i].link_name+'</a></h4>';
+					markup += '<h4 class="title"><a href="#" ref="'+story[i].id+'">'+title+'</a></h4>';
 					markup += '<div class="message">'+story[i].message+'</div>';
 					markup += '</li>';
 					$list.append(markup);

@@ -14,17 +14,27 @@
 #forum .preview,
 #forum .detail {
   width: 320px;
+  min-height: 200px;
   font-size: 12px;
   overflow-x: visible;
   overflow-y: auto;
   max-height: inherit;
+}
+#forum .detail .title {
+  font-size: 16px;
+  color: #c35;
+}
+#forum .detail .link a {
+    display: block;
+    margin: 8px 0;
+    background-color: #FEE;
 }
 #forum .glance {  
   width: 160px;
   font-size: 11px;
 }
 #forum .glance .message {
-  max-height: 2.2em;
+  height: 25px;
   overflow: hidden;
 }
 #forum .glance .set-view {}
@@ -59,4 +69,9 @@
 #forum .footer {
   clear: both;
   text-align: right;
+}
+#forum .detail .footer {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
 }

@@ -27,7 +27,7 @@ class Forum {
             </div>
         </div>
         <div class="detail">
-            <h4 class="title"></h4>
+            <h3 class="title"></h3>
             <div class="body"></div>
             <div class="footer">
                 <a href="#" class="back-view">back &raquo;</a>
