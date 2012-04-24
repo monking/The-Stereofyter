@@ -72,13 +72,16 @@ CREATE TABLE IF NOT EXISTS `sf_mix_lineage` (
 
 CREATE TABLE IF NOT EXISTS `sf_mix_messages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `response_to_msg` int(11) NOT NULL DEFAULT '-1',
+  `link_id` int(11) NOT NULL,
+  `attachment_id` int(11) NOT NULL,
+  `reply_on_id` int(11) NOT NULL DEFAULT '-1',
   `mix_id` int(11) NOT NULL DEFAULT '-1',
   `user_id` int(11) NOT NULL,
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `message` varchar(255) COLLATE utf8_bin NOT NULL,
+  `message` text COLLATE utf8_bin NOT NULL,
+  `title` varchar(255) COLLATE utf8_bin NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=7 ;
 
 -- --------------------------------------------------------
 
