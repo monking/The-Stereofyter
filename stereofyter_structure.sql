@@ -1,13 +1,14 @@
 -- phpMyAdmin SQL Dump
--- version 3.3.9
+-- version 3.5.0
 -- http://www.phpmyadmin.net
 --
--- Host: localhost
--- Generation Time: Oct 28, 2011 at 09:31 AM
--- Server version: 5.1.53
--- PHP Version: 5.3.4
+-- Host: 127.0.0.1
+-- Generation Time: Apr 24, 2012 at 12:52 PM
+-- Server version: 5.5.15
+-- PHP Version: 5.3.8
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -40,15 +41,16 @@ CREATE TABLE IF NOT EXISTS `sf_countries` (
 CREATE TABLE IF NOT EXISTS `sf_mixes` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'automatically generated unique ID',
   `title` varchar(64) COLLATE utf8_bin NOT NULL,
+  `chromatic_key` varchar(4) COLLATE utf8_bin NOT NULL,
+  `tempo` smallint(6) NOT NULL,
+  `duration` smallint(6) NOT NULL,
   `mix` text COLLATE utf8_bin NOT NULL COMMENT 'mix data encoded in custom JSON format',
   `modified_by` int(11) NOT NULL,
   `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'date last saved',
   `created` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'date created',
-  `duration` smallint(6) NOT NULL,
-  `tempo` smallint(6) NOT NULL,
-  `chromatic_key` varchar(4) COLLATE utf8_bin NOT NULL,
+  `published` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=30 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=52 ;
 
 -- --------------------------------------------------------
 
@@ -75,13 +77,15 @@ CREATE TABLE IF NOT EXISTS `sf_mix_messages` (
   `link_id` int(11) NOT NULL,
   `attachment_id` int(11) NOT NULL,
   `reply_on_id` int(11) NOT NULL DEFAULT '-1',
-  `mix_id` int(11) NOT NULL DEFAULT '-1',
+  `link_id` int(11) NOT NULL DEFAULT '-1',
+  `attachment_id` int(11) NOT NULL DEFAULT '-1',
+  `reply_on_id` int(11) NOT NULL DEFAULT '-1',
   `user_id` int(11) NOT NULL,
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `message` text COLLATE utf8_bin NOT NULL,
   `title` varchar(255) COLLATE utf8_bin NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=7 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=11 ;
 
 -- --------------------------------------------------------
 
@@ -94,7 +98,7 @@ CREATE TABLE IF NOT EXISTS `sf_mix_owners` (
   `mix_id` int(11) NOT NULL,
   `owner_id` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=29 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=46 ;
 
 -- --------------------------------------------------------
 
@@ -150,4 +154,8 @@ CREATE TABLE IF NOT EXISTS `sf_users` (
   `created` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='users subscribed to the newsletter' AUTO_INCREMENT=23 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='users subscribed to the newsletter' AUTO_INCREMENT=29 ;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
