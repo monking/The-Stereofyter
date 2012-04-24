@@ -63,8 +63,14 @@ class Database {
 			$where = '';
 			$orderby = '';
 			$limit = '';
+			$fields = count(@$query['fields']) ? $query['fields'] : array('*');
+            for ($i = 0; $i < count($fields); $i++) {
+                $fields[$i] = 'a.'.$fields[$i];
+            }
 			if (array_key_exists('join', $query)) {
-				$join = self::get_join($query);
+                $join_data = self::process_join($query);
+				$join = $join_data->join;
+				$fields = array_merge($fields, $join_data->fields);
 			}
 			if (array_key_exists('where', $query)) {
 				$where = self::get_where($query['where']);
@@ -75,22 +81,8 @@ class Database {
 			if (array_key_exists('limit', $query)) {
 				$limit = ' LIMIT '.$query['limit'];
 			}
-			$fields = count(@$query['fields']) ? $query['fields'] : array($query['table'].'.*');
-			if (@$query['join']) {
-				if (count(@$query['join']['fields'])) {
-					foreach ($query['join']['fields'] as &$field) {
-						if (is_array($field))
-							$field = $field[0];
-						else
-							$field = $query['join']['table'].'.'.$field;
-					}
-					$fields = array_merge($fields, $query['join']['fields']);
-				} else {
-					$fields[] = $query['join']['table'].'.*';
-				}
-			}
 			$fields = implode(', ', $fields);
-			$query = "SELECT $fields FROM ${query['table']}$join$where$orderby$limit;";
+			$query = "SELECT $fields FROM ${query['table']} AS a$join$where$orderby$limit;";
 		}
 		//echo $query;
 		return mysql_query($query);
@@ -122,19 +114,24 @@ class Database {
 		$where .= $nested ? ')' : '';
 		return $where;
 	}
-	/** get_join
+	/** process_join
 		*/
-	public static function get_join($query) {
+	public static function process_join($query) {
         $join = '';
+        $fields = array();
         if (is_array(@$query['join'])) {
-            $alpha = array('a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z');
-            exit(count($alpha));
-            for ($i = 0; $i < count($query['join']); $i++) {
-                $as = ' AS '.$alpha[$i];
-                @$query['join'] ? ' LEFT JOIN '.$query['join']['table'].$as.' ON '.$query['table'].'.'.$query['join']['remote_id'].'='.$query['join']['table'].'.id': '';
+            $alpha = array('b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z');
+            $i = -1;
+            foreach ($query['join'] as $table => $options) {
+                $i++;
+                $as = $alpha[$i];
+                $join .= ' LEFT JOIN '.$table.' AS '.$as.' ON a.'.$options['remote_key'].'='.$as.'.id';
+                foreach ($options['fields'] as $field) {
+                    $fields[] = is_array($field) ? $field[0] : $as.'.'.$field;
+                }
             }
         }
-        return $join;
+        return (object) array('join'=>$join, 'fields'=>$fields);
 	}
 	/** get_where
 		*/

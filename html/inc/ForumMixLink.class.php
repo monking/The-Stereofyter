@@ -9,7 +9,6 @@ class ForumMixLink {
             array('CONCAT(\'/?mix=\', link_id) AS link')
         );
     public function filter(&$row) {
-        echo 'mess';
         $row->link = "/?mix_id=$row->link_id";
     }
 }

@@ -93,7 +93,7 @@ class Forum {
                     'join' => array(
                         $this->linkInterface->table => array(
                             'fields' => $this->linkInterface->fields,
-                            'remote_id' => 'link_id'
+                            'remote_key' => 'link_id'
                         )
                     ),
                     'filterObj' => $this->linkInterface
