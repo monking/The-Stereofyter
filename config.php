@@ -8,8 +8,7 @@ depends(
     'array_helpers',
     'database.class',
     'forum.class',
-    'user.class',
-    'ForumMixLink.class'
+    'user.class'
 );
 session_start();
 $db = new Database();

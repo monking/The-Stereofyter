@@ -84,7 +84,7 @@ class Database {
 			$fields = implode(', ', $fields);
 			$query = "SELECT $fields FROM ${query['table']} AS a$join$where$orderby$limit;";
 		}
-		//echo $query;
+		// echo $query."\r\n\r\n";
 		return mysql_query($query);
 	}
 	public function get_first_object($table_name, $query) {
