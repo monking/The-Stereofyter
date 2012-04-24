@@ -50,8 +50,9 @@ class Forum {
         }
         if (!$this->table) die('Forum requires a database table.');
         if ($this->linkInterface) {
-            require_once(dirname(__FILE__).'/'.$this->linkInterface.'.class.php');
-            $this->linkInterface = new $this->linkInterface();
+            $interfaceName = $this->linkInterface;
+            require_once(dirname(__FILE__).'/'.strtolower($interfaceName).'.class.php');
+            $this->linkInterface = new $interfaceName();
         }
     }
     public function post($data) {
@@ -90,11 +91,12 @@ class Forum {
                     'order' => 'date DESC',
                     'limit' => '10',
                     'join' => array(
-                        'table' => $this->linkInterface->table,
-                        'fields' => $this->linkInterface->fields,
-                        'remote_id' => 'link_id'
+                        $this->linkInterface->table => array(
+                            'fields' => $this->linkInterface->fields,
+                            'remote_id' => 'link_id'
+                        )
                     ),
-                    'filter' => $this->linkInterface->filter
+                    'filterObj' => $this->linkInterface
                 )
             )
         );

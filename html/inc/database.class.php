@@ -98,8 +98,8 @@ class Database {
 	public function get_first_object($table_name, $query) {
 		$result = $this->get($table_name, $query);
 		$object = mysql_fetch_obj($result);
-		if (@$query['filter'])
-			$query['filter']($object);
+		if (@$query['filterObj'])
+			$query['filterObj']->filter($object);
 		return $object;
 	}
 	/** where_recurse
@@ -125,7 +125,16 @@ class Database {
 	/** get_join
 		*/
 	public static function get_join($query) {
-		return @$query['join'] ? ' LEFT JOIN '.$query['join']['table'].' ON '.$query['table'].'.'.$query['join']['remote_id'].'='.$query['join']['table'].'.id': '';
+        $join = '';
+        if (is_array(@$query['join'])) {
+            $alpha = array('a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z');
+            exit(count($alpha));
+            for ($i = 0; $i < count($query['join']); $i++) {
+                $as = ' AS '.$alpha[$i];
+                @$query['join'] ? ' LEFT JOIN '.$query['join']['table'].$as.' ON '.$query['table'].'.'.$query['join']['remote_id'].'='.$query['join']['table'].'.id': '';
+            }
+        }
+        return $join;
 	}
 	/** get_where
 		*/
@@ -154,14 +163,14 @@ class Database {
 			return FALSE;
 		}
 		$result_array = array();
-    	$key_column = @$query['key_column'];
+			$key_column = @$query['key_column'];
 		while($row = mysql_fetch_object($result)) {
-			if (@$query['filter'])
-				$query['filter']($row);
-    		if ($key_column)
-    			$result_array[$row->$key_column] = $row;
-    		else
-    			$result_array[] = $row;
+			if (@$query['filterObj'])
+				$query['filterObj']->filter($row);
+				if ($key_column)
+					$result_array[$row->$key_column] = $row;
+				else
+					$result_array[] = $row;
 		}
 		return $result_array;
 	}
