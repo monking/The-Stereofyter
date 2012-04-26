@@ -4,29 +4,27 @@ class Forum {
     public $markup = '
     <div id="forum">
         <div class="glance">
+                <div class="right">
+                    <a href="#" class="set-view" rel="preview">more &raquo;</a>
+                </div>
             <h3>Latest in the Forum</h3>
-            <ul class="list">
-                <li>
-                    <div class="title"></div>
-                    <div class="body"></div>
-                </li>
-            </ul>
+            <ul class="list"></ul>
+        </div>
+        <div class="list preview">
+            <div class="right">
+                <a href="#" class="set-view" rel="glance">less &raquo;</a>
+            </div>
+            <h2>Forum</h2>
+            <ul class="list"></ul>
             <div class="footer">
-                <a href="#" class="set-view" rel="preview">more...</a>
+                <div class="right">
+                    <a href="#" class="set-view" rel="glance">less &raquo;</a>
+                </div>
+                <pager></pager>
             </div>
         </div>
-        <div class="preview">
-            <ul class="list">
-                <li>
-                    <div class="title"></div>
-                    <div class="body"></div>
-                </li>
-            </ul>
-            <div class="footer">
-                <a href="#" class="set-view" rel="glance">less...</a>
-            </div>
-        </div>
-        <div class="detail">
+        <div class="list detail">
+            <h2>Forum</h2>
             <h3 class="title"></h3>
             <div class="body"></div>
             <div class="footer">

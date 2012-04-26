@@ -12,7 +12,7 @@ class User {
       $this->$key = @array_key_exists($key, $options) ? $options[$key] : $defaults[$key];
     }
     if (!@$this->table) die('User requires a database table.');
-    if ($_SESSION && $_SESSION['user'])
+    if ($_SESSION && isset($_SESSION['user']))
       $this->set($_SESSION['user']);
   }
     /**login_user

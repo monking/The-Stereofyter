@@ -54,7 +54,10 @@
 			},
 			glance: {
 				container: $(".glance", $container),
-				type: 'list'
+                type: 'list',
+                before: function() {
+                    options.offset = 0;
+                }
 			}
 		};
 		var draw = {
@@ -62,11 +65,11 @@
 				$detailContainer = views[options.view].container;
                 var title = story[options.offset].link_name || story[options.offset].title || 'New Post';
 				$(".title", $detailContainer).text(title);
-				var body = "";
+				var markup = "";
 				if (story[options.offset].link)
-					body += '<div class="link"><a href="'+story[options.offset].link+'" ref="'+story[options.offset].link_id+'">Load Mix: '+story[options.offset].link_name+'</a></div>';
-				body += '<div class="message">'+story[options.offset].message+'</div>';
-				$(".body", $detailContainer).html(body);
+					markup += '<div class="link"><a href="'+story[options.offset].link+'" ref="'+story[options.offset].link_id+'">Load Mix: '+story[options.offset].link_name+'</a></div>';
+				markup += '<div class="message">'+story[options.offset].message+'</div>';
+				$(".body", $detailContainer).html(markup);
 				$(".link a", $detailContainer).click(function(event) {
 					if (!$("#sfapp")[0].loadMix) return;
 					event.preventDefault();
@@ -87,14 +90,14 @@
 				paging.pages = Math.ceil(story.length / paging.limit);
 				for (var i = paging.page * paging.limit; i < paging.offset + paging.limit && i < story.length; i++) {
                     var title = story[i].link_name || story[i].title || 'New Post';
-					var markup = '<li class="entry">';
-					markup += '<h4 class="title"><a href="#" ref="'+story[i].id+'">'+title+'</a></h4>';
-					markup += '<div class="message">'+story[i].message+'</div>';
+					var markup = '<li class="entry" ref="'+story[i].id+'">';
+					markup += '<h4 class="title">'+title+'</h4>';
+					markup += '<div class="message">'+story[i].message+'<div class="tail-overlay"></div></div>';
 					markup += '</li>';
 					$list.append(markup);
 				}
 				paging.shown = i - paging.offset;
-				$("li.entry .title a", $list).click(function(event) {
+				$("li.entry", $list).click(function(event) {
 					event.preventDefault();
 					show("detail", storyXRef[parseInt($(this).attr("ref"))]);
 				});
@@ -102,15 +105,20 @@
 		};
 		var show = function(view, offset) {
 			if (view && views.hasOwnProperty(view)) {
+                if (views[view].hasOwnProperty("before"))
+                    views[view].before.call(this);
 				options.lastView = options.view;
 				options.view = view;
 				if (offset)
 					options.offset = offset;
+                else if (options.limit.hasOwnProperty(options.view))
+                    options.offset -= options.offset % options.limit[options.view];
 			}
 			for (var key in views) {
 				if (key == options.view) continue;
 				views[key].container.hide();
 			}
+            console.log(options.offset);
 			views[options.view].container.show();
 			draw[views[options.view].type]();
 		};

@@ -6,7 +6,8 @@ require_once('../../config.php');
 depends('sf/mix');
 
 $mix_id = FALSE;
-session_start();
+if (!isset($_SESSION))
+    session_start();
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 	$mix_id = mysql_real_escape_string($_GET['id']);
 } else {
