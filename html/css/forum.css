@@ -14,18 +14,18 @@
 #forum .preview,
 #forum .detail {
     width: 320px;
-    min-height: 200px;
     font-size: 12px;
     overflow-x: visible;
     overflow-y: auto;
     max-height: inherit;
 }
-#forum .detail .title { font-size: 16px; color: #c35; }
+#forum .detail .title { font-size: 16px; color: #c35; margin-bottom: 8px; }
 #forum .detail .link a {
     display: block;
-    margin: 8px 0;
+    margin-bottom: 8px;
     background-color: #fee;
 }
+#forum .detail .body { max-height: 400px; overflow: auto; }
 #forum .glance { width: 160px; font-size: 11px; }
 #forum .list .entry {
     margin-top: 4px;
@@ -49,33 +49,16 @@
     bottom: 0px;
     left: 0px;
 }
-#forum .reply .message {
-    min-height: 2.2em;
-    border: 1px solid #000;
-    border-radius: 3px;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
-    padding: 4px;
+#forum .detail form.reply { margin-top: 8px; }
+#forum .detail form.reply .message {
+	border: 1px solid #999;
+	padding: 0.3em;
+	width: 97%;
 }
-#forum .reply .submit {
-    border: 1px solid #ccc;
-    background-color: #eee;
-    color: #c35;
-    cursor: pointer;
-    float: right;
-    padding: 3px 8px;
-    border-radius: 6px;
-    -moz-border-radius: 6px;
-    -webkit-border-radius: 6px;
-    margin: 4px 0;
-}
-#forum .reply .submit:hover,
-#forum .reply .submit:focus { background-color: #c35; color: #fff; }
-#forum .footer { clear: both; overflow: hidden; }
-#forum .detail .footer {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
+#forum .footer { clear: both; overflow: hidden;  }
+#forum .form-field {
+	overflow: hidden;
+	margin: 8px 0;
 }
 /****** PAGINATION ******/
 #forum pager { display: block; }

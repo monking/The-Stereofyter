@@ -8,6 +8,15 @@ body  { height: 100%; margin: 0; padding: 0; /*overflow: hidden;*/ }
 #sfapp_loading  { position: absolute; z-index: 1; width: 1000px; left: 50%; top: 0px; margin-left: -500px; text-align: center; font-size: 18px; padding-top: 20px; line-height: 30px; }
 #mbapp  { position: absolute; width: 1px; height: 1px; bottom: 0; left: 0; z-index: 0; }
 .page-footer { font-family: Helvetica, Arial, sans-serif; font-size: 11px; text-align: center; line-height: 140%; color: #666; width: 1000px; margin: 0.5em auto; }
+.button {
+	padding: 0.5em 1em;
+	border: 0.2em solid #c35;
+	border-radius: 1.5em;
+}
+.button:hover, .button:focus {
+	color: #fff;
+	background-color: #c35;
+}
 form .register, form .login { font-size: 80%; padding: 8px 0; }
 form.login .register { display: none; }
 form.register .login{ display: none; }

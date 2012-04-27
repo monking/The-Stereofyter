@@ -5,20 +5,20 @@ class Forum {
     <div id="forum">
         <div class="glance">
                 <div class="right">
-                    <a href="#" class="set-view" rel="preview">more &raquo;</a>
+                    <a href="#" class="set-view" rel="preview">more ▲</a>
                 </div>
             <h3>Latest in the Forum</h3>
             <ul class="list"></ul>
         </div>
         <div class="list preview">
             <div class="right">
-                <a href="#" class="set-view" rel="glance">less &raquo;</a>
+                <a href="#" class="set-view" rel="glance">less ▼</a>
             </div>
             <h2>Forum</h2>
             <ul class="list"></ul>
             <div class="footer">
                 <div class="right">
-                    <a href="#" class="set-view" rel="glance">less &raquo;</a>
+                    <a href="#" class="set-view" rel="glance">less ▼</a>
                 </div>
                 <pager></pager>
             </div>
@@ -27,8 +27,19 @@ class Forum {
             <h2>Forum</h2>
             <h3 class="title"></h3>
             <div class="body"></div>
+			<form class="reply">
+				<h3>Reply</h3>
+				<div class="form-field">
+					<textarea class="message" name="message" rows="3"></textarea>
+				</div>
+				<div class="form-field a-right">
+					<input type="submit" class="button" value="Send" /></input>
+				</div>
+			</form>
             <div class="footer">
-                <a href="#" class="back-view">back &raquo;</a>
+                <div class="right">
+					<a href="#" class="back-view">back &raquo;</a>
+                </div>
             </div>
         </div>
         <div class="actions hide">
