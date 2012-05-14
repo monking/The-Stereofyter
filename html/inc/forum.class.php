@@ -1,5 +1,24 @@
 <?php
 
+// NOTE (Christopher Lovejoy):
+// Implementing threads using ASCII-encoded paths.
+// e.g. ".A^@B.sw^5.a32j."
+// each tier has 4 bytes, "." dot delimited
+//   (256^4, 4,294,967,296 possible posts in the whole forum)
+// ------------------------------
+// RETRIEVE A THREAD AT ANY DEPTH
+// ------------------------------
+// get the path of the parent of the thread ($path).
+// SELECT * FROM `forum_table` WHERE `path` LIKE '%$path%';
+// ...all children paths will include the parent path
+// ------------------------------
+// PRO
+//   easy to retrieve
+//   easy to add to the tree
+// CON
+//   forum size limited by tree tier byte-size (4 bytes in this version)
+//   thread depth limited by byte-size of path (51 bytes for 10 tiers)
+//
 class Forum {
     public $markup = '
     <div id="forum">
@@ -49,6 +68,7 @@ class Forum {
             </form>
         </div>
     </div>';
+    const path_tier_bytes = 4;
     public function Forum($options = array()) {
         $defaults = array(
             'table'=>'',
@@ -71,6 +91,7 @@ class Forum {
             || !$user->id)
             return false;
         $data['user_id'] = $user->data->id;
+        $data['path'] = self:toASCII
         $db->post(array(
             'table' => $this->table,
             'method' => 'insert',
@@ -81,14 +102,25 @@ class Forum {
                     'title' => '',
                     'user_id' => -1,
                     'link_id' => -1,
-                    'reply_on_id' => -1,
                     'attachment_id' => -1
                 ),
                 'filter_mysql_assoc'
             )
         ));
+        $id = mysql_insert_id();
+        $path = self:toASCII($id) . '.';
+        if ($data['reply_on_id'] != -1) {
+            $data['path'] = $data['path']
+        }
+        $db->post(array(
+            'table' => $this->table,
+            'method' => 'update',
+            'fields' => array(
+                'path' => ''
+            )
+        ));
     }
-    public function get($options) {
+    public function get($options = array()) {
         global $db;
         $options['table'] = $this->table;
         $list = $db->get_object(
@@ -110,6 +142,32 @@ class Forum {
             )
         );
         return $list;
+    }
+    public static function toASCII($number) {
+        // throw an exception if the number is too large
+        if ($number > pow(256, self::path_tier_bytes)) {
+            throw new Exception('number exceeds size for decimal to ASCII conversion. change path_tier_bytes setting.');
+        }
+        $output = '';
+        for ($i = 0; $i < self::path_tier_bytes; $i++) {
+            $index = $number % 256;
+            $number = ($number - $index) / 256;
+            $output = chr($index) . $output;
+        }
+        return $output;
+    }
+    public static function fromASCII($string) {
+        // throw an exception if the string is too long
+        if (strlen($string) > self::path_tier_bytes) {
+            throw new Exception('string exceeds length for ASCII to decimal conversion. change path_tier_bytes setting.');
+        }
+        $output = 0;
+        while ($len = strlen($string)) {
+            $index = ord(substr($string, 0, 1));
+            $string = substr($string, 1);
+            $output += $index * pow(256, $len - 1);
+        }
+        return $output;
     }
 }
 

@@ -43,6 +43,7 @@ class Database {
 				return false;
 			}
 		}
+        if (@DEBUG_DATABASE) echo "$query\r\n";
 		if (!mysql_query($query)) return false;
 		return true;
 	}
