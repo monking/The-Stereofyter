@@ -47,7 +47,7 @@ class Forum extends Basic {
             <h3 class="title"></h3>
             <div class="body"></div>
 			<form class="reply">
-				<h3>Reply</h3>
+				<h3>Reply<span class="reply-to"></span></h3>
 				<div class="form-field">
 					<textarea class="message" name="message" rows="3"></textarea>
 				</div>
@@ -61,27 +61,22 @@ class Forum extends Basic {
                 </div>
             </div>
         </div>
-        <div class="actions hide">
-            <form class="reply" action="/scripts/forum.php" method="POST">
-                <div class="message" contenteditable="true"></div>
-                <a class="submit" href="#">Send</a>
-            </form>
-        </div>
     </div>';
     const ascii = '+.0123456789<=>@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~';
     protected $ascii_depth = 0;
     protected $default_options = array(
         'table'=>'',
-        'linkInterface'=>'',
+        'interfaces'=>array(),
         'path_tier_bytes'=>4
     );
     public function Forum($options = array()) {
         parent::__construct($options);
         if (!$this->table) die('Forum requires a database table.');
-        if ($this->linkInterface) {
-            $interfaceName = $this->linkInterface;
-            require_once(dirname(__FILE__).'/'.strtolower($interfaceName).'.class.php');
-            $this->linkInterface = new $interfaceName();
+        if ($this->interfaces) {
+            foreach ($this->interfaces as $key => $name) {
+                require_once(dirname(__FILE__).'/'.strtolower($name).'.class.php');
+                $this->interfaces[$key] = new $name();
+            }
         }
         $this->ascii_depth = strlen(self::ascii);
     }
@@ -143,12 +138,16 @@ class Forum extends Basic {
             'order' => 'path DESC',
             'limit' => $limit,
             'join' => array(
-                $this->linkInterface->table => array(
-                    'fields' => $this->linkInterface->fields,
-                    'on' => array('link_id','id')
+                $this->interfaces['link']->table => array(
+                    'fields' => $this->interfaces['link']->fields,
+                    'on' => array('link_id',$this->interfaces['link']->id_column)
+                ),
+                $this->interfaces['user']->table => array(
+                    'fields' => $this->interfaces['user']->fields,
+                    'on' => array('user_id',$this->interfaces['user']->id_column)
                 )
             ),
-            'filterObj' => $this->linkInterface
+            'filterObjects' => $this->interfaces
         );
         if ($thread_post_id !== NULL) {
             $first = $db->get_first_object(array(

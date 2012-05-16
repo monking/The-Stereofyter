@@ -14,7 +14,13 @@ depends(
 session_start();
 $db = new Database();
 $user = new User(array('table'=>'sf_users'));
-$forum = new Forum(array('table'=>'sf_mix_messages', 'linkInterface'=>'ForumMixLink'));
+$forum = new Forum(array(
+    'table'=>'sf_mix_messages',
+    'interfaces'=>array(
+        'link'=>'ForumMixInterface',
+        'user'=>'ForumUserInterface'
+    )
+));
 if (strpos($_SERVER['SERVER_NAME'], 'local') !== FALSE) {
     $db->connect(array(
         'host'=>'127.0.0.1',

@@ -109,10 +109,15 @@ class Database {
 	}
 	public function get_first_object($query) {
 		$result = $this->get($query);
-		$object = mysql_fetch_object($result);
-		if (@$query['filterObj'])
-			$query['filterObj']->filter($object);
-		return $object;
+		$row = mysql_fetch_object($result);
+		if (@$query['filterObjects']) {
+            try {
+                foreach ($query['filterObjects'] as $filterObj) {
+                    $filterObj->filter($row);
+                }
+            } catch(Exception $e) { }
+        }
+		return $row;
 	}
 	/** where_recurse
 		*/
@@ -200,12 +205,17 @@ class Database {
 		$result_array = array();
 			$key_column = @$query['key_column'];
 		while($row = mysql_fetch_object($result)) {
-			if (@$query['filterObj'])
-				$query['filterObj']->filter($row);
-				if ($key_column)
-					$result_array[$row->$key_column] = $row;
-				else
-					$result_array[] = $row;
+            if (@$query['filterObjects']) {
+                try {
+                    foreach ($query['filterObjects'] as $filterObj) {
+                        $filterObj->filter($row);
+                    }
+                } catch(Exception $e) { }
+            }
+            if ($key_column)
+                $result_array[$row->$key_column] = $row;
+            else
+                $result_array[] = $row;
 		}
 		return $result_array;
 	}

@@ -58,7 +58,7 @@
 #forum .footer { clear: both; overflow: hidden;  }
 #forum .form-field {
 	overflow: hidden;
-	margin: 8px 0;
+	margin: 4px 0;
 }
 /****** PAGINATION ******/
 #forum pager { display: block; }

@@ -1,9 +1,10 @@
 <?php
 
-class ForumMixLink {
+class ForumMixInterface {
     public
-        $name = 'ForumMixLink',
+        $name = 'ForumMixInterface',
         $table = 'sf_mixes',
+        $id_column = 'id',
         $fields = array(
             'title AS link_name',
             array('CONCAT(\'/?mix=\', b.id) AS link')

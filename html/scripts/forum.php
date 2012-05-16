@@ -10,13 +10,7 @@ if (@$_REQUEST['recalculate']) {
         'fields' => array('path','id'),
         'where' => array('path'=>''),
         'order' => 'path DESC',
-        'limit' => $offset ? "$offset,$limit" : $limit,
-        'join' => array(
-            $this->linkInterface->table => array(
-                'fields' => $this->linkInterface->fields,
-                'on' => array('link_id','id')
-            )
-        )
+        'limit' => $offset ? "$offset,$limit" : $limit
     ));
     if (empty($list)) {
         exit('no posts with empty paths to recalculate.');
