@@ -1,7 +1,8 @@
 <?php
 $CSS = array('unsubscribe');
-require_once('inc/header.php');
-depends('user');
+require_once('../config.php');
+depends('sf/user');
+include 'views/header.php';
 
 $view = 'default';
 if (isset($_GET['error'])) log_error($_GET['error']);
@@ -59,5 +60,5 @@ switch ($view):
 	</form>
 <?php
 endswitch;
-require_once('inc/footer.php');
+include 'views/footer.php';
 ?>

@@ -7,6 +7,5 @@ require_once('../../config.php');
 depends('sf/mix');
 if (!$user->id)
   die('{"error":"user not logged in"}');
-$mixes = get_user_mixes($user->id);
-echo assoc_to_json($mixes, array('structure' => 'array'));
+echo json_encode(get_user_mixes($user->id));
 ?>

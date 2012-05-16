@@ -138,14 +138,14 @@ class Forum extends Basic {
     public function get($thread_post_id = NULL, $limit = 30) {
         global $db;
         $options = array(
-            'fields' => array('*', 'FLOOR(CHAR_LENGTH('.$this->table.'.path) / '.($this->path_tier_bytes + 1).') AS depth'),
+            'fields' => array($this->table.'.*', 'FLOOR(CHAR_LENGTH('.$this->table.'.path) / '.($this->path_tier_bytes + 1).') AS depth'),
             'table' => $this->table,
             'order' => 'path DESC',
             'limit' => $limit,
             'join' => array(
                 $this->linkInterface->table => array(
                     'fields' => $this->linkInterface->fields,
-                    'remote_key' => 'link_id'
+                    'on' => array('link_id','id')
                 )
             ),
             'filterObj' => $this->linkInterface

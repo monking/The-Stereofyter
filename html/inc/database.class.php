@@ -12,6 +12,66 @@ class Database {
 		unset($pass);
 		if (!mysql_select_db($params['name'])) return false;
 	}
+	/** get
+		* submit a MySQL query from an associative array, or a string
+		* @query (Array/String) array for query parameters, or query string
+        *   @table (String)
+        *
+        *   @fields (Array)
+        *
+        *   @where (Array) : An associative array with field names as keys.  
+        *     For special operators, (e.g. LIKE), include the operator in the 
+        *     field name, with a preceding space.
+        *
+        *   @order (String)
+        *
+        *   @limit (Number)
+        *
+        *   @join (Array) : An associative array with table names as keys
+        *     @fields (Array)
+        *     @on (Array) : An array of two columns to match on the join: the 
+        *       column on the main table, and the joining table, respectively
+		*/
+	public function get($query) {
+		// Takes a string query, or 2-dimensional associative array and turns it into a SQL query.
+		if (is_array($query)) {
+			$join = '';
+			$where = '';
+			$orderby = '';
+			$limit = '';
+            $query['as'] = array($query['table']=>'a');
+			$fields = count(@$query['fields']) ? $query['fields'] : array($query['table'].'.*');
+			if (array_key_exists('join', $query)) {
+                $join_data = self::process_join($query);
+				$join = $join_data->join;
+				$fields = array_merge($fields, $join_data->fields);
+			}
+            for ($i = 0; $i < count($fields); $i++) {
+                foreach ($query['as'] as $table => $as) {
+                    $fields[$i] = str_replace("$table.", "$as.", $fields[$i]);
+                }
+            }
+			if (array_key_exists('where', $query)) {
+                foreach ($query['where'] as $field => $condition) {
+                    if (preg_match('/\./', $field))
+                        continue;
+                    $query['where']['a.'.$field] = $condition;
+                    unset($query['where'][$field]);
+                }
+				$where = self::get_where($query['where']);
+			}
+			if (array_key_exists('order', $query)) {
+				$orderby = ' ORDER BY '.$query['order'];
+			}
+			if (array_key_exists('limit', $query)) {
+				$limit = ' LIMIT '.$query['limit'];
+			}
+			$fields = implode(', ', $fields);
+			$query = "SELECT $fields FROM ${query['table']} AS a$join$where$orderby$limit;";
+		}
+        if (defined('DEBUG') && DEBUG) echo "$query\r\n";
+		return mysql_query($query);
+	}
 	/** post
 		* build and submit a MySQL query from an associative array
 		* @$query (Array/String) an array or string query
@@ -47,63 +107,6 @@ class Database {
 		if (!mysql_query($query)) return false;
 		return true;
 	}
-	/** get
-		* submit a MySQL query from an associative array, or a string
-		* @query (Array/String) array for query parameters, or query string
-        *   @table (String)
-        *
-        *   @fields (Array)
-        *
-        *   @where (Array) : An associative array with field names as keys.  
-        *     For special operators, (e.g. LIKE), include the operator in the 
-        *     field name, with a preceding space.
-        *
-        *   @order (String)
-        *
-        *   @limit (Number)
-        *
-        *   @join (Array) : An associative array with table names as keys
-        *     @fields (Array)
-        *     @remote_key (String) : The field on the base table to match a 
-        *       column 'id' on the joining table
-		*/
-	public function get($query) {
-		// Takes a string query, or 2-dimensional associative array and turns it into a SQL query.
-		if (is_array($query)) {
-			$join = '';
-			$where = '';
-			$orderby = '';
-			$limit = '';
-			$fields = count(@$query['fields']) ? $query['fields'] : array('*');
-            for ($i = 0; $i < count($fields); $i++) {
-                $fields[$i] = str_replace($query['table'], 'a', $fields[$i]);
-            }
-			if (array_key_exists('join', $query)) {
-                $join_data = self::process_join($query);
-				$join = $join_data->join;
-				$fields = array_merge($fields, $join_data->fields);
-			}
-			if (array_key_exists('where', $query)) {
-                foreach ($query['where'] as $field => $condition) {
-                    if (preg_match('/\./', $field))
-                        continue;
-                    $query['where']['a.'.$field] = $condition;
-                    unset($query['where'][$field]);
-                }
-				$where = self::get_where($query['where']);
-			}
-			if (array_key_exists('order', $query)) {
-				$orderby = ' ORDER BY '.$query['order'];
-			}
-			if (array_key_exists('limit', $query)) {
-				$limit = ' LIMIT '.$query['limit'];
-			}
-			$fields = implode(', ', $fields);
-			$query = "SELECT $fields FROM ${query['table']} AS a$join$where$orderby$limit;";
-		}
-        if (defined('DEBUG') && DEBUG) echo "$query\r\n";
-		return mysql_query($query);
-	}
 	public function get_first_object($query) {
 		$result = $this->get($query);
 		$object = mysql_fetch_object($result);
@@ -125,11 +128,11 @@ class Database {
                     $field = substr($field, 0, $like_pos);
                     $operator = ' LIKE ';
                 }
-				$field = implode('`.`', explode('.', $field));
+				$field = implode('.', explode('.', $field));
 				//if $value is stdClass with property 'function', use without quotes
 				// as in th case of the value $value->function = 'NOW()'
 				$value = mysql_real_escape_string($value);
-				$conditions[] = "`$field`$operator'$value'";
+				$conditions[] = "$field$operator'$value'";
 			}
 		}
 		$where = $nested ? '(' : '';
@@ -139,18 +142,30 @@ class Database {
 	}
 	/** process_join
 		*/
-	public static function process_join($query) {
+	public static function process_join(&$query) {
         $join = '';
         $fields = array();
         if (is_array(@$query['join'])) {
-            $alpha = array('b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z');
+            $alpha = 'bcdefghijklmnopqrstuvwxyz';
             $i = -1;
             foreach ($query['join'] as $table => $options) {
                 $i++;
-                $as = $alpha[$i];
-                $join .= ' LEFT JOIN '.$table.' AS '.$as.' ON a.'.$options['remote_key'].'='.$as.'.id';
+                $as = substr($alpha, $i, 1);
+                $join .= " LEFT JOIN $table AS $as ON a.".$options['on'][0]."=$as.".$options['on'][1]."";
                 foreach ($options['fields'] as $field) {
-                    $fields[] = is_array($field) ? $field[0] : $as.'.'.$field;
+                    $fields[] = is_array($field) ? str_replace($table, $as, $field[0]) : "$as.$field";
+                }
+                if (isset($query['where'])) {
+                    if (is_array($query['where'])) {
+                        foreach ($query['where'] as $field => $condition) {
+                            if (strpos($field, $table) > -1) {
+                                $query['where'][str_replace($table, $as, $field)] = $condition;
+                                unset($query['where'][$field]);
+                            }
+                        }
+                    } else {
+                        $query['where'] = str_replace($table, $as, $query['where']);
+                    }
                 }
             }
         }

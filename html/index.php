@@ -1,10 +1,10 @@
 <?php
 require_once('../config.php');
-depends('layout', 'sf/user');
+depends('sf/user');
 $CSS = array('home', 'pop', 'forum');
 $JS = array('jquery', 'swfobject', 'javaobject', 'mixblendr', 'pop', 'forum', 'home');
 
-include 'view/header.php';
+include 'views/header.php';
 ?>
         <script type="text/javascript">
             var flashvars = {
@@ -86,11 +86,11 @@ endif; ?>
                 Already registered? <a href="#" class="toggle-login">Log In</a>.
             </div>
             <div class="line">
-                <span class="login">Username / </span>Email Address<br />
+                <label><span class="login">Username or </span>Email Address</label>
                 <input type="text" name="username" />
             </div>
             <div class="line">
-                Password<br />
+                <label>Password</label>
                 <input type="password" name="password" />
                 <div class="hint login">
                     <a href="reset_password.php" target="_blanki">Forgot password?</a>
@@ -108,4 +108,4 @@ endif; ?>
         <div id="instructions" style="display: none;">
             <img src="images/instructions.jpg" width="1000" height="603" />
         </div>
-<?php include 'view/footer.php'; ?>
+<?php include 'views/footer.php'; ?>

@@ -17,11 +17,12 @@ body  { height: 100%; margin: 0; padding: 0; /*overflow: hidden;*/ }
 	color: #fff;
 	background-color: #c35;
 }
-form .register, form .login { font-size: 80%; padding: 8px 0; }
+form#pop_login { font-size: 13px; }
+form#pop_login label { margin-top: 8px; display: block; }
 form.login .register { display: none; }
 form.register .login{ display: none; }
 form h2, form .line { margin-bottom: 0.5em; }
-form .hint { font-size: 60%; color: #666; }
+form .hint { font-size: 10px; color: #666; }
 /* debug **
 #app_container { width: 1000px; height: 740px; min-height: 740px; min-width: 1000px; margin: 0; }
 #mbapp { position: absolute; width: 1000px; height: 500px; top: 0; left: 1000px; z-index: 2; }

@@ -14,7 +14,7 @@ if (@$_REQUEST['recalculate']) {
         'join' => array(
             $this->linkInterface->table => array(
                 'fields' => $this->linkInterface->fields,
-                'remote_key' => 'link_id'
+                'on' => array('link_id','id')
             )
         )
     ));
