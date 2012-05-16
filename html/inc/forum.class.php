@@ -68,6 +68,8 @@ class Forum extends Basic {
             </form>
         </div>
     </div>';
+    const ascii = '+.0123456789<=>@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~';
+    protected $ascii_depth = 0;
     protected $default_options = array(
         'table'=>'',
         'linkInterface'=>'',
@@ -81,6 +83,7 @@ class Forum extends Basic {
             require_once(dirname(__FILE__).'/'.strtolower($interfaceName).'.class.php');
             $this->linkInterface = new $interfaceName();
         }
+        $this->ascii_depth = strlen(self::ascii);
     }
     public function post($data) {
         global $db, $user;
@@ -107,11 +110,15 @@ class Forum extends Basic {
             )
         ));
         $id = mysql_insert_id();
-        $path = self::toASCII($id) . '.';
+        $path = $this->toASCII($id) . '.';
         if ($data['reply_on_id'] != -1) {
-            $parent = self::get(array('where'=>array('id'=>$data['reply_on_id'])));
+            $parent = $db->get_first_object(array(
+                'table'=>$this->table,
+                'fields'=>array('path'),
+                'where'=>array('id'=>$data['reply_on_id'])
+            ));
             if (!empty($parent))
-                $path = $parent[0]->path . $path;
+                $path = $parent->path . $path;
         }
         $db->post(array(
             'table' => $this->table,
@@ -143,34 +150,43 @@ class Forum extends Basic {
             ),
             'filterObj' => $this->linkInterface
         );
-        if ($thread_post_id !== NULL)
-            $options['where'] = array('a.id'=>$thread_post_id);
+        if ($thread_post_id !== NULL) {
+            $first = $db->get_first_object(array(
+                'table' => $this->table,
+                'fields' => array('path'),
+                'where' => array('id'=>$thread_post_id)
+            ));
+            if ($first) {
+                $options['where'] = array('a.path LIKE'=>$first->path . '%');
+            }
+        }
         $list = $db->get_object($options);
         return $list;
     }
-    public static function toASCII($number) {
+    public function toASCII($number) {
         // throw an exception if the number is too large
-        if ($number > pow(256, $this->path_tier_bytes)) {
+        if ($number > pow($this->ascii_depth, $this->path_tier_bytes)) {
+            exit(''.$number);
             throw new Exception('number exceeds size for decimal to ASCII conversion. change path_tier_bytes setting.');
         }
         $output = '';
         for ($i = 0; $i < $this->path_tier_bytes; $i++) {
-            $index = $number % 256;
-            $number = ($number - $index) / 256;
-            $output = chr($index) . $output;
+            $index = $number % $this->ascii_depth;
+            $number = ($number - $index) / $this->ascii_depth;
+            $output = substr(self::ascii, $index, 1) . $output;
         }
         return $output;
     }
-    public static function fromASCII($string) {
+    public function fromASCII($string) {
         // throw an exception if the string is too long
         if (strlen($string) > $this->path_tier_bytes) {
             throw new Exception('string exceeds length for ASCII to decimal conversion. change path_tier_bytes setting.');
         }
         $output = 0;
         while ($len = strlen($string)) {
-            $index = ord(substr($string, 0, 1));
+            $index = strpos(self::ascii, substr($string, 0, 1));
             $string = substr($string, 1);
-            $output += $index * pow(256, $len - 1);
+            $output += $index * pow($this->ascii_depth, $len - 1);
         }
         return $output;
     }

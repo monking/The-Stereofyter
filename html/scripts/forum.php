@@ -3,11 +3,14 @@
 require_once('../../config.php');
 
 if (@$_REQUEST['recalculate']) {
+    $offset = @$_REQUEST['offset'] ? $_REQUEST['offset'] : '';
+    $limit = @$_REQUEST['limit'] ? $_REQUEST['limit'] : 10;
     $list = $db->get_object(array(
         'table' => $this->table,
+        'fields' => array('path','id'),
         'where' => array('path'=>''),
         'order' => 'path DESC',
-        'limit' => '10',
+        'limit' => $offset ? "$offset,$limit" : $limit,
         'join' => array(
             $this->linkInterface->table => array(
                 'fields' => $this->linkInterface->fields,
@@ -22,7 +25,7 @@ if (@$_REQUEST['recalculate']) {
         $db->post(array(
             'method'=>'update',
             'fields'=>array(
-                'path'=>Forum::toASCII($post->id).'.'
+                'path'=>$forum->toASCII($post->id).'.'
             ),
             'where' => array('id'=>$post->id),
             'table' => 'sf_mix_messages'

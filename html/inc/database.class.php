@@ -48,14 +48,24 @@ class Database {
 		return true;
 	}
 	/** get
-		* build and submit a MySQL query from an associative array
-		* @assoc (Array) keys for column names.
-		*		A key of 'WHERE' should have another associative array as a value, and will be
-		*		turned into a MySQL 'WHERE' statement.
-		* @method (String) 'INSERT' or 'UPDATE'
-		* @table_name (String)
-		*
-		* NOTE: you must escape special characters in your values before calling get
+		* submit a MySQL query from an associative array, or a string
+		* @query (Array/String) array for query parameters, or query string
+        *   @table (String)
+        *
+        *   @fields (Array)
+        *
+        *   @where (Array) : An associative array with field names as keys.  
+        *     For special operators, (e.g. LIKE), include the operator in the 
+        *     field name, with a preceding space.
+        *
+        *   @order (String)
+        *
+        *   @limit (Number)
+        *
+        *   @join (Array) : An associative array with table names as keys
+        *     @fields (Array)
+        *     @remote_key (String) : The field on the base table to match a 
+        *       column 'id' on the joining table
 		*/
 	public function get($query) {
 		// Takes a string query, or 2-dimensional associative array and turns it into a SQL query.
@@ -94,9 +104,9 @@ class Database {
         if (defined('DEBUG') && DEBUG) echo "$query\r\n";
 		return mysql_query($query);
 	}
-	public function get_first_object($table_name, $query) {
-		$result = $this->get($table_name, $query);
-		$object = mysql_fetch_obj($result);
+	public function get_first_object($query) {
+		$result = $this->get($query);
+		$object = mysql_fetch_object($result);
 		if (@$query['filterObj'])
 			$query['filterObj']->filter($object);
 		return $object;
@@ -110,11 +120,16 @@ class Database {
 				$conditions[] = self::where_recurse($value, $field == 'OR' ? 'OR' : 'AND');
 			} else {
 				$field = mysql_real_escape_string($field);
+                $operator = '=';
+                if ($like_pos = strpos($field, ' LIKE')) {
+                    $field = substr($field, 0, $like_pos);
+                    $operator = ' LIKE ';
+                }
 				$field = implode('`.`', explode('.', $field));
 				//if $value is stdClass with property 'function', use without quotes
 				// as in th case of the value $value->function = 'NOW()'
 				$value = mysql_real_escape_string($value);
-				$conditions[] = "`$field`='$value'";
+				$conditions[] = "`$field`$operator'$value'";
 			}
 		}
 		$where = $nested ? '(' : '';
@@ -144,7 +159,6 @@ class Database {
 	/** get_where
 		*/
 	public static function get_where($assoc) {
-        exit(print_r($assoc, true));
 		return $assoc ? ' WHERE '.self::where_recurse($assoc, 'AND', FALSE) : '';
 	}
 
