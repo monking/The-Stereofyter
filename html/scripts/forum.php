@@ -3,10 +3,18 @@
 require_once('../../config.php');
 
 if (@$_REQUEST['recalculate']) {
-    $list = $forum->get(array(
-        'where' => array('path'=>'')
+    $list = $db->get_object(array(
+        'table' => $this->table,
+        'where' => array('path'=>''),
+        'order' => 'path DESC',
+        'limit' => '10',
+        'join' => array(
+            $this->linkInterface->table => array(
+                'fields' => $this->linkInterface->fields,
+                'remote_key' => 'link_id'
+            )
+        )
     ));
-    // define('DEBUG_DATABASE', true);
     if (empty($list)) {
         exit('no posts with empty paths to recalculate.');
     }
@@ -22,21 +30,18 @@ if (@$_REQUEST['recalculate']) {
     }
 }
 if (@$_REQUEST['message']) {
-    $forum->post(array(
-    'message'=>$_REQUEST['message'],
-    'title'=>$_REQUEST['title'],
+    $result = $forum->post(array(
+    'message'=>@$_REQUEST['message'],
+    'title'=>@$_REQUEST['title'],
     'user_id'=>$user->id,
     'reply_on_id'=>@$_REQUEST['reply_on'] ? $_REQUEST['reply_on'] : -1,
     'link_id'=>@$_REQUEST['mix_id'] ? $_REQUEST['mix_id'] : -1
     ));
+    exit(print_r($result, true));
 }
-$order = @$_REQUEST['order'] ? $_REQUEST['order'] : 'date';
-$sort = @$_REQUEST['sort'] ? $_REQUEST['sort'] : 'DESC';
+$thread = @$_REQUEST['thread'] ? $_REQUEST['thread'] : NULL;
 $limit = @$_REQUEST['limit'] ? $_REQUEST['limit'] : 3;
-$entries = $forum->get(array(
-    'ORDER BY'=>"$order $sort",
-    'LIMIT'=>$limit
-));
+$entries = $forum->get($thread, $limit);
 if (!$entries)
     $entries = array();
 echo json_encode($entries);

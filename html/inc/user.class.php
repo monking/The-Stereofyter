@@ -241,7 +241,7 @@ class User {
     global $db;
     $result = $db->get(array('table'=>$this->table, 'where'=>$criteria));
   	if (!$result) {
-  		return log_error(DEBUG ? mysql_error() : 'database error', FALSE);
+  		return log_error(defined('DEBUG') && DEBUG ? mysql_error() : 'database error', FALSE);
   	}
   	if (!mysql_num_rows($result)) 
   		return FALSE;

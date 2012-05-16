@@ -43,7 +43,7 @@ class Database {
 				return false;
 			}
 		}
-        if (@DEBUG_DATABASE) echo "$query\r\n";
+        if (defined('DEBUG') && DEBUG) echo "$query\r\n";
 		if (!mysql_query($query)) return false;
 		return true;
 	}
@@ -66,7 +66,7 @@ class Database {
 			$limit = '';
 			$fields = count(@$query['fields']) ? $query['fields'] : array('*');
             for ($i = 0; $i < count($fields); $i++) {
-                $fields[$i] = 'a.'.$fields[$i];
+                $fields[$i] = str_replace($query['table'], 'a', $fields[$i]);
             }
 			if (array_key_exists('join', $query)) {
                 $join_data = self::process_join($query);
@@ -74,6 +74,12 @@ class Database {
 				$fields = array_merge($fields, $join_data->fields);
 			}
 			if (array_key_exists('where', $query)) {
+                foreach ($query['where'] as $field => $condition) {
+                    if (preg_match('/\./', $field))
+                        continue;
+                    $query['where']['a.'.$field] = $condition;
+                    unset($query['where'][$field]);
+                }
 				$where = self::get_where($query['where']);
 			}
 			if (array_key_exists('order', $query)) {
@@ -85,7 +91,7 @@ class Database {
 			$fields = implode(', ', $fields);
 			$query = "SELECT $fields FROM ${query['table']} AS a$join$where$orderby$limit;";
 		}
-		// echo $query."\r\n\r\n";
+        if (defined('DEBUG') && DEBUG) echo "$query\r\n";
 		return mysql_query($query);
 	}
 	public function get_first_object($table_name, $query) {
@@ -103,7 +109,8 @@ class Database {
 			if ($field == 'OR' || is_array($value)) {
 				$conditions[] = self::where_recurse($value, $field == 'OR' ? 'OR' : 'AND');
 			} else {
-				$field= mysql_real_escape_string($field);
+				$field = mysql_real_escape_string($field);
+				$field = implode('`.`', explode('.', $field));
 				//if $value is stdClass with property 'function', use without quotes
 				// as in th case of the value $value->function = 'NOW()'
 				$value = mysql_real_escape_string($value);
@@ -137,6 +144,7 @@ class Database {
 	/** get_where
 		*/
 	public static function get_where($assoc) {
+        exit(print_r($assoc, true));
 		return $assoc ? ' WHERE '.self::where_recurse($assoc, 'AND', FALSE) : '';
 	}
 
@@ -146,7 +154,7 @@ class Database {
 	public function get_assoc($query) {
 		global $ERROR;
 		if (!($result = $this->get($query))) {
-			if (DEBUG) $ERROR[] = mysql_error();
+			if (defined('DEBUG') && DEBUG) $ERROR[] = mysql_error();
 			return FALSE;
 		}
 		$result_array = array();
@@ -157,7 +165,7 @@ class Database {
 	public function get_object($query) {
 		global $ERROR;
 		if (!($result = $this->get($query))) {
-			if (DEBUG) $ERROR[] = mysql_error();
+			if (defined('DEBUG') && DEBUG) $ERROR[] = mysql_error();
 			return FALSE;
 		}
 		$result_array = array();
@@ -177,7 +185,7 @@ class Database {
 	public function mysql_to_table($query) {
 		$result = mysql_query($query);
 		if (!$result) {
-			if (DEBUG) $ERROR[] = mysql_error();
+			if (defined('DEBUG') && DEBUG) $ERROR[] = mysql_error();
 			return false;
 		}
 		if (!mysql_num_rows($result)) {

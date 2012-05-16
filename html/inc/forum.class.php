@@ -19,7 +19,7 @@
 //   forum size limited by tree tier byte-size (4 bytes in this version)
 //   thread depth limited by byte-size of path (51 bytes for 10 tiers)
 //
-class Forum {
+class Forum extends Basic {
     public $markup = '
     <div id="forum">
         <div class="glance">
@@ -68,15 +68,13 @@ class Forum {
             </form>
         </div>
     </div>';
-    const path_tier_bytes = 4;
+    protected $default_options = array(
+        'table'=>'',
+        'linkInterface'=>'',
+        'path_tier_bytes'=>4
+    );
     public function Forum($options = array()) {
-        $defaults = array(
-            'table'=>'',
-            'linkInterface'=>''
-        );
-        foreach ($defaults as $key => $value) {
-            $this->$key = @array_key_exists($key, $options) ? $options[$key] : $defaults[$key];
-        }
+        parent::__construct($options);
         if (!$this->table) die('Forum requires a database table.');
         if ($this->linkInterface) {
             $interfaceName = $this->linkInterface;
@@ -86,12 +84,13 @@ class Forum {
     }
     public function post($data) {
         global $db, $user;
-        if (!is_array($data)
-            || !@$data['message']
-            || !$user->id)
-            return false;
+        if (!is_array($data))
+            return $this->resultObject(false, 'no data to post');
+        if (!@$data['message'])
+            return $this->resultObject(false, 'post data does not contain a message');
+        if (!$user->id)
+            return $this->resultObject(false, 'user not logged in');
         $data['user_id'] = $user->data->id;
-        $data['path'] = self:toASCII
         $db->post(array(
             'table' => $this->table,
             'method' => 'insert',
@@ -108,48 +107,54 @@ class Forum {
             )
         ));
         $id = mysql_insert_id();
-        $path = self:toASCII($id) . '.';
+        $path = self::toASCII($id) . '.';
         if ($data['reply_on_id'] != -1) {
-            $data['path'] = $data['path']
+            $parent = self::get(array('where'=>array('id'=>$data['reply_on_id'])));
+            if (!empty($parent))
+                $path = $parent[0]->path . $path;
         }
         $db->post(array(
             'table' => $this->table,
             'method' => 'update',
             'fields' => array(
-                'path' => ''
+                'path' => $path
+            ),
+            'where' => array(
+                'id' => $id
             )
         ));
+        return $this->resultObject(true, 'message posted', array(
+            'id'=>$id,
+            'path'=>$path
+        ));
     }
-    public function get($options = array()) {
+    public function get($thread_post_id = NULL, $limit = 30) {
         global $db;
-        $options['table'] = $this->table;
-        $list = $db->get_object(
-            array_conform(
-                $options,
-                array(
-                    'table' => $this->table,
-                    'where' => '',
-                    'order' => 'date DESC',
-                    'limit' => '10',
-                    'join' => array(
-                        $this->linkInterface->table => array(
-                            'fields' => $this->linkInterface->fields,
-                            'remote_key' => 'link_id'
-                        )
-                    ),
-                    'filterObj' => $this->linkInterface
+        $options = array(
+            'fields' => array('*', 'FLOOR(CHAR_LENGTH('.$this->table.'.path) / '.($this->path_tier_bytes + 1).') AS depth'),
+            'table' => $this->table,
+            'order' => 'path DESC',
+            'limit' => $limit,
+            'join' => array(
+                $this->linkInterface->table => array(
+                    'fields' => $this->linkInterface->fields,
+                    'remote_key' => 'link_id'
                 )
-            )
+            ),
+            'filterObj' => $this->linkInterface
         );
+        if ($thread_post_id !== NULL)
+            $options['where'] = array('a.id'=>$thread_post_id);
+        $list = $db->get_object($options);
         return $list;
     }
     public static function toASCII($number) {
         // throw an exception if the number is too large
-        if ($number > pow(256, self::path_tier_bytes)) {
+        if ($number > pow(256, $this->path_tier_bytes)) {
             throw new Exception('number exceeds size for decimal to ASCII conversion. change path_tier_bytes setting.');
         }
         $output = '';
-        for ($i = 0; $i < self::path_tier_bytes; $i++) {
+        for ($i = 0; $i < $this->path_tier_bytes; $i++) {
             $index = $number % 256;
             $number = ($number - $index) / 256;
             $output = chr($index) . $output;
@@ -158,7 +163,7 @@ class Forum {
     }
     public static function fromASCII($string) {
         // throw an exception if the string is too long
-        if (strlen($string) > self::path_tier_bytes) {
+        if (strlen($string) > $this->path_tier_bytes) {
             throw new Exception('string exceeds length for ASCII to decimal conversion. change path_tier_bytes setting.');
         }
         $output = 0;

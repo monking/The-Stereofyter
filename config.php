@@ -6,6 +6,7 @@ define('MIXER_ENGINE_VERSION', '0103');
 require_once(dirname(__FILE__) . '/html/inc/includes.php');
 depends(
     'array_helpers',
+    'basic.class',
     'database.class',
     'forum.class',
     'user.class'
