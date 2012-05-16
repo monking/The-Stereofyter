@@ -23,7 +23,7 @@
 		var fetch = function() {
 			$.ajax({
 				url:options.api,
-				data:{limit:options.limit},
+				data:{limit:options.limit[options.view]},
 				dataType:'json',
 				success:function(data) {
 					processListData(data);
