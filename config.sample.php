@@ -1,4 +1,7 @@
 <?php
+
+// copy this file  to config.php and update
+// database settings for your environment.
 ini_set('display_errors', true);
 define('DEBUG', false);
 define('MIXER_APP_VERSION', '06003');
@@ -21,27 +24,32 @@ $forum = new Forum(array(
         'user'=>'ForumUserInterface'
     )
 ));
-if (strpos($_SERVER['SERVER_NAME'], 'local') !== FALSE) {
-    $db->connect(array(
+if (strpos($_SERVER['SERVER_NAME'], 'local.') !== FALSE) {
+    // local staging
+    $db_options = array(
         'host'=>'127.0.0.1',
-        'user'=>'forum',
-        'pass'=>'australia',
-        'name'=>'stereofyter'
-    ));
+        'user'=>'root',
+        'pass'=>'',
+        'name'=>'database_name'
+    );
 } elseif (strpos($_SERVER['SERVER_NAME'], 'chrislovejoy.com') !== FALSE) {
-    $db->connect(array(
-        'host'=>'internal-db.s7816.gridserver.com',
-        'user'=>'db7816_stereofy',
-        'pass'=>'australia',
-        'name'=>'db7816_stereofyte'
-    ));
+    // remote staging
+    $db_options = array(
+        'host'=>'remote-staging.com',
+        'user'=>'root',
+        'pass'=>'',
+        'name'=>'database_name'
+    );
 } else {
-    $db->connect(array(
-        'host'=>'internal-db.s85217.gridserver.com',
-        'user'=>'db85217_sfweb',
-        'pass'=>'australia',
-        'name'=>'db85217_stereofyte_app'
-    ));
+    // live
+    $db_options = array(
+        'host'=>'live-server.com',
+        'user'=>'root',
+        'pass'=>'',
+        'name'=>'database_name'
+    );
 }
+$db->connect($db_options);
+unset($db_options['pass']);
 
 ?>
