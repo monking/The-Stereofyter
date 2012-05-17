@@ -92,10 +92,12 @@ class Database {
             if (array_key_exists($query['method'], $methods)) {
                 $fields = array();
                 foreach($query['fields'] as $field => $value) {
-                    if (is_array($value) && array_key_exists('function', $value))
+                    if (is_array($value) && array_key_exists('function', $value)) {
                         $value = $value['function'];
-                    else 
-                        $value = "'".str_replace("'", "\\'", $value)."'";
+					} else {
+						if (get_magic_quotes_gpc()) $value = stripslashes($value);
+                        $value = "'".mysql_real_escape_string($value)."'";
+					}
                     $fields[] = "$field=$value";
                 }
                 $fields = implode(', ', $fields);
@@ -129,7 +131,6 @@ class Database {
             if ($field == 'OR' || is_array($value)) {
                 $conditions[] = self::where_recurse($value, $field == 'OR' ? 'OR' : 'AND');
             } else {
-                $field = mysql_real_escape_string($field);
                 $operator = '=';
                 if ($operator_pos = strpos($field, ' ')) {
                     $operator = substr($field, $operator_pos) . ' ';
@@ -137,6 +138,7 @@ class Database {
                 }
                 //if $value is stdClass with property 'function', use without quotes
                 // as in th case of the value $value->function = 'NOW()'
+				if (get_magic_quotes_gpc()) $value = stripslashes($value);
                 $value = mysql_real_escape_string($value);
                 $conditions[] = "$field$operator'$value'";
             }
