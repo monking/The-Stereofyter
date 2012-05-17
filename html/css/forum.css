@@ -34,7 +34,7 @@
 }
 #forum .detail .reply-status {
     background-color: #cfd;
-    border-color: #6c9;
+    border: 1px solid #6c9;
     text-align: center;
     width: 70%;
     margin: 0.5em auto;
