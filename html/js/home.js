@@ -5,7 +5,7 @@ function alertAsync(msg) {
 }
 
 var loginPop;
-function login() {
+function login(callback) {
   if (loginPop) return;
 	var form =$('form#pop_login').first().clone();
 	loginPop = pop(form.show());
@@ -35,6 +35,8 @@ function login() {
 					$("#sfapp")[0].setUserSessionData(data);
 					closePop(loginPop);
 					loginPop = null;
+                    if (typeof callback == "function")
+                        callback();
 				}
 			},
 			error: function(data) {

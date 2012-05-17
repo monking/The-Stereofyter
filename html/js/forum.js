@@ -140,14 +140,15 @@
                         dataType: "json",
                         data: $replyForm.serialize(),
                         success: function(json) {
-                            if (json && json.status) {
+                            if (json && json.status == "ok") {
                                 $replyForm.hide();
                                 $(".replying-to", $detailContainer).removeClass("replying-to");
+                            } else if (json.message =="invalid user") {
+                                login(function() {
+                                    $replyForm.submit();
+                                });
                             }
-                        },
-                        error: function() {
-                            console.log(arguments);
-                        },
+                        }
                     });
                 });
             },

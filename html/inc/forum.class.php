@@ -84,11 +84,11 @@ class Forum extends Basic {
     public function post($data) {
         global $db, $user;
         if (!is_array($data))
-            return $this->resultObject(false, 'no data to post');
+            return $this->resultObject('empty', 'no data to post');
         if (!@$data['message'])
-            return $this->resultObject(false, 'post data does not contain a message');
+            return $this->resultObject('empty', 'post data does not contain a message');
         if (!$user->id)
-            return $this->resultObject(false, 'user not logged in');
+            return $this->resultObject('user', 'invalid user');
         $data['user_id'] = $user->data->id;
         if (@$data['id']) {
             $update_allowed = $db->get_first_object(array(
@@ -97,7 +97,7 @@ class Forum extends Basic {
                 'where' => array('id'=>$data['id'], 'user_id'=>$data['user_id'])
             ));
             if (!$update_allowed) {
-                return $this->resultObject(false, 'user may not edit another user\'s posts');
+                return $this->resultObject('user', 'user may not edit another user\'s posts');
             }
             $result = $db->post(array(
                 'table' => $this->table,
@@ -158,11 +158,11 @@ class Forum extends Basic {
             ));
         }
         if ($data['id']) {
-            return $this->resultObject(true, 'message posted', array(
+            return $this->resultObject('ok', 'message posted', array(
                 'id'=>$data['id']
             ));
         } else {
-            return $this->resultObject(false, 'post failed');
+            return $this->resultObject('error', 'post failed');
         }
     }
     public function get($options = array()) {
