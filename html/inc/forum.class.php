@@ -46,7 +46,7 @@ class Forum extends Basic {
             <h2>Forum</h2>
             <h3 class="title"></h3>
             <div class="body"></div>
-            <form class="reply hide">
+            <form class="reply">
                 <input type="hidden" name="reply_on" value="" />
                 <h3>Reply</h3>
                 <div class="form-field">
@@ -56,6 +56,7 @@ class Forum extends Basic {
                     <input type="submit" class="button" value="Send" /></input>
                 </div>
             </form>
+            <div class="reply-status">Your reply has been posted.</div>
             <div class="footer">
                 <div class="right">
                     <a href="#" class="back-view">back &raquo;</a>

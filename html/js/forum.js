@@ -21,18 +21,20 @@
         var these = this;
         var list = [];
         var listXRef = {};
+        var threadId
         var thread = [];
         var threadXRef = {};
-        var fetch = function(threadId) {
+        var fetch = function(getThreadId) {
             $.ajax({
                 url: options.api,
                 data: {
-                    limit:options.limit[threadId ? "detail" : options.view],
-                    thread:threadId ? threadId : ''
+                    limit:options.limit[getThreadId ? "detail" : options.view],
+                    thread:getThreadId ? getThreadId : ''
                 },
                 dataType: 'json',
                 success: function(data) {
-                    if (threadId) {
+                    if (getThreadId) {
+                        threadId = getThreadId;
                         processThreadData(data);
                     } else {
                         processListData(data);
@@ -113,6 +115,8 @@
                 $(".body", $detailContainer).html(markup);
 
                 var $replyForm = $("form.reply", $detailContainer);
+                $("input[name=reply_on]", $replyForm).val(threadId);
+                var $replyStatus = $(".reply-status", $detailContainer);
                 $(".link a", $detailContainer).click(function(event) {
                     if (!$("#sfapp")[0].loadMix) return;
                     event.preventDefault();
@@ -131,6 +135,7 @@
                     $("input[name=reply_on]", $replyForm).val(post.id);
                     $replyForm.show();
                     $("[name=message]", $replyForm).val("").focus();
+                    $replyStatus.hide();
                 });
                 $replyForm.unbind("submit").submit(function(event) {
                     event.preventDefault();
@@ -142,6 +147,7 @@
                         success: function(json) {
                             if (json && json.status == "ok") {
                                 $replyForm.hide();
+                                $replyStatus.show();
                                 $(".replying-to", $detailContainer).removeClass("replying-to");
                             } else if (json.message =="invalid user") {
                                 login(function() {

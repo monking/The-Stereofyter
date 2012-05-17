@@ -32,6 +32,15 @@
 #forum .detail .post.replying-to {
     background-color: #fee;
 }
+#forum .detail .reply-status {
+    background-color: #cfd;
+    border-color: #6c9;
+    text-align: center;
+    width: 70%;
+    margin: 0.5em auto;
+    padding: 1em;
+    display: none;
+}
 #forum .detail .post a.reply {
     font-size: 9px;
     position: absolute;
