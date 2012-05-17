@@ -89,6 +89,7 @@ class Database {
         if (is_array($query)) {
             $methods = array('insert'=>'INSERT INTO', 'update'=>'UPDATE');
             $query_string = '';
+            $query['method'] = strtolower($query['method']);
             if (array_key_exists($query['method'], $methods)) {
                 $fields = array();
                 foreach($query['fields'] as $field => $value) {

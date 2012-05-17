@@ -1,6 +1,6 @@
 <?php
 
-depends('array_helpers', 'error', 'database.class', 'sf/user');
+depends('helpers', 'error', 'database.class');
 
 /** save_mix
     * $mix_data (array)

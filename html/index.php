@@ -15,7 +15,7 @@ include 'views/header.php';
                 countryListUrl:"js/country_codes.json",
                 saveUrl:"scripts/save_mix.php",
                 loadUrl:"scripts/load_mix.php",
-                registerUrl:"scripts/register.php"<?
+                registerUrl:"scripts/newsletter_signup.php"<?
 $demoMix = $db->get_assoc(
   array(
     'table'=>'sf_mixes',
