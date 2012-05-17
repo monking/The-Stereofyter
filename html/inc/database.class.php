@@ -55,7 +55,7 @@ class Database {
             }
             if (array_key_exists('where', $query)) {
                 foreach ($query['where'] as $field => $condition) {
-                    if (preg_match('/\./', $field))
+                    if (preg_match('/[.(]/', $field))
                         continue;
                     $query['where']['a.'.$field] = $condition;
                     unset($query['where'][$field]);
@@ -135,7 +135,6 @@ class Database {
                     $operator = substr($field, $operator_pos) . ' ';
                     $field = substr($field, 0, $operator_pos);
                 }
-                $field = implode('.', explode('.', $field));
                 //if $value is stdClass with property 'function', use without quotes
                 // as in th case of the value $value->function = 'NOW()'
                 $value = mysql_real_escape_string($value);

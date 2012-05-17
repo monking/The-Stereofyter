@@ -6,10 +6,9 @@ if (@$_REQUEST['recalculate']) {
     $offset = @$_REQUEST['offset'] ? $_REQUEST['offset'] : '';
     $limit = @$_REQUEST['limit'] ? $_REQUEST['limit'] : 10;
     $list = $db->get_object(array(
-        'table' => $this->table,
+        'table' => $forum->table,
         'fields' => array('path','id'),
-        'where' => array('path'=>''),
-        'order' => 'path DESC',
+        'where' => array('CHAR_LENGTH(path) <'=>'5'),
         'limit' => $offset ? "$offset,$limit" : $limit
     ));
     if (empty($list)) {
