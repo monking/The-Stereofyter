@@ -34,11 +34,16 @@ if (@$_REQUEST['message']) {
     'reply_on_id'=>@$_REQUEST['reply_on'] ? $_REQUEST['reply_on'] : -1,
     'link_id'=>@$_REQUEST['mix_id'] ? $_REQUEST['mix_id'] : -1
     ));
-    exit(print_r($result, true));
+    exit(json_encode($result));
 }
-$thread = @$_REQUEST['thread'] ? $_REQUEST['thread'] : NULL;
-$limit = @$_REQUEST['limit'] ? $_REQUEST['limit'] : 3;
-$entries = $forum->get($thread, $limit);
+$options = array();
+if (@$_REQUEST['thread']) {
+   $options['thread'] = $_REQUEST['thread'];
+   $options['order'] = 'path ASC';
+}
+if (@$_REQUEST['limit'])
+   $options['limit'] = $_REQUEST['limit'];
+$entries = $forum->get($options);
 if (!$entries)
     $entries = array();
 echo json_encode($entries);

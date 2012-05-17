@@ -29,7 +29,7 @@ class Forum extends Basic {
             <h3>Latest in the Forum</h3>
             <ul class="list"></ul>
         </div>
-        <div class="list preview">
+        <div class="preview">
             <div class="right">
                 <a href="#" class="set-view" rel="glance">less ▼</a>
             </div>
@@ -42,22 +42,23 @@ class Forum extends Basic {
                 <pager></pager>
             </div>
         </div>
-        <div class="list detail">
+        <div class="detail">
             <h2>Forum</h2>
             <h3 class="title"></h3>
             <div class="body"></div>
-			<form class="reply">
-				<h3>Reply<span class="reply-to"></span></h3>
-				<div class="form-field">
-					<textarea class="message" name="message" rows="3"></textarea>
-				</div>
-				<div class="form-field a-right">
-					<input type="submit" class="button" value="Send" /></input>
-				</div>
-			</form>
+            <form class="reply hide">
+                <input type="hidden" name="reply_on" value="" />
+                <h3>Reply</h3>
+                <div class="form-field">
+                    <textarea class="message" name="message" rows="3"></textarea>
+                </div>
+                <div class="form-field a-right">
+                    <input type="submit" class="button" value="Send" /></input>
+                </div>
+            </form>
             <div class="footer">
                 <div class="right">
-					<a href="#" class="back-view">back &raquo;</a>
+                    <a href="#" class="back-view">back &raquo;</a>
                 </div>
             </div>
         </div>
@@ -89,54 +90,107 @@ class Forum extends Basic {
         if (!$user->id)
             return $this->resultObject(false, 'user not logged in');
         $data['user_id'] = $user->data->id;
-        $db->post(array(
-            'table' => $this->table,
-            'method' => 'insert',
-            'fields' => array_conform(
-                $data,
-                array(
-                    'message' => '',
-                    'title' => '',
-                    'user_id' => -1,
-                    'link_id' => -1,
-                    'attachment_id' => -1
-                ),
-                'filter_mysql_assoc'
-            )
-        ));
-        $id = mysql_insert_id();
-        $path = $this->toASCII($id) . '.';
-        if ($data['reply_on_id'] != -1) {
-            $parent = $db->get_first_object(array(
-                'table'=>$this->table,
-                'fields'=>array('path'),
-                'where'=>array('id'=>$data['reply_on_id'])
+        if (@$data['id']) {
+            $update_allowed = $db->get_first_object(array(
+                'table' => $this->table,
+                'fields' => array('COUNT(*)'),
+                'where' => array('id'=>$data['id'], 'user_id'=>$data['user_id'])
             ));
-            if (!empty($parent))
-                $path = $parent->path . $path;
+            if (!$update_allowed) {
+                return $this->resultObject(false, 'user may not edit another user\'s posts');
+            }
+            $result = $db->post(array(
+                'table' => $this->table,
+                'method' => 'update',
+                'fields' => array_conform(
+                    $data,
+                    array(
+                        'message' => '',
+                        'title' => '',
+                        'user_id' => -1,
+                        'link_id' => -1,
+                        'attachment_id' => -1,
+                        'created' => array('function'=>'NOW()')
+                    ),
+                    'filter_mysql_assoc'
+                ),
+                'where' => array('id'=>$data['id'])
+            ));
+            if (!$result)
+                $data['id'] = false;
+        } else {
+            $db->post(array(
+                'table' => $this->table,
+                'method' => 'insert',
+                'fields' => array_conform(
+                    $data,
+                    array(
+                        'message' => '',
+                        'title' => '',
+                        'user_id' => -1,
+                        'link_id' => -1,
+                        'attachment_id' => -1,
+                        'created' => array('function'=>'NOW()')
+                    ),
+                    'filter_mysql_assoc'
+                )
+            ));
+            $data['id'] = mysql_insert_id();
+            $path = $this->toASCII($data['id']) . '.';
+            if (@$data['reply_on_id'] && $data['reply_on_id'] != -1) {
+                $parent = $db->get_first_object(array(
+                    'table'=>$this->table,
+                    'fields'=>array('path'),
+                    'where'=>array('id'=>$data['reply_on_id'])
+                ));
+                if (!empty($parent))
+                    $path = $parent->path . $path;
+            }
+            $db->post(array(
+                'table' => $this->table,
+                'method' => 'update',
+                'fields' => array(
+                    'path' => $path
+                ),
+                'where' => array(
+                    'id' => $data['id']
+                )
+            ));
         }
-        $db->post(array(
-            'table' => $this->table,
-            'method' => 'update',
-            'fields' => array(
-                'path' => $path
-            ),
-            'where' => array(
-                'id' => $id
-            )
-        ));
-        return $this->resultObject(true, 'message posted', array(
-            'id'=>$id,
-            'path'=>$path
-        ));
+        if ($data['id']) {
+            return $this->resultObject(true, 'message posted', array(
+                'id'=>$data['id']
+            ));
+        } else {
+            return $this->resultObject(false, 'post failed');
+        }
     }
-    public function get($thread_post_id = NULL, $limit = 30) {
+    public function get($options = array()) {
         global $db;
-        $options = array(
-            'fields' => array($this->table.'.*', 'FLOOR(CHAR_LENGTH('.$this->table.'.path) / '.($this->path_tier_bytes + 1).') AS depth'),
+        $options = array_conform(
+            $options,
+            array(
+                'limit' => 30,
+                'thread' => null,
+                'order' => 'created DESC'
+            )
+        );
+        $query = array(
+            'fields' => array(
+                'id',
+                'FLOOR(CHAR_LENGTH('.$this->table.'.path) / '.($this->path_tier_bytes + 1).' - 1) AS depth',
+                'link_id',
+                'attachment_id',
+                'user_id',
+                'created',
+                'modified',
+                'message',
+                'title',
+                'SUBSTR('.$this->table.'.path, 1, '.$this->path_tier_bytes.') AS thread_path'
+            ),
             'table' => $this->table,
-            'order' => 'path DESC',
-            'limit' => $limit,
+            'order' => $options['order'],
+            'limit' => $options['limit'],
             'join' => array(
                 $this->interfaces['link']->table => array(
                     'fields' => $this->interfaces['link']->fields,
@@ -149,17 +203,22 @@ class Forum extends Basic {
             ),
             'filterObjects' => $this->interfaces
         );
-        if ($thread_post_id !== NULL) {
+        if ($options['thread'] !== NULL) {
             $first = $db->get_first_object(array(
                 'table' => $this->table,
-                'fields' => array('path'),
-                'where' => array('id'=>$thread_post_id)
+                'fields' => array(
+                    'path',
+                    'SUBSTR('.$this->table.'.path, 1, '.$this->path_tier_bytes.') AS thread_path'
+                ),
+                'where' => array('id'=>$options['thread'])
             ));
             if ($first) {
-                $options['where'] = array('a.path LIKE'=>$first->path . '%');
+                $query['where'] = array('a.path LIKE'=>$first->thread_path . '%');
             }
+        } else {
+            $query['where'] = array('CHAR_LENGTH(a.path) <'=>($this->path_tier_bytes + 2));
         }
-        $list = $db->get_object($options);
+        $list = $db->get_object($query);
         return $list;
     }
     public function toASCII($number) {

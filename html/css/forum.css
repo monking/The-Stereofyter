@@ -13,11 +13,34 @@
 }
 #forum .preview,
 #forum .detail {
-    width: 320px;
+    width: 400px;
     font-size: 12px;
     overflow-x: visible;
     overflow-y: auto;
     max-height: inherit;
+}
+#forum .detail .thread.reply {
+    border-left: 1px dashed #999;
+    padding-left: 1em;
+    position: relative;
+    margin-top: 1em;
+}
+#forum .detail .post {
+    margin: 0.5em 0;
+}
+#forum .detail .post:hover,
+#forum .detail .post.replying-to {
+    background-color: #fee;
+}
+#forum .detail .post a.reply {
+    font-size: 9px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: none;
+}
+#forum .detail .post:hover a.reply {
+    display: block;
 }
 #forum .detail .title { font-size: 16px; color: #c35; margin-bottom: 8px; }
 #forum .detail .link a {
@@ -26,21 +49,29 @@
     background-color: #fee;
 }
 #forum .detail .body { max-height: 400px; overflow: auto; }
+#forum .detail .byline {
+    color: #c35;
+    height: 20px;
+    position: relative;
+}
+#forum .detail .byline .user {
+    line-height: 20px;
+}
 #forum .glance { width: 160px; font-size: 11px; }
-#forum .list .entry {
+#forum .list .post {
     margin-top: 4px;
     position: relative;
     cursor: pointer;
 }
-#forum .list .entry:hover { color: #c35; }
-#forum .list .entry:hover .title { text-decoration: underline; }
+#forum .list .post:hover { color: #c35; }
+#forum .list .post:hover .title { text-decoration: underline; }
 #forum .list .title { font-weight: bold; color: #c35; }
 #forum .list .message {
     overflow: hidden;
     position: relative;
-    min-height: 30px;
+    min-height: 25px;
 }
-#forum .glance .message { height: 30px; }
+#forum .glance .message { height: 25px; }
 #forum .tail-overlay {
     background: url(/images/fade-fff-bottom.png); top repeat-x;
     width: 100%;
@@ -51,14 +82,13 @@
 }
 #forum .detail form.reply { margin-top: 8px; }
 #forum .detail form.reply .message {
-	border: 1px solid #999;
-	padding: 0.3em;
-	width: 97%;
+    border: 1px solid #999;
+    padding: 0.3em;
+    width: 97%;
 }
 #forum .footer { clear: both; overflow: hidden;  }
 #forum .form-field {
-	overflow: hidden;
-	margin: 4px 0;
+    margin: 4px 0;
 }
 /****** PAGINATION ******/
 #forum pager { display: block; }

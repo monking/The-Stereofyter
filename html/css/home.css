@@ -9,13 +9,24 @@ body  { height: 100%; margin: 0; padding: 0; /*overflow: hidden;*/ }
 #mbapp  { position: absolute; width: 1px; height: 1px; bottom: 0; left: 0; z-index: 0; }
 .page-footer { font-family: Helvetica, Arial, sans-serif; font-size: 11px; text-align: center; line-height: 140%; color: #666; width: 1000px; margin: 0.5em auto; }
 .button {
-	padding: 0.5em 1em;
-	border: 0.2em solid #c35;
-	border-radius: 1.5em;
+    padding: 0.2em 0.8em;
+    border-radius: 1.5em;
+    background-color: #eee;
+    color: #c35;
+    font-weight: bold;
+    box-shadow: 0px 3px 9px #999;
+    border: 1px solid #c35;
+    outline: none;
+}
+.button.disabled {
+    background-color: #eee !important;
+    border-color: #ccc !important;
+    color: #999 !important;
+    cursor: default;
 }
 .button:hover, .button:focus {
-	color: #fff;
-	background-color: #c35;
+    background-color: #c35;
+    color: #fff;
 }
 form#pop_login { font-size: 13px; }
 form#pop_login label { margin-top: 8px; display: block; }
