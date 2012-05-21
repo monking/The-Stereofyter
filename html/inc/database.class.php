@@ -34,6 +34,7 @@ class Database {
         */
     public function get($query) {
         // Takes a string query, or 2-dimensional associative array and turns it into a SQL query.
+		if (isset($query['query'])) $query = $query['query'];
         if (is_array($query)) {
             $join = '';
             $where = '';
@@ -71,8 +72,7 @@ class Database {
             $fields = implode(', ', $fields);
             $query = "SELECT $fields FROM ${query['table']} AS a$join$where$orderby$limit;";
         }
-        if (defined('DEBUG') && DEBUG) echo "$query\r\n";
-        return mysql_query($query);
+        return $this->query($query);
     }
     /** post
         * build and submit a MySQL query from an associative array
@@ -108,10 +108,13 @@ class Database {
                 return false;
             }
         }
-        if (defined('DEBUG') && DEBUG) echo "$query\r\n";
-        if (!mysql_query($query)) return false;
+        if (!$this->query($query)) return false;
         return true;
     }
+	public function query($query) {
+        if (defined('DEBUG') && DEBUG) echo "$query\r\n";
+        return mysql_query($query);
+	}
     public function get_first_object($query) {
         $result = $this->get($query);
         $row = mysql_fetch_object($result);
@@ -207,7 +210,8 @@ class Database {
             return FALSE;
         }
         $result_array = array();
-            $key_column = @$query['key_column'];
+		$key_column = @$query['key_column'];
+		$value_column = @$query['value_column'];
         while($row = mysql_fetch_object($result)) {
             if (@$query['filterObjects']) {
                 try {
@@ -216,17 +220,21 @@ class Database {
                     }
                 } catch(Exception $e) { }
             }
+			if ($value_column)
+				$value = $row->$value_column;
+			else
+				$value = $row;
             if ($key_column)
-                $result_array[$row->$key_column] = $row;
+                $result_array[$row->$key_column] = $value;
             else
-                $result_array[] = $row;
+                $result_array[] = $value;
         }
         return $result_array;
     }
     /** mysql_to_table
         */
     public function mysql_to_table($query) {
-        $result = mysql_query($query);
+        $result = $this->query($query);
         if (!$result) {
             if (defined('DEBUG') && DEBUG) $ERROR[] = mysql_error();
             return false;

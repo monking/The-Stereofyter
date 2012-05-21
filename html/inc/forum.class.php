@@ -64,7 +64,7 @@ class Forum extends Basic {
             </div>
         </div>
     </div>';
-    const ascii = '+.0123456789<=>@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~';
+    const ascii = '!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~¡¢£§¨©ª«¬®¯°±´µ¶·¸º»¿ÁÂÅÆÇÍÎÏÒÓÔØÚßåæç÷ø';
     protected $ascii_depth = 0;
     protected $default_options = array(
         'table'=>'',
