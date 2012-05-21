@@ -9,12 +9,13 @@ function Pop(options) {
     this.init();
 }
 
+var popDialogList = {};
+
 Pop.prototype = {
-    list: {},
     init: function() {
         var $this = this;
         $this.id = 'pop'+$('.pop').length;
-        Pop.list[$this.id] = $this;
+        popDialogList[$this.id] = $this;
         $this.dialog = $('<div class="pop-dialog" id="'+$this.id+'"/>')
         $this.dialog.data("pop", $this);
         var $container = $('<div class="container"/>').appendTo($this.dialog);
@@ -68,7 +69,7 @@ Pop.prototype = {
                 $this.popHome.append($this.contentObject);
             else
                 $this.dialog.remove();
-            delete Pop.list[$this.id];
+            delete popDialogList[$this.id];
             if (typeof $this.options.close == "function")
                 $this.options.close.call($this.dialog);
         });
@@ -76,7 +77,7 @@ Pop.prototype = {
 }
 
 $(window).resize(function(event) {
-	$(Pop.list).each(function() {
-		this.positionPop();
-	});
+	for (var id in popDialogList) {
+		popDialogList[id].positionPop();
+	};
 });
