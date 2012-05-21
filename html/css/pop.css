@@ -1,6 +1,6 @@
-.pop  { position: fixed; z-index: 1000; top: -8px; }
-.pop  .container  { background-color: #fff; border: 4px solid #eee; border-radius: 8px; -webkit-border-radius: 8px; -moz-border-radius: 8px; overflow: auto; box-shadow: 0px 2px 14px #333; }
-.pop  .content  { padding: 40px 20px 20px; overflow: auto; }
-.pop  .close  { position: absolute; bottom: -8px; right: -8px; width: 24px; height: 24px; background: url(/images/close_button.png) center no-repeat transparent; cursor: pointer; }
+.pop-dialog  { position: fixed; z-index: 1000; top: -8px; }
+.pop-dialog  .container  { background-color: #fff; border: 4px solid #eee; border-radius: 8px; -webkit-border-radius: 8px; -moz-border-radius: 8px; overflow: auto; box-shadow: 0px 2px 14px #333; }
+.pop-dialog  .content  { padding: 40px 20px 20px; overflow: auto; }
+.pop-dialog  .close  { position: absolute; bottom: -8px; right: -8px; width: 24px; height: 24px; background: url(/images/close_button.png) center no-repeat transparent; cursor: pointer; }
 /* IE6 */
-* html .pop { position: absolute; }
+* html .pop-dialog { position: absolute; }

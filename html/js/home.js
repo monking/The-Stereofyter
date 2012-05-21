@@ -8,7 +8,12 @@ var loginPop;
 function login(callback) {
   if (loginPop) return;
 	var form =$('form#pop_login').first().clone();
-	loginPop = pop(form.show());
+    loginPop = new Pop({
+        content: form.show(),
+        close: function() {
+            loginPop = null;
+        }
+    });
   $(".toggle-register", form).unbind('click').click(function(event) {
     event.preventDefault();
     form = $(this).closest("form");
@@ -33,15 +38,13 @@ function login(callback) {
 				  alert(data.error);
 				} else {
 					$("#sfapp")[0].setUserSessionData(data);
-					closePop(loginPop);
-					loginPop = null;
+					loginPop.closePop();
                     if (typeof callback == "function")
                         callback();
 				}
 			},
 			error: function(data) {
-  			closePop(loginPop);
-  			loginPop = null;
+                alert("An error occured during login. Please try again");
 			}
 		});
 	});
@@ -61,7 +64,7 @@ function logout() {
 }
 
 function help() {
-	pop($("#instructions").clone().show());
+	new Pop({content:$("#instructions").clone().show()});
 }
 
 $(function() {

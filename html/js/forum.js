@@ -28,7 +28,7 @@
             $.ajax({
                 url: options.api,
                 data: {
-                    limit:options.limit[getThreadId ? "detail" : options.view],
+                    limit:options.limit[getThreadId ? "detail" : "preview"],
                     thread:getThreadId ? getThreadId : ''
                 },
                 dataType: 'json',
@@ -114,9 +114,10 @@
                 markup += '</ul>';
                 $(".body", $detailContainer).html(markup);
 
-                var $replyForm = $("form.reply", $detailContainer);
-                $("input[name=reply_on]", $replyForm).val(threadId);
-                var $replyStatus = $(".reply-status", $detailContainer);
+                var $replyForm = $("form.reply", $detailContainer).show();
+                $("[name=reply_on]", $replyForm).val(threadId);
+                $("[name=message]", $replyForm).val("");
+                var $replyStatus = $(".reply-status", $detailContainer).hide();
                 $(".link a", $detailContainer).click(function(event) {
                     if (!$("#sfapp")[0].loadMix) return;
                     event.preventDefault();

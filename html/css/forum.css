@@ -95,6 +95,10 @@
     padding: 0.3em;
     width: 97%;
 }
+#forum .preview .list .message {
+    max-height: 43px;
+}
+#forum .message p:first-child { margin-top: 0px; }
 #forum .footer { clear: both; overflow: hidden;  }
 #forum .form-field {
     margin: 4px 0;

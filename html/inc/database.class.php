@@ -34,7 +34,7 @@ class Database {
         */
     public function get($query) {
         // Takes a string query, or 2-dimensional associative array and turns it into a SQL query.
-		if (isset($query['query'])) $query = $query['query'];
+		if (is_array($query) && isset($query['query'])) $query = $query['query'];
         if (is_array($query)) {
             $join = '';
             $where = '';

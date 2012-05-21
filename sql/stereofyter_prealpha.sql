@@ -257,15 +257,19 @@ CREATE TABLE `sf_mix_lineage` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
-CREATE TABLE `sf_mix_messages` (
+CREATE TABLE IF NOT EXISTS `sf_mix_messages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `response_to_msg` int(11) NOT NULL DEFAULT '-1',
-  `mix_id` int(11) NOT NULL DEFAULT '-1',
+  `link_id` int(11) NOT NULL DEFAULT '0' COMMENT 'remote id for join on content associated with the forum',
+  `attachment_id` int(11) NOT NULL DEFAULT '0' COMMENT 'remote id for join on a file table',
+  `path` varchar(50) COLLATE utf8_bin NOT NULL DEFAULT '' COMMENT 'sortable path of reply hierarchy',
   `user_id` int(11) NOT NULL,
-  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `message` varchar(255) COLLATE utf8_bin NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `message` text COLLATE utf8_bin NOT NULL,
+  `title` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `created` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `path` (`path`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
 CREATE TABLE `sf_mix_owners` (

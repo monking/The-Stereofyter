@@ -1,7 +1,7 @@
 <?php
 
 // NOTE (Christopher Lovejoy):
-// Implementing threads using ASCII-encoded paths.
+// Implementing threads using sortable character-encoded paths.
 // e.g. ".A^@B.sw^5.a32j."
 // each tier has 4 bytes, "." dot delimited
 //   (256^4, 4,294,967,296 possible posts in the whole forum)
@@ -18,7 +18,6 @@
 // CON
 //   forum size limited by tree tier byte-size (4 bytes in this version)
 //   thread depth limited by byte-size of path (51 bytes for 10 tiers)
-//
 class Forum extends Basic {
     public $markup = '
     <div id="forum">
@@ -91,6 +90,7 @@ class Forum extends Basic {
         if (!$user->id)
             return $this->resultObject('user', 'invalid user');
         $data['user_id'] = $user->data->id;
+        $data['message'] = Forum::htmlEncode($data['message']);
         if (@$data['id']) {
             $update_allowed = $db->get_first_object(array(
                 'table' => $this->table,
@@ -248,6 +248,11 @@ class Forum extends Basic {
             $output += $index * pow($this->ascii_depth, $len - 1);
         }
         return $output;
+    }
+    public static function htmlEncode($message) {
+        $message = preg_replace('/\r\s/', '<br />', $message);
+        $message = preg_replace('/(<br \/>){2,}/', '</p><p>', '<p>'.$message.'</p>');
+        return $message;
     }
 }
 
