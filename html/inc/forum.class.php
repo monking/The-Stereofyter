@@ -20,9 +20,11 @@
 //   thread depth limited by byte-size of path (51 bytes for 10 tiers)
 class Forum extends Basic {
     public $markup = '
+    <div id="forum-tab">Show Forum</div>
     <div id="forum">
         <div class="glance">
                 <div class="right">
+                    <a href="#" class="toggle-hide">hide</a>
                     <a href="#" class="set-view" rel="preview">more ▲</a>
                 </div>
             <h3>Latest in the Forum</h3>
@@ -30,6 +32,7 @@ class Forum extends Basic {
         </div>
         <div class="preview">
             <div class="right">
+                <a href="#" class="toggle-hide">hide</a>
                 <a href="#" class="set-view" rel="glance">less ▼</a>
             </div>
             <h2>Forum</h2>
@@ -43,6 +46,9 @@ class Forum extends Basic {
         </div>
         <div class="detail">
             <h2>Forum</h2>
+            <div class="right">
+                <a href="#" class="toggle-hide">hide</a>
+            </div>
             <h3 class="title"></h3>
             <div class="body"></div>
             <form class="reply">

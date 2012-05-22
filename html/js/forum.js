@@ -24,24 +24,34 @@
         var threadId
         var thread = [];
         var threadXRef = {};
-        var fetch = function(getThreadId) {
+        var fetchList = function(offset) {
+            if (!offset)
+                offset = 0;
             $.ajax({
                 url: options.api,
                 data: {
-                    limit:options.limit[getThreadId ? "detail" : "preview"],
-                    thread:getThreadId ? getThreadId : ''
+                    limit:100
                 },
                 dataType: 'json',
                 success: function(data) {
-                    if (getThreadId) {
-                        threadId = getThreadId;
-                        processThreadData(data);
-                    } else {
-                        processListData(data);
-                    }
+                    processListData(data);
                 }
             });
-        }
+        };
+        var fetchThread = function(id) {
+            $.ajax({
+                url: options.api,
+                data: {
+                    limit:options.limit["detail"],
+                    thread:id
+                },
+                dataType: 'json',
+                success: function(data) {
+                    threadId = id;
+                    processThreadData(data);
+                }
+            });
+        };
         var processListData = function(data) {
             list = data;
             listXRef = {};
@@ -61,7 +71,7 @@
         }
         var pollInterval;
         if (options.pollFreq) {
-            pollInterval = setInterval(fetch, options.pollFreq);
+            pollInterval = setInterval(fetchList, options.pollFreq);
         }
         var $container = $(this);
         var views = {
@@ -182,8 +192,42 @@
                 paging.shown = i - paging.offset;
                 $("li.post", $list).click(function(event) {
                     event.preventDefault();
-                    fetch($(this).attr("ref"));
+                    fetchThread($(this).attr("ref"));
                 });
+                var $pager = $("pager", $listContainer);
+                $pager.empty();
+                if (paging.pages > 1) {
+                    var pagingMarkup = '';
+                    if (paging.page > 0) {
+                        pagingMarkup += '<span class="page-first">first</span>'
+                            + '<span class="page-prev">&lt;</span>';
+                    }
+                    for (var i = 0; i < paging.pages; i++) {
+                        pagingMarkup += '<span class="page-link'+(i == paging.page ? ' active' : '')+'">'+(i+1)+'</span>';
+                    }
+                    if (paging.page < paging.pages - 1) {
+                        pagingMarkup += '<span class="page-next">&gt</span>'
+                            + '<span class="page-last">last</span>';
+                    }
+                    $pager.html(pagingMarkup);
+                    $(".page-link", $pager).click(function(event) {
+                        if ($(this).hasClass("active"))
+                            return;
+                        show(options.view, paging.limit * (parseInt($(this).text()) - 1));
+                    });
+                    $(".page-first", $pager).click(function(event) {
+                        show(options.view, 0);
+                    });
+                    $(".page-prev", $pager).click(function(event) {
+                        show(options.view, (paging.page - 1) * paging.limit);
+                    });
+                    $(".page-next", $pager).click(function(event) {
+                        show(options.view, (paging.page + 1) * paging.limit);
+                    });
+                    $(".page-last", $pager).click(function(event) {
+                        show(options.view, paging.limit * (paging.pages - 1));
+                    });
+                }
             }
         };
         var show = function(view, offset) {
@@ -192,7 +236,7 @@
                     views[view].before.call(this);
                 options.lastView = options.view;
                 options.view = view;
-                if (offset)
+                if (typeof offset != "undefined")
                     options.offset = offset;
                 else if (options.limit.hasOwnProperty(options.view))
                     options.offset -= options.offset % options.limit[options.view];
@@ -212,6 +256,24 @@
             event.preventDefault();
             show(options.lastView);
         });
-        fetch();
+        var $windowshadeTab = $("#forum-tab");
+        var windowshade = function(show) {
+            if (typeof show == "undefined")
+                show = !$container.is(":visible");
+            if (show) {
+                $container.slideDown(function() {
+                    $windowshadeTab.hide();
+                });
+            } else {
+                $windowshadeTab.show();
+                $container.slideUp();
+            }
+        };
+        $("a.toggle-hide", $container).click(function(event) {
+            event.preventDefault();
+            windowshade(false);
+        });
+        $windowshadeTab.click(function(){windowshade(true);});
+        fetchList();
     };
 })(jQuery);

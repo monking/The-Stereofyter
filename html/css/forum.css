@@ -11,12 +11,27 @@
     padding: 10px;
     max-height: 90%;
 }
+#forum-tab {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    right: 8px;
+    z-index: 8;
+    background-color: #fff;
+    border-radius: 4px 4px 0 0;
+    -webkit-border-radius: 4px 4px 0 0;
+    -moz-border-radius: 4px 4px 0 0;
+    box-shadow: rgba(0,0,0,0.5) 0 0 8px;
+    padding: 10px;
+    cursor: pointer;
+    color: #c35;
+    font-weight: bold
+    font-size: 14px;
+}
 #forum .preview,
 #forum .detail {
     width: 400px;
     font-size: 12px;
-    overflow-x: visible;
-    overflow-y: auto;
     max-height: inherit;
 }
 #forum .detail .thread.reply {
@@ -105,4 +120,7 @@
 }
 /****** PAGINATION ******/
 #forum pager { display: block; }
-#forum pager a { padding: 0 0.5em; }
+#forum pager span { padding: 0 0.2em; cursor: pointer; color: #c35; }
+#forum pager span:hover { text-decoration: underline; }
+#forum pager span.active { cursor: default; color: #000; }
+#forum pager span.active:hover { text-decoration: none; }
