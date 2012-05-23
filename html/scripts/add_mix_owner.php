@@ -10,12 +10,12 @@ if (!isset($_POST['user_id']) || $_POST['user_id'] === '') die('{"error":"no use
 $mix_id = mysql_real_escape_string($_POST['mix_id']);
 $user_id = mysql_real_escape_string($_POST['user_id']);
 		
-$saved = add_mix_owner($mix_id, $user_id);
+$saved = Mix::add_owner($mix_id, $user_id);
 if ($saved === false)
 	die('{"error":"'.implode('; ', $ERROR).'"}');
 else
 	{
-	$owners = get_mix_owners($mix_id);
+	$owners = Mix::get_owners($mix_id);
 	if (!$owners)
 		die('{"error":"'.implode('; ', $ERROR).'"}');
 	else

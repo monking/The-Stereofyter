@@ -77,8 +77,7 @@ package org.stereofyter {
 		}
 		
 		public function setUserSessionData(data:Object):void {
-			Debug.log(data, 'setUserSessionData');
-			var fireLogin:Boolean = !user && data;
+			var fireLogin:Boolean = (!user || !user.hasOwnProperty("id")) && data;
 			user = data;
 			fireLogin && fireLoginQueue();
 		}
@@ -148,14 +147,14 @@ package org.stereofyter {
 				}
 			});
 			site.addEventListener(Mixer.REQUEST_SAVE_MIX, function(event:Event) {
-				if (user && user.hasOwnProperty('id')) {
+				var openDialog = function() {
 					var mixData = mixer.getMixData();
-					site.showSaveDialog(mixData.hasOwnProperty('id')? mixData.id: NaN);
+					site.showSaveDialog(mixData);
+				}
+				if (user && user.hasOwnProperty('id')) {
+					openDialog();
 				} else {
-					queueOnLogin(function() {
-						var mixData = mixer.getMixData();
-						site.showSaveDialog(mixData.hasOwnProperty('id')? mixData.id: NaN);
-					});
+					queueOnLogin(openDialog);
 					ExternalInterface.call('login');
 				}
 			});
@@ -309,7 +308,6 @@ package org.stereofyter {
 			
 			mixer.encodeMix();
 			var mixData = mixer.getMixData();
-			Debug.deepLog(mixData, "mixData before save");
 			
 			var saveReq:URLRequest = new URLRequest(WebAppController.flashVars.saveUrl);
 			saveReq.data = "mix="+encodeURIComponent(JSON.encode(mixData.mix));
@@ -330,7 +328,6 @@ package org.stereofyter {
 				saveReq.data += '&'+key+'='+encodeURIComponent(otherData[key]);
 			}
 			
-			Debug.log(saveReq.data, "saveReq.data");
 			saveReq.method = URLRequestMethod.POST;
 			saveLoader.load(saveReq);
 		}
@@ -344,7 +341,6 @@ package org.stereofyter {
 				site.hover(msg, {timeout: 1000, close: "none"});
 				return;
 			}
-			Debug.deepLog(data, "save complete");
 			if (data) {
 				if (data.hasOwnProperty("error")) {
 					site.hover("save error: "+data.error, {timeout: 0, close: "top right"});
@@ -360,7 +356,7 @@ package org.stereofyter {
 				var data:Object = JSON.decode(loadLoader.data);
 			} catch (e:Error) {
 				Debug.log(e);
-				var msg = "Sorry, the loaded mix data is corrupted.\nPlease try again later.";
+				var msg = "Sorry, the mix could not be loaded correctly.\nPlease try again later.";
 				site.hover(msg, {timeout: 1000, close: "none"});
 				return;
 			}

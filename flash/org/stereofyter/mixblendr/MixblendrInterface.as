@@ -45,7 +45,6 @@ package org.stereofyter.mixblendr {
 		}
 	
 		public function check():void {
-			Debug.log(ready, 'MixblendrInterface.check()');
 			!ready && ExternalInterface.call("checkMixblendr");
 		}
 		
@@ -60,7 +59,6 @@ package org.stereofyter.mixblendr {
 
 		protected function onready(event:Event):void {
 			jsBridgeName = event.target.data.appletVarName;
-			Debug.log(ready, 'MixblendrInterface.onready()');
 		}
 		
 	}

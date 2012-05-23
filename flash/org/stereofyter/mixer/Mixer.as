@@ -25,6 +25,7 @@
 	import flash.utils.Timer;
 	
 	import org.stereofyter.StereofyterAppController;
+	import org.stereofyter.mixer.Region;
 	
 	public class Mixer extends Sprite {
 		public static const
@@ -341,6 +342,10 @@
 		}
 		
 		public function setMixData(data:Object):void {
+			if (MixData && MixData.id != data.id) {
+				dispatchEvent(new Event(Mixer.STOP));
+				dispatchEvent(new Event(Mixer.REWIND));
+			}
 			MixData = null;
 			updateMixData(data);
 		}
@@ -598,9 +603,7 @@
 		private function placeRegion(region:Region, useNextOpenSpace:Boolean = false):void {
 			region.removeEventListener(Event.ENTER_FRAME, updateRegionStatus);
 			var targetTrackIndex:Number = getObjectTargetTrackIndex(region);
-			var debug = "placeRegion: ";
 			if (isNaN(targetTrackIndex)) {
-				debug += "not on a valid track: remove";
 				removeRegion(region);
 			} else {
 				var track:Track = tracks[targetTrackIndex] as Track;
@@ -620,38 +623,27 @@
 					}
 				}
 				if (collision) {
-					debug += "existing region at this position: reset";
 					resetLiftedRegion(region);
 				} else if (targetBeatIndex < 0 || targetBeatIndex > MAX_BEATS) {
-					debug += "beyond the range of the mix: reset";
 					resetLiftedRegion(region);
 				} else {
 					PlacedRegionData = {region:region};
 					tracks[region.trackIndex] && tracks[region.trackIndex].removeRegion(region);
-					var debugOldRegionIndex:int = region.regionIndex;
 					track.addRegion(region, targetBeatIndex);
 					if (Region.STATUS_NULL == region.status) {
-						debug += "new region: ADDED";
 						region.status = Region.STATUS_LIVE;
 						region.dispatchEvent(new Event(Mixer.REGION_ADDED, true));
 					} else {
-						debug += "existing region: MOVED";
 						region.dispatchEvent(new Event(Mixer.REGION_MOVED, true));
 					}
-					debug += " (from index " + debugOldRegionIndex + " to " + region.regionIndex + ")";
 				}
 			}
-import flash.events.Event;
-import flash.events.MouseEvent;
-
-import org.stereofyter.mixer.Region;
 			
 			if (trackFieldPushed) {
 				dispatchEvent(new Event(Mixer.SEEK_FINISH));
 				trackFieldPushed = false;
 			}
 			LiftedRegionData = null;
-			//Debug.log(debug);
 		}
 		
 		private function duplicateRegion(region:Region):void {

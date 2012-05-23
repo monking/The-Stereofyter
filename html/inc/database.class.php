@@ -49,16 +49,15 @@ class Database {
             }
             for ($i = 0; $i < count($fields); $i++) {
                 if (!preg_match('/[.(]/', $fields[$i]))
-                    $fields[$i] = 'a.'.$fields[$i];
-                foreach ($query['as'] as $table => $as) {
-                    $fields[$i] = str_replace("$table.", "$as.", $fields[$i]);
-                }
+                    $fields[$i] = $query['table'].'.'.$fields[$i];
+                $fields[$i] = '`'.implode('`.`', explode('.', $fields[$i])).'`';
+                $fields[$i] = str_replace('`*`', '*', $fields[$i]);
             }
             if (array_key_exists('where', $query)) {
                 foreach ($query['where'] as $field => $condition) {
                     if (preg_match('/[.(]/', $field))
                         continue;
-                    $query['where']['a.'.$field] = $condition;
+                    $query['where']['`a`.'.$field] = $condition;
                     unset($query['where'][$field]);
                 }
                 $where = self::get_where($query['where']);
@@ -70,7 +69,11 @@ class Database {
                 $limit = ' LIMIT '.$query['limit'];
             }
             $fields = implode(', ', $fields);
-            $query = "SELECT $fields FROM ${query['table']} AS a$join$where$orderby$limit;";
+            $query_string = "SELECT $fields FROM `${query['table']}` AS `a`$join$where$orderby$limit;";
+            foreach ($query['as'] as $table => $as) {
+                $query_string = str_replace("`$table`.", "`$as`.", $query_string);
+            }
+            $query = $query_string;
         }
         return $this->query($query);
     }
@@ -140,6 +143,7 @@ class Database {
                     $operator = substr($field, $operator_pos) . ' ';
                     $field = substr($field, 0, $operator_pos);
                 }
+                $field = '`'.implode('`.`',explode('.', $field)).'`';
                 //if $value is stdClass with property 'function', use without quotes
                 // as in th case of the value $value->function = 'NOW()'
 				if (get_magic_quotes_gpc()) $value = stripslashes($value);
@@ -163,22 +167,13 @@ class Database {
             foreach ($query['join'] as $table => $options) {
                 $i++;
                 $as = substr($alpha, $i, 1);
-                $join .= " LEFT JOIN $table AS $as ON a.".$options['on'][0]."=$as.".$options['on'][1]."";
-                foreach ($options['fields'] as $field) {
-                    $fields[] = is_array($field) ? str_replace($table, $as, $field[0]) : "$as.$field";
-                }
-                if (isset($query['where'])) {
-                    if (is_array($query['where'])) {
-                        foreach ($query['where'] as $field => $condition) {
-                            if (strpos($field, $table) > -1) {
-                                $query['where'][str_replace($table, $as, $field)] = $condition;
-                                unset($query['where'][$field]);
-                            }
-                        }
-                    } else {
-                        $query['where'] = str_replace($table, $as, $query['where']);
+                $join .= " LEFT JOIN `$table` AS `$as` ON `a`.`".$options['on'][0]."`=`$as`.`".$options['on'][1]."`";
+                if (@$options['fields']) {
+                    foreach ($options['fields'] as $field) {
+                        $fields[] = "$as.$field";
                     }
                 }
+                $query['as'][$table] = $as;
             }
         }
         return (object) array('join'=>$join, 'fields'=>$fields);

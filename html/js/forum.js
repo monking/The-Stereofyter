@@ -1,5 +1,6 @@
 // Forum jQuery Plugin
 // Christopher Lovejoy, http://www.chrislovejoy.com 2012
+var MAX_REPLY_DEPTH = 7; // 0-based reply limit
 (function($){
     $.fn.forum = function(options) {
         options = $.extend({
@@ -137,7 +138,7 @@
                     event.preventDefault();
                     var $post = $(this).closest(".post")
                     var post = thread[threadXRef[$post.attr("ref")]];
-                    if (post.depth >= 9) {
+                    if (post.depth >= MAX_REPLY_DEPTH) {
                         $post = $post.closest(".thread").prev(".post");
                     var post = thread[threadXRef[$post.attr("ref")]];
                     }

@@ -24,26 +24,22 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 }
 if ($mix_id === FALSE)
 	die('{"error":"no mix specified"}');
-$mix_data = $db->get_assoc("SELECT * FROM sf_mixes WHERE id='$mix_id'");
+$mix_data = Mix::load($mix_id);
 if ($mix_data === FALSE)
 	die('{"error":"'.implode('; ', $ERROR).'"}');
 $allow_access = FALSE;
 if (!count($mix_data)) {
-die('{"error":"The requested mix no longer exists."}');
-} else if ($mix_data[0]['published'] == '1') {
-  $allow_access = TRUE;
-} else if (@$user) {
-  $query = "SELECT '1' FROM sf_mix_owners WHERE owner_id='$user->id' AND mix_id='$mix_id'";
-  $result = $db->get($query);
-  if ($result && mysql_num_rows($result))
+    die('{"error":"The requested mix no longer exists."}');
+} else if ($mix_data->published == '1') {
     $allow_access = TRUE;
+} else if (@$user) {
+    $query = "SELECT '1' FROM sf_mix_owners WHERE owner_id='$user->id' AND mix_id='$mix_id'";
+    $result = $db->get($query);
+    if ($result && mysql_num_rows($result))
+        $allow_access = TRUE;
 }
 if ($allow_access) {
-  echo assoc_to_json($mix_data,
-    array(
-    	'structure' => 'flat',
-    	'objects' => array('mix')
-  	));
+    echo Mix::mix_json_encode($mix_data);
 } else {
 	die('{"error":"This mix is not published."}');
 }

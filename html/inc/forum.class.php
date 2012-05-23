@@ -1,10 +1,11 @@
-<?php
+﻿<?php
 
 // NOTE (Christopher Lovejoy):
 // Implementing threads using sortable character-encoded paths.
 // e.g. ".A^@B.sw^5.a32j."
 // each tier has 4 bytes, "." dot delimited
-//   (256^4, 4,294,967,296 possible posts in the whole forum)
+//   current encoding supports 133 sorted characters
+//   (133^4, 312,900,721 possible posts in the whole forum)
 // ------------------------------
 // RETRIEVE A THREAD AT ANY DEPTH
 // ------------------------------
@@ -69,12 +70,12 @@ class Forum extends Basic {
             </div>
         </div>
     </div>';
-    const ascii = '!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~¡¢£§¨©ª«¬®¯°±´µ¶·¸º»¿ÁÂÅÆÇÍÎÏÒÓÔØÚßåæç÷ø';
+    const ascii = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~';
     protected $ascii_depth = 0;
     protected $default_options = array(
         'table'=>'',
         'interfaces'=>array(),
-        'path_tier_bytes'=>4
+        'path_tier_bytes'=>5
     );
     public function Forum($options = array()) {
         parent::__construct($options);
@@ -85,7 +86,6 @@ class Forum extends Basic {
                 $this->interfaces[$key] = new $name();
             }
         }
-        $this->ascii_depth = strlen(self::ascii);
     }
     public function post($data) {
         global $db, $user;
@@ -238,19 +238,19 @@ class Forum extends Basic {
         for ($i = 0; $i < $this->path_tier_bytes; $i++) {
             $index = $number % $this->ascii_depth;
             $number = ($number - $index) / $this->ascii_depth;
-            $output = substr(self::ascii, $index, 1) . $output;
+            $output = mb_substr(self::ascii, $index, 1) . $output;
         }
         return $output;
     }
     public function fromASCII($string) {
         // throw an exception if the string is too long
-        if (strlen($string) > $this->path_tier_bytes) {
+        if (mb_strlen($string) > $this->path_tier_bytes) {
             throw new Exception('string exceeds length for ASCII to decimal conversion. change path_tier_bytes setting.');
         }
         $output = 0;
-        while ($len = strlen($string)) {
-            $index = strpos(self::ascii, substr($string, 0, 1));
-            $string = substr($string, 1);
+        while ($len = mb_strlen($string)) {
+            $index = mb_strpos(self::ascii, mb_substr($string, 0, 1));
+            $string = mb_substr($string, 1);
             $output += $index * pow($this->ascii_depth, $len - 1);
         }
         return $output;

@@ -58,8 +58,10 @@ package org.stereofyter.gui {
 			foreground.addChild(newsletterSignup);
 			loadDialog = new LoadDialog(WebAppController.flashVars.saveUrl, WebAppController.flashVars.mixListUrl);
 			foreground.addChild(loadDialog);
+			loadDialog.visible = false;
 			saveDialog = new SaveDialog(WebAppController.flashVars.saveUrl, WebAppController.flashVars.mixListUrl);
 			foreground.addChild(saveDialog);
+			saveDialog.visible = false;
 			addSiteInfoPane();
 			nav = new SFNavBar();
 			foreground.addChild(nav);
@@ -102,10 +104,9 @@ package org.stereofyter.gui {
 			hoverBlock.y = stage.stageHeight/ 2 - hoverBlock.height / 2;
 		}
 		
-		public function showSaveDialog(mixId:Number = NaN):void {
-			saveDialog.show();
-			if (!isNaN(mixId))
-				saveDialog.selectMixId(mixId);
+		public function showSaveDialog(mixData:Object = null):void {
+			hideLoadDialog();
+			saveDialog.show(mixData);
 		}
 		
 		public function hideSaveDialog():void {
@@ -114,6 +115,7 @@ package org.stereofyter.gui {
 		}
 		
 		public function showLoadDialog():void {
+			hideSaveDialog();
 			loadDialog.show();
 		}
 		

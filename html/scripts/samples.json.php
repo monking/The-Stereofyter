@@ -226,8 +226,8 @@ header('Content-type: application/json; charset=utf-8');
 		{
 			"src":"Afghanistan_Sand_Rabab_1.ogg",
 			"title":"Afghanistan Sand Rabab",
-			"family":"drum",
-			"country":"U.S.A.",
+			"family":"guitar",
+			"country":"Afghanistan",
 			"artist":"",
 			"artistId":"",
 			"tempo":120,
