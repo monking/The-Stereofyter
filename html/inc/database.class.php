@@ -48,9 +48,10 @@ class Database {
                 $fields = array_merge($fields, $join_data->fields);
             }
             for ($i = 0; $i < count($fields); $i++) {
-                if (!preg_match('/[.(]/', $fields[$i]))
+                if (!preg_match('/[.(]/', $fields[$i])) {
                     $fields[$i] = $query['table'].'.'.$fields[$i];
-                $fields[$i] = '`'.implode('`.`', explode('.', $fields[$i])).'`';
+                }
+                $fields[$i] = preg_replace('/(\w+)\.([\w*]+)/', '`$1`.`$2`', $fields[$i]);
                 $fields[$i] = str_replace('`*`', '*', $fields[$i]);
             }
             if (array_key_exists('where', $query)) {
@@ -143,7 +144,7 @@ class Database {
                     $operator = substr($field, $operator_pos) . ' ';
                     $field = substr($field, 0, $operator_pos);
                 }
-                $field = '`'.implode('`.`',explode('.', $field)).'`';
+                $field = preg_replace('/(\w+)\.([\w*]+)/', '`$1`.`$2`', $field);
                 //if $value is stdClass with property 'function', use without quotes
                 // as in th case of the value $value->function = 'NOW()'
 				if (get_magic_quotes_gpc()) $value = stripslashes($value);
@@ -170,7 +171,9 @@ class Database {
                 $join .= " LEFT JOIN `$table` AS `$as` ON `a`.`".$options['on'][0]."`=`$as`.`".$options['on'][1]."`";
                 if (@$options['fields']) {
                     foreach ($options['fields'] as $field) {
-                        $fields[] = "$as.$field";
+                        if (!preg_match('/[.(]/', $field))
+                            $field = "$as.$field";
+                        $fields[] = $field;
                     }
                 }
                 $query['as'][$table] = $as;

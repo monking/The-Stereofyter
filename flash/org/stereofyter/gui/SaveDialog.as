@@ -38,14 +38,14 @@ package org.stereofyter.gui
 		{
 			gotoAndPlay('show');
 			this.mixData = mixData;
-			Debug.deepLog(mixData);
-			if (mixData) {
+			if (mixData && mixData.id) {
 				form.title.text = mixData.title;
 				form.published.selected = mixData.published == "1";
 				form.message.htmlText = mixData.message || "";
 			}
-			if (!mixData || isNaN(mixData.id))
-				form.saveNew.selected = true;
+			form.saveNew.enabled = mixData && !isNaN(mixData.id);
+			form.saveNew.selected = !form.saveNew.enabled;
+			form.saveNew.dispatchEvent(new Event(Event.CHANGE));
 		}
 		public function hide():void
 		{
@@ -71,6 +71,8 @@ package org.stereofyter.gui
 		{
 			if (event.target.selected) {// new mix
 				form.submit.label = 'Save New Mix';
+				form.published.selected = false;
+				form.published.selected = false;
 			} else {// overwriting mix
 				var shortTitle = mixData.title.substr(0,20);
 				if (shortTitle.length < mixData.title.length)
