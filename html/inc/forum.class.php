@@ -33,6 +33,10 @@ class Forum extends Basic {
         </div>
         <div class="preview">
             <div class="right">
+				<form class="search">
+					<input type="text" name="term" placeholder="Search" />
+					<input type="submit" value="Search" class="away" />
+				</form>
                 <a href="#" class="toggle-hide">hide</a>
                 <a href="#" class="set-view" rel="glance">less ▼</a>
             </div>
@@ -181,6 +185,7 @@ class Forum extends Basic {
             $options,
             array(
                 'limit' => 30,
+                'search' => '',
                 'thread' => null,
                 'order' => 'created DESC'
             )
@@ -225,6 +230,16 @@ class Forum extends Basic {
             if ($first) {
                 $query['where'] = array('a.path LIKE'=>$first->thread_path . '%');
             }
+        } else if ($options['search'] != '') {
+			$searchColumns = array('`'.$this->table.'`.`title`');
+			foreach ($this->interfaces['link']->searches as $search) {
+				$searchColumns[] = '`'.$this->interfaces['link']->table.'`.`'.$search.'`';
+			}
+			$searches = array();
+			foreach ($searchColumns as $column) {
+				$searches[$column.' LIKE'] = '%'.$options['search'].'%';
+			}
+			$query['where'] = array('OR'=>$searches);
         } else {
             $query['where'] = array('CHAR_LENGTH(a.path) <'=>($this->path_tier_bytes + 2));
         }

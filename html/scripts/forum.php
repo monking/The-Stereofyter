@@ -2,14 +2,15 @@
 
 require_once('../../config.php');
 
+$offset = @$_REQUEST['offset'] ? $_REQUEST['offset'] : 0;
+$limit = @$_REQUEST['limit'] ? $_REQUEST['limit'] : 10;
+$limit = "$offset,$limit";
 if (@$_REQUEST['recalculate']) {
-    $offset = @$_REQUEST['offset'] ? $_REQUEST['offset'] : '';
-    $limit = @$_REQUEST['limit'] ? $_REQUEST['limit'] : 10;
     $list = $db->get_object(array(
         'table' => $forum->table,
         'fields' => array('path','id'),
         'where' => array('CHAR_LENGTH(path) <'=>'5'),
-        'limit' => $offset ? "$offset,$limit" : $limit
+        'limit' => $limit
     ));
     if (empty($list)) {
         exit('no posts with empty paths to recalculate.');
@@ -18,7 +19,7 @@ if (@$_REQUEST['recalculate']) {
         $db->post(array(
             'method'=>'update',
             'fields'=>array(
-                'path'=>$forum->pathSegmentEncode($post->id).'.'
+                'path'=>$forum->toASCII($post->id).'.'
             ),
             'where' => array('id'=>$post->id),
             'table' => 'sf_mix_messages'
@@ -40,8 +41,8 @@ if (@$_REQUEST['thread']) {
    $options['thread'] = $_REQUEST['thread'];
    $options['order'] = 'path ASC';
 }
-if (@$_REQUEST['limit'])
-   $options['limit'] = $_REQUEST['limit'];
+$options['limit'] = $limit;
+$options['search'] = @$_REQUEST['search'];
 $entries = $forum->get($options);
 if (!$entries)
     $entries = array();

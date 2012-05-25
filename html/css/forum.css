@@ -118,6 +118,10 @@
 #forum .form-field {
     margin: 4px 0;
 }
+/****** SEARCH ******/
+#forum form.search {
+	display: inline;
+}
 /****** PAGINATION ******/
 #forum pager { display: block; }
 #forum pager span { padding: 0 0.2em; cursor: pointer; color: #c35; }

@@ -48,7 +48,7 @@ class Database {
                 $fields = array_merge($fields, $join_data->fields);
             }
             for ($i = 0; $i < count($fields); $i++) {
-                if (!preg_match('/[.(]/', $fields[$i])) {
+                if (!preg_match('/[.(]|^OR$/', $fields[$i])) {
                     $fields[$i] = $query['table'].'.'.$fields[$i];
                 }
                 $fields[$i] = preg_replace('/(\w+)\.([\w*]+)/', '`$1`.`$2`', $fields[$i]);
@@ -56,7 +56,7 @@ class Database {
             }
             if (array_key_exists('where', $query)) {
                 foreach ($query['where'] as $field => $condition) {
-                    if (preg_match('/[.(]/', $field))
+                    if (preg_match('/[.(]|^OR$/', $field))
                         continue;
                     $query['where']['`a`.'.$field] = $condition;
                     unset($query['where'][$field]);
@@ -171,7 +171,7 @@ class Database {
                 $join .= " LEFT JOIN `$table` AS `$as` ON `a`.`".$options['on'][0]."`=`$as`.`".$options['on'][1]."`";
                 if (@$options['fields']) {
                     foreach ($options['fields'] as $field) {
-                        if (!preg_match('/[.(]/', $field))
+                        if (!preg_match('/[.(]|^OR$/', $field))
                             $field = "$as.$field";
                         $fields[] = $field;
                     }

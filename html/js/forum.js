@@ -25,13 +25,18 @@ var MAX_REPLY_DEPTH = 7; // 0-based reply limit
         var threadId
         var thread = [];
         var threadXRef = {};
-        var fetchList = function(offset) {
-            if (!offset)
-                offset = 0;
+        var fetchList = function(fetchOptions) {
+			fetchOptions = $.extend({
+				offset: 0,
+				limit: 50,
+				search: ""
+			}, fetchOptions);
             $.ajax({
                 url: options.api,
                 data: {
-                    limit:100
+					offset:fetchOptions.offset,
+                    limit:fetchOptions.limit,
+                    search:fetchOptions.search
                 },
                 dataType: 'json',
                 success: function(data) {
@@ -92,6 +97,12 @@ var MAX_REPLY_DEPTH = 7; // 0-based reply limit
                 }
             }
         };
+		var search = function(term) {
+			fetchList({
+				search:term,
+				offset:0
+			});
+		};
         var draw = {
             detail: function() {
                 $detailContainer = views[options.view].container;
@@ -173,6 +184,20 @@ var MAX_REPLY_DEPTH = 7; // 0-based reply limit
             list: function() {
                 var $listContainer = views[options.view].container;
                 var $list = $("ul.list", $listContainer).empty();
+				var $searchForm = $("form.search", $listContainer);
+				var $searchInput = $("input[name=term]", $searchForm);
+				var searchInputInterval;
+				$searchForm.submit(function(event) {
+					event.preventDefault();
+					clearTimeout(searchInputInterval);
+					search($searchInput.val());
+				});
+				$searchInput.keyup(function(event) {
+					clearTimeout(searchInputInterval);
+					searchInputInterval = setTimeout(function() {
+						search($searchInput.val());
+					}, 500);
+				});
                 var paging = {
                     offset: options.offset,
                     limit: options.limit[options.view],
