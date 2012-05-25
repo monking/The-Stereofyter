@@ -18,7 +18,7 @@ if (@$_REQUEST['recalculate']) {
         $db->post(array(
             'method'=>'update',
             'fields'=>array(
-                'path'=>$forum->toASCII($post->id).'.'
+                'path'=>$forum->pathSegmentEncode($post->id).'.'
             ),
             'where' => array('id'=>$post->id),
             'table' => 'sf_mix_messages'

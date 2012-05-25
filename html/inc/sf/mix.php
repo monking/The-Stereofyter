@@ -156,7 +156,8 @@ class Mix {
                     'on'=>array('id', 'link_id')
                 )
             ),
-            'where'=>array('sf_mix_owners.owner_id'=>$user_id)
+			'where'=>array('sf_mix_owners.owner_id'=>$user_id),
+			'order'=>'sf_mixes.modified DESC'
         ));
     }
     public static function mix_json_encode($mix_data) {

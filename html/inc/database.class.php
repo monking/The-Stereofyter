@@ -64,7 +64,7 @@ class Database {
                 $where = self::get_where($query['where']);
             }
             if (array_key_exists('order', $query)) {
-                $orderby = ' ORDER BY '.$query['order'];
+                $orderby = ' ORDER BY '.preg_replace('/(\w+)\.([\w*]+)/', '`$1`.`$2`', $query['order']);
             }
             if (array_key_exists('limit', $query)) {
                 $limit = ' LIMIT '.$query['limit'];

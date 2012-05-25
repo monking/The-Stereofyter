@@ -234,7 +234,7 @@ package org.stereofyter {
 				var region:Region = event.target as Region;
 				for (var i:int = 0; i < mixer.regions.length; i++) {
 					var otherRegion:Region = mixer.regions[i];
-					engine.call("setRegionMuted", otherRegion.regionIndex, otherRegion.trackIndex, otherRegion.isMuted || otherRegion.solo == Region.SOLO_OTHER);
+					engine.call("setRegionMuted", otherRegion.regionIndex, otherRegion.trackIndex, otherRegion.solo != Region.SOLO_THIS && (otherRegion.isMuted || otherRegion.solo == Region.SOLO_OTHER));
 				}
 			});
 			mixer.addEventListener(Sample.PREVIEW_TOGGLE, function(event:Event) {

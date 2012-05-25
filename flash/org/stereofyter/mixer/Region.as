@@ -341,7 +341,7 @@ package org.stereofyter.mixer {
     }
 
     private function updateStyle():void {
-      if (Muted || Solo == SOLO_OTHER) {
+      if (Solo != SOLO_THIS && (Muted || Solo == SOLO_OTHER)) {
 
         var mat:Array = [ .50,.50,.50,0,0,
                           .50,.50,.50,0,0,

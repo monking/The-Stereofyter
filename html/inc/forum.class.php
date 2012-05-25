@@ -70,8 +70,8 @@ class Forum extends Basic {
             </div>
         </div>
     </div>';
-    const ascii = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~';
-    protected $ascii_depth = 0;
+    const path_enc_set = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~';
+    protected $path_encode_base = 0;
     protected $default_options = array(
         'table'=>'',
         'interfaces'=>array(),
@@ -79,6 +79,7 @@ class Forum extends Basic {
     );
     public function Forum($options = array()) {
         parent::__construct($options);
+		$this->path_encode_base = strlen(self::path_enc_set);
         if (!$this->table) die('Forum requires a database table.');
         if ($this->interfaces) {
             foreach ($this->interfaces as $key => $name) {
@@ -143,26 +144,28 @@ class Forum extends Basic {
                 )
             ));
             $data['id'] = mysql_insert_id();
-            $path = $this->toASCII($data['id']) . '.';
-            if (@$data['reply_on_id'] && $data['reply_on_id'] != -1) {
-                $parent = $db->get_first_object(array(
-                    'table'=>$this->table,
-                    'fields'=>array('path'),
-                    'where'=>array('id'=>$data['reply_on_id'])
-                ));
-                if (!empty($parent))
-                    $path = $parent->path . $path;
-            }
-            $db->post(array(
-                'table' => $this->table,
-                'method' => 'update',
-                'fields' => array(
-                    'path' => $path
-                ),
-                'where' => array(
-                    'id' => $data['id']
-                )
-            ));
+			if ($data['id']) {
+				$path = $this->pathSegmentEncode($data['id']) . '.';
+				if (@$data['reply_on_id'] && $data['reply_on_id'] != -1) {
+					$parent = $db->get_first_object(array(
+						'table'=>$this->table,
+						'fields'=>array('path'),
+						'where'=>array('id'=>$data['reply_on_id'])
+					));
+					if (!empty($parent))
+						$path = $parent->path . $path;
+				}
+				$db->post(array(
+					'table' => $this->table,
+					'method' => 'update',
+					'fields' => array(
+						'path' => $path
+					),
+					'where' => array(
+						'id' => $data['id']
+					)
+				));
+			}
         }
         if ($data['id']) {
             return $this->resultObject('ok', 'message posted', array(
@@ -228,30 +231,30 @@ class Forum extends Basic {
         $list = $db->get_object($query);
         return $list;
     }
-    public function toASCII($number) {
+    public function pathSegmentEncode($number) {
         // throw an exception if the number is too large
-        if ($number > pow($this->ascii_depth, $this->path_tier_bytes)) {
+        if ($number > pow($this->path_encode_base, $this->path_tier_bytes)) {
             exit(''.$number);
-            throw new Exception('number exceeds size for decimal to ASCII conversion. change path_tier_bytes setting.');
+            throw new Exception('number exceeds size for decimal to path base conversion. change path_tier_bytes setting.');
         }
         $output = '';
         for ($i = 0; $i < $this->path_tier_bytes; $i++) {
-            $index = $number % $this->ascii_depth;
-            $number = ($number - $index) / $this->ascii_depth;
-            $output = mb_substr(self::ascii, $index, 1) . $output;
+            $index = $number % $this->path_encode_base;
+            $number = ($number - $index) / $this->path_encode_base;
+            $output = substr(self::path_enc_set, $index, 1) . $output;
         }
         return $output;
     }
-    public function fromASCII($string) {
+    public function pathSegmentDecode($string) {
         // throw an exception if the string is too long
-        if (mb_strlen($string) > $this->path_tier_bytes) {
-            throw new Exception('string exceeds length for ASCII to decimal conversion. change path_tier_bytes setting.');
+        if (strlen($string) > $this->path_tier_bytes) {
+            throw new Exception('string exceeds length for path base to decimal conversion. change path_tier_bytes setting.');
         }
         $output = 0;
-        while ($len = mb_strlen($string)) {
-            $index = mb_strpos(self::ascii, mb_substr($string, 0, 1));
-            $string = mb_substr($string, 1);
-            $output += $index * pow($this->ascii_depth, $len - 1);
+        while ($len = strlen($string)) {
+            $index = strpos(self::path_enc_set, substr($string, 0, 1));
+            $string = substr($string, 1);
+            $output += $index * pow($this->path_encode_base, $len - 1);
         }
         return $output;
     }

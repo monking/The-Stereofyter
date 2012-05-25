@@ -100,6 +100,7 @@
 			djSide:String,
 			loading:Boolean = false,
 			parsing:Boolean = false,
+			soloRegion:Region = null,
 			_addedSample:Sample;
 		
 		public function Mixer(width:Number = 500, height:Number = 240, trackCount:Number = 8):void {
@@ -507,7 +508,7 @@
 					}
 				}
 			}
-			var soloRegion:Region = null;
+			soloRegion = null
 			var parseTimer:Timer = new Timer(PARSE_REGION_INTERVAL, 1);
 			
 			clearBins();
@@ -740,7 +741,15 @@
 					switch (event.keyCode) {
 						case Keyboard.HOME:
 						case Keyboard.ENTER:
-							dispatchEvent(new Event(Mixer.REWIND));
+							if (soloRegion) {
+								var track:Track = soloRegion.parent as Track;
+								PlaybackPosition = track.getRegionBeat(soloRegion);
+								dispatchEvent(new Event(Mixer.SEEK_FINISH));
+							} else {
+								dispatchEvent(new Event(Mixer.REWIND));
+							}
+							if (!isPlaying)
+								dispatchEvent(new Event(Mixer.PLAY));
 							break;
 						case Keyboard.ESCAPE:
 							dispatchEvent(new Event(Mixer.STOP));
@@ -942,6 +951,10 @@
 			addEventListener(Region.SOLO, function(event:Event) {
 				var region = event.target as Region;
 				region.toggleSolo();
+				if (region.solo == Region.SOLO_THIS)
+					soloRegion = region;
+				else
+					soloRegion = null;
 				for (var i:int = 0; i < Regions.length; i++) {
 					if (Regions[i] !== region) {
 						Regions[i].setSolo(region.solo == Region.SOLO_THIS? Region.SOLO_OTHER: Region.SOLO_NONE);

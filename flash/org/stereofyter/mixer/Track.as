@@ -139,10 +139,8 @@ package org.stereofyter.mixer {
 			for (var i:int = 0; i < Beats.length; i++) {
 				if (Beats[i]) {
 					lastBeatIndex = i;
-					Debug.log(lastBeatIndex, "lastBeatIndex");
 				}
 			}
-			Debug.log(Beats[lastBeatIndex], "REALLY THE LAST BEAT INDEX");
 			if (lastBeatIndex === -1) return 0;
 			return Number(lastBeatIndex) * 60000 / Tempo + Beats[lastBeatIndex].duration;
 		}
